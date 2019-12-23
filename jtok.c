@@ -91,6 +91,7 @@ static parseRetval_t retokenize(jparser_t *parser,
 
   //temporary variables
   jtok_t *token;
+  word_t temp;
 
   //initialize the parser
   parser->pos = 0;
@@ -320,7 +321,8 @@ static parseRetval_t retokenize(jparser_t *parser,
               fill_token(token, JTOK_NUM, parser->start, parser->pos);
               token->parent = parser->toksuper; //link to parent
 
-              //parser->pos--; //NOT SURE WHY I NEED THIS HERE
+              //restore parent object index.
+              parser->toksuper = parser->tokens[token->parent].parent;
 
               result.cnt += 1;
               parser->tokens[token->parent].size += 1; //increase size of parent object
