@@ -5,7 +5,8 @@ Source is JSMN Source with a few modifications from Carl
 */
 
 #include <stdlib.h>
-
+#include <stdio.h>
+#include <ctype.h> /* included for character type checking */
 #include "jtokens.h"
 
 /**
@@ -22,9 +23,7 @@ static jtok_t *alloc_token(token_parser *parser,
 	tok = &tokens[parser->toknext++];
 	tok->start = tok->end = -1;
 	tok->size = 0;
-#ifdef PARENT_TOKEN_LINKS
 	tok->parent = -1;
-#endif
 	return tok;
 }
 
@@ -41,162 +40,172 @@ static void fill_token(jtok_t *token, jtokType_t type,
 }
 
 /**
- * Fills next available token with JSON primitive.
+	 * Fills next available token with JSON primitive.
  */
-static parseRetval_t parse_primitive(token_parser *parser, const char *js,
-																		 size_t len, jtok_t *tokens, size_t num_tokens)
+static parseRetval_t tokenize_primitive(token_parser *parser, const char *json,
+																				size_t len, jtok_t *tokens, size_t num_tokens)
 {
 	jtok_t *token;
-	word_t start;
-
-	start = parser->pos;
-
-	for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
+	parseRetval_t retval = PARSE_OK;
+	word_t start = parser->pos;
+	for (; retval == PARSE_OK && parser->pos < len; parser->pos++)
 	{
-		switch (js[parser->pos])
+		if (json[parser->pos] == '\0')
 		{
-#ifndef JSON_STRICT
-		/* In strict mode primitive must be followed by "," or "}" or "]" */
-		case ':':
-#endif
-		case '\t':
-		case '\r':
-		case '\n':
-		case ' ':
-		case ',':
-		case ']':
-		case '}':
-			goto found;
+			/* reached end of json string before end of token */
+			parser->pos = start;
+			printf("returning TOKERR_PART from within tokenize_primitive. rest of json is %s> <\n", &json[parser->pos]);
+			retval = TOKERR_PART; /* only have a partial json */
+			break;
 		}
-		if (js[parser->pos] < 32 || js[parser->pos] >= 127)
+		switch (json[parser->pos])
+		{
+		/* found end of the token */
+		case '\t': /* tab (whitespace) */
+		case '\r': /* carriage return */
+		case '\n': /* linefeed */
+		case ' ':	/* space (whitespace) */
+		case ',':	/* start of new key */
+		case ']':	/* end of array */
+		case '}':	/* end of object */
+			if (tokens == NULL)
+			{
+				parser->pos--;
+				retval = PARSE_OK;
+			}
+			else
+			{
+				token = alloc_token(parser, tokens, num_tokens);
+				if (token == NULL)
+				{
+					parser->pos = start;
+					retval = TOKERR_NOMEM;
+				}
+				else
+				{
+					fill_token(token, JSMN_PRIMITIVE, start, parser->pos);
+					token->parent = parser->toksuper;
+					parser->pos--;
+					retval = PARSE_OK;
+				}
+			}
+		case '\'':
+		case '\"':
+			/* something strange is going on in this case. end quote without a start quote 
+				* This would also catch the case wherein my logic 
+				* 		interprets a string as a primitive for some reason 
+				*/
+			retval = TOKERR_INVAL;
+			break;
+		}
+		if (iscntrl(json[parser->pos])) /* control characters are errors */
 		{
 			parser->pos = start;
 			return TOKERR_INVAL;
 		}
 	}
-#ifdef JSON_STRICT
-	/* In strict mode primitive must be followed by a comma/object/array */
-	parser->pos = start;
-	return TOKERR_PART;
-#endif
-
-found:
-	if (tokens == NULL)
-	{
-		parser->pos--;
-		return (parseRetval_t)0;
-	}
-	token = alloc_token(parser, tokens, num_tokens);
-	if (token == NULL)
-	{
-		parser->pos = start;
-		return TOKERR_NOMEM;
-	}
-	fill_token(token, JSMN_PRIMITIVE, start, parser->pos);
-#ifdef PARENT_TOKEN_LINKS
-	token->parent = parser->toksuper;
-#endif
-	parser->pos--;
-	return (parseRetval_t)0;
+	return retval;
 }
 
-/**
- * Filsl next token with JSON string.
- */
-static parseRetval_t parse_string(token_parser *parser, const char *js,
-																	size_t len, jtok_t *tokens, size_t num_tokens)
+static parseRetval_t tokenize_string(token_parser *parser,
+																		 const char *json,
+																		 size_t len, jtok_t *tokens,
+																		 size_t num_tokens)
 {
-	jtok_t *token;
+	parseRetval_t retval; /* track parsing status */
+	jtok_t *token;				/* tkn index */
 
-	word_t start = parser->pos;
-
-	parser->pos++;
-
-	/* Skip starting quote */
-	for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
+	/* advance index to parser's index and skip starting quote */
+	word_t start = parser->pos++;
+	for (retval = PARSE_OK; retval == PARSE_OK && parser->pos < len; parser->pos++)
 	{
-		char c = js[parser->pos];
-
-		/* Quote: end of string */
-		if (c == '\"')
+		/* ctype.h :: iscntrl returns 0 for NONCONTROL CHARS */
+		if (iscntrl(json[parser->pos]) == 0)
 		{
-			if (tokens == NULL)
+			switch (json[parser->pos])
 			{
-				return (parseRetval_t)0;
-			}
-			token = alloc_token(parser, tokens, num_tokens);
-			if (token == NULL)
-			{
+			case '\0':
 				parser->pos = start;
-				return TOKERR_NOMEM;
-			}
-			fill_token(token, JSMN_STRING, start + 1, parser->pos);
-#ifdef PARENT_TOKEN_LINKS
-			token->parent = parser->toksuper;
-#endif
-			return (parseRetval_t)0;
-		}
-
-		/* Backslash: Quoted symbol expected */
-		if (c == '\\' && parser->pos + 1 < len)
-		{
-			word_t i;
-			parser->pos++;
-			switch (js[parser->pos])
-			{
-			/* Allowed escaped symbols */
-			case '\"':
-			case '/':
-			case '\\':
-			case 'b':
-			case 'f':
-			case 'r':
-			case 'n':
-			case 't':
+				retval = TOKERR_PART;
 				break;
-			/* Allows escaped symbol \uXXXX */
-			case 'u':
-				parser->pos++;
-				for (i = 0; i < 4 && parser->pos < len && js[parser->pos] != '\0'; i++)
+			case '\'': /* dont permit single quoting */
+				parser->pos = start;
+				retval = TOKERR_INVAL;
+				break;
+			case '\"': /* found end of the "string" */
+				if (tokens != NULL)
 				{
-					/* If it isn't a hex character we have an error */
-					if (!((js[parser->pos] >= 48 && js[parser->pos] <= 57) || /* 0-9 */
-								(js[parser->pos] >= 65 && js[parser->pos] <= 70) || /* A-F */
-								(js[parser->pos] >= 97 && js[parser->pos] <= 102)))
-					{ /* a-f */
+					/* get a new token */
+					if ((token = alloc_token(parser, tokens, num_tokens)) == NULL)
+					{
+						/* error if we couldnt allocate */
 						parser->pos = start;
-						return TOKERR_INVAL;
+						retval = TOKERR_NOMEM;
+						break;
 					}
-					parser->pos++;
+					else
+					{
+						/* populate the token fields */
+						/* use start + 1 so the starting index isnt the >"< character */
+						fill_token(token, JSMN_STRING, start + 1, parser->pos);
+						token->parent = parser->toksuper;
+						break;
+					}
 				}
-				parser->pos--;
 				break;
-			/* Unexpected symbol */
-			default:
-				parser->pos = start;
-				return TOKERR_INVAL;
+			case '\\': /* escape character found */
+				if (++(parser->pos) < len)
+				{
+					switch (json[parser->pos])
+					{
+					case '\"':
+					case '/':
+					case '\\':
+					case 'b': /* uncertain if backspace escape is safe.. */
+					case 'f':
+					case 'r':
+					case 'n':
+					case 't':
+						break;
+					default: /* invalid escape character */
+						parser->pos = start;
+						retval = TOKERR_INVAL;
+						break;
+					}
+				}
+				break;
+			default: /* do nothing for every other printable character */
+				break;
 			}
+		}
+		else /* control characters are errors */
+		{
+			parser->pos = start;
+			retval = TOKERR_INVAL;
+			break;
 		}
 	}
-	parser->pos = start;
-	return TOKERR_PART;
+
+	//todo: REMOVE POST DEBUG. i'd use ifdef bug embedded platforms dont have printf :(
+	printf("before return from tokenize_string, status = %s\n", parseStatusMsg[retval]);
+	return retval;
 }
 
 /**
  * Parse JSON string and fill tokens.
  */
-parseRetval_t jtokenize(token_parser *parser,
-														const char *js,
-														size_t len,
-														jtok_t *tokens,
-														uword_t num_tokens)
+
+tokenizationResult_t jtokenize(token_parser *parser,
+															 const char *js,
+															 size_t len,
+															 jtok_t *tokens,
+															 uword_t num_tokens)
 {
-	parseRetval_t r;
+	tokenizationResult_t res;
 	word_t i;
 	jtok_t *token;
-	word_t count = 0;
 
-	for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
+	for (res.status = PARSE_OK; res.status == PARSE_OK && parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
 	{
 		char c;
 		jtokType_t type;
@@ -204,92 +213,84 @@ parseRetval_t jtokenize(token_parser *parser,
 		c = js[parser->pos];
 		switch (c)
 		{
-		case '{':
+
+		case '{': /* found start of parent object */
 		case '[':
-			count++;
-			if (tokens == NULL)
+			res.count++;
+			if (tokens != NULL)
 			{
-				break;
+				token = alloc_token(parser, tokens, num_tokens);
+				if (token == NULL)
+				{
+					res.status = TOKERR_NOMEM;
+				}
+				else
+				{
+					/* link to parent (and update parent size)*/
+					if (parser->toksuper != -1)
+					{
+						tokens[parser->toksuper].size++;
+						token->parent = parser->toksuper;
+					}
+
+					/* determine type of parent object */
+					token->type = (c == '{' ? JSMN_OBJECT : JSMN_ARRAY);
+					token->start = parser->pos;
+					parser->toksuper = parser->toknext - 1;
+				}
 			}
-			token = alloc_token(parser, tokens, num_tokens);
-			if (token == NULL)
-				return TOKERR_NOMEM;
-			if (parser->toksuper != -1)
-			{
-				tokens[parser->toksuper].size++;
-#ifdef PARENT_TOKEN_LINKS
-				token->parent = parser->toksuper;
-#endif
-			}
-			token->type = (c == '{' ? JSMN_OBJECT : JSMN_ARRAY);
-			token->start = parser->pos;
-			parser->toksuper = parser->toknext - 1;
 			break;
-		case '}':
+		case '}': /* found end of parent object */
 		case ']':
-			if (tokens == NULL)
-				break;
-			type = (c == '}' ? JSMN_OBJECT : JSMN_ARRAY);
-#ifdef PARENT_TOKEN_LINKS
-			if (parser->toknext < 1)
+			if (tokens != NULL)
 			{
-				return TOKERR_INVAL;
-			}
-			token = &tokens[parser->toknext - 1];
-			for (;;)
-			{
-				if (token->start != -1 && token->end == -1)
+				type = (c == '}' ? JSMN_OBJECT : JSMN_ARRAY);
+				if (parser->toknext < 1)
 				{
-					if (token->type != type)
+					res.status = TOKERR_INVAL;
+				}
+				else
+				{
+					token = &tokens[parser->toknext - 1];
+					for (;;)
 					{
-						return TOKERR_INVAL;
+						/* safety check for unpopulated token */
+						if (token->start != -1 && token->end == -1)
+						{
+							if (token->type != type) /* validate token type */
+							{
+								res.status = TOKERR_INVAL;
+							}
+							else /* update superior node and set token's end idx */
+							{
+								token->end = parser->pos + 1;
+								parser->toksuper = token->parent;
+							}
+							break;
+						}
+
+						/* jump to parent if it exists */
+						if (token->parent != -1)
+						{
+							token = &tokens[token->parent];
+						}
 					}
-					token->end = parser->pos + 1;
-					parser->toksuper = token->parent;
-					break;
-				}
-				if (token->parent == -1)
-				{
-					break;
-				}
-				token = &tokens[token->parent];
-			}
-#else
-			for (i = parser->toknext - 1; i >= 0; i--)
-			{
-				token = &tokens[i];
-				if (token->start != -1 && token->end == -1)
-				{
-					if (token->type != type)
-					{
-						return TOKERR_INVAL;
-					}
-					parser->toksuper = -1;
-					token->end = parser->pos + 1;
-					break;
 				}
 			}
-			/* Error if unmatched closing bracket */
-			if (i == -1)
-				return TOKERR_INVAL;
-			for (; i >= 0; i--)
-			{
-				token = &tokens[i];
-				if (token->start != -1 && token->end == -1)
-				{
-					parser->toksuper = i;
-					break;
-				}
-			}
-#endif
 			break;
-		case '\"':
-			r = parse_string(parser, js, len, tokens, num_tokens);
-			if (r < 0)
-				return r;
-			count++;
-			if (parser->toksuper != -1 && tokens != NULL)
-				tokens[parser->toksuper].size++;
+		case '\"': /* found the starting quote of a string key/val */
+
+			printf("before tokenizing string, token_status == %d\n", res.status);
+
+			if ((res.status = tokenize_string(parser, js, len, tokens, num_tokens)) == PARSE_OK)
+			{
+
+				res.count++;
+				if (parser->toksuper != -1 && tokens != NULL)
+				{
+					tokens[parser->toksuper].size++;
+				}
+			}
 			break;
 		case '\t':
 		case '\r':
@@ -304,25 +305,10 @@ parseRetval_t jtokenize(token_parser *parser,
 					tokens[parser->toksuper].type != JSMN_ARRAY &&
 					tokens[parser->toksuper].type != JSMN_OBJECT)
 			{
-#ifdef PARENT_TOKEN_LINKS
 				parser->toksuper = tokens[parser->toksuper].parent;
-#else
-				for (i = parser->toknext - 1; i >= 0; i--)
-				{
-					if (tokens[i].type == JSMN_ARRAY || tokens[i].type == JSMN_OBJECT)
-					{
-						if (tokens[i].start != -1 && tokens[i].end == -1)
-						{
-							parser->toksuper = i;
-							break;
-						}
-					}
-				}
-#endif
 			}
 			break;
-#ifdef JSON_STRICT
-		/* In strict mode primitives are: numbers and booleans */
+		/* primitives are: numbers and booleans */
 		case '-':
 		case '0':
 		case '1':
@@ -341,42 +327,57 @@ parseRetval_t jtokenize(token_parser *parser,
 			if (tokens != NULL)
 			{
 				jtok_t *t = &tokens[parser->toksuper];
-				if (t->type == JSMN_OBJECT ||
-						(t->type == JSMN_STRING && t->size != 0))
+				if (t->type == JSMN_OBJECT || (t->type == JSMN_STRING && t->size != 0))
 				{
-					return TOKERR_INVAL;
+					res.status = TOKERR_INVAL;
 				}
 			}
-#else
-		/* In non-strict mode every unquoted value is a primitive */
-		default:
-#endif
-			r = parse_primitive(parser, js, len, tokens, num_tokens);
-			if (r < 0)
-				return r;
-			count++;
-			if (parser->toksuper != -1 && tokens != NULL)
-				tokens[parser->toksuper].size++;
-			break;
 
-#ifdef JSON_STRICT
-		/* Unexpected char in strict mode */
-		default:
-			return TOKERR_INVAL;
-#endif
+			printf("before tokenizing primitive, token_status == %d\n", res.status);
+			if ((res.status = tokenize_primitive(parser, js, len, tokens, num_tokens)) == PARSE_OK)
+			{
+				res.count++;
+				if (parser->toksuper != -1 && tokens != NULL)
+				{
+					tokens[parser->toksuper].size++;
+				}
+			}
+			else
+			{
+				printf("after tokenizing primitive, token_status == %d\n", res.status);
+			}
+
+			break;
+		default: /* unexpected character */
+			res.status = TOKERR_INVAL;
+			break;
 		}
 	}
 
+	/* go through and make sure every token has a start + end index */
+	/* if not, we didnt actually receive a full JSON */
 	for (i = parser->toknext - 1; i >= 0; i--)
 	{
 		/* Unmatched opened object or array */
 		if (tokens[i].start != -1 && tokens[i].end == -1)
 		{
-			return TOKERR_PART;
+			printf("returning TOKERR_PART FROM inside jtokenize. check for start != -1 and end != -1 failed!\n");
+			res.status = TOKERR_PART;
+			break;
+		}
+		else
+		{
+			printf("token[%d].start  = %d\n"
+						 "token[%d].end    = % d\n"
+						 "token[%d].size   = % d\n"
+						 "token[%d].parent = % d\n\n",
+						 i, tokens[i].start, 
+						 i, tokens[i].end, 
+						 i, tokens[i].size, 
+						 i, tokens[i].parent);
 		}
 	}
-
-	return (parseRetval_t)count;
+	return res;
 }
 
 /**

@@ -30,6 +30,7 @@ typedef enum
  * @param		type	type (object, array, string etc.)
  * @param		start	start position in JSON data string
  * @param		end		end position in JSON data string
+ * @param       parent  token index of parent node (object/array)
  */
 typedef struct
 {
@@ -37,9 +38,7 @@ typedef struct
     word_t start;
     word_t end;
     word_t size;
-#ifdef PARENT_TOKEN_LINKS
     word_t parent;
-#endif
 } jtok_t;
 
 typedef enum
@@ -107,6 +106,12 @@ static const char *parseStatusMsg[] = {
     "PARSE FAILED: UNABLE TO MATCH A KEY",
 };
 
+typedef struct
+{
+    parseRetval_t status;
+    uword_t count;
+} tokenizationResult_t;
+
 /**
  * Create JSON parser over an array of tokens
  */
@@ -118,9 +123,9 @@ void jtok_init(token_parser *parser);
  * It parses a JSON data string word_to and array of tokens, each describing
  * a single JSON object.
  */
-parseRetval_t jtokenize(token_parser *parser,
-                        const char *js,
-                        size_t len,
-                        jtok_t *tokens,
-                        uword_t num_tokens);
+tokenizationResult_t jtokenize(token_parser *parser,
+                               const char *js,
+                               size_t len,
+                               jtok_t *tokens,
+                               uword_t num_tokens);
 #endif
