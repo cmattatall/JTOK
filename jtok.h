@@ -53,10 +53,7 @@ typedef struct
 } parseRetval_t;
 
 
-parseRetval_t jtokenize(jparser_t *parser,
-                        const char *json,
-                        uword_t max_len
-                        );
+parseRetval_t jtokenize(jparser_t *parser,const char *json);
 
 
 #endif

@@ -42,35 +42,13 @@ int main(void)
 
   int j = 0;
 
-  /*
-  jsmn_parser parser;
-  jsmn_init(&parser);
-
-  jsmntok_t tkns[30];
-
-  uint8_t cnt = jsmn_parse(&parser, jsons[j], strlen(jsons[j]), tkns, 30);
-  if (cnt > 0)
-  {
-    printf("successfully parsed %d num tokens\n", cnt);
-
-    int t;
-    for (t = 0; t < cnt; t++)
-    {
-      tprint(jsons[j], tkns[t]);
-    }
-  }
-  else
-  {
-    printf("error with jsmn parse. cnt = %d\n", cnt);
-  }
-  */
 
   jtok_t *tokens;
 
   jparser_t parser;
 
   parseRetval_t ret; 
-  ret = jtokenize(&parser, jsons[j], strlen(jsons[j]));
+  ret = jtokenize(&parser, jsons[j]);
   
   printf("status = %d, cnt = %d\n", ret.status, ret.cnt);
   if(ret.status == JPARSE_OK)
