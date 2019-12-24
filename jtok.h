@@ -2,11 +2,12 @@
 #define JTOK
 #include <stdint.h>
 
+
 typedef uint32_t uword_t;
-typedef int32_t  word_t;
+typedef int32_t word_t;
 
-
-#define BASE_TKN_GUESS 20 //start guess at 20 tokens
+#define BASE_TCNT_GUESS 20 //start guess at 20 tokens
+#define MAX_STACK_TCNT 50
 
 typedef enum
 {
@@ -20,11 +21,15 @@ typedef enum
 typedef enum
 {
   JPARSE_OK,
-  JPARSE_NOHEAP,
+  JPARSE_NOMEM,
   JPARSE_INVAL,
   JPARSE_PARTIAL,
   JPARSE_NULLSTR,
   JPARSE_NULLTKNS,
+  JPARSE_CRITICAL,
+  #ifdef TOKEN_HEAP
+  JPARSE_MAXHEAP_ATTEMPTS,
+  #endif
 } jparseCode_t;
 
 typedef struct
@@ -43,7 +48,13 @@ typedef struct
   uword_t pos;     /* current offset in the JSON string */
   uword_t toknext; /* next token to allocate */
   word_t toksuper; /* superior token node, tracks current parent object or array */
-  jtok_t *tokens;  /* ptr to tokens allocated on heap */
+
+  /* ptr to array of tokens */
+  #ifdef TOKEN_HEAP
+  jtok_t *tokens;  
+  #else
+  jtok_t tokens[MAX_STACK_TCNT];  
+  #endif
 } jparser_t;
 
 typedef struct

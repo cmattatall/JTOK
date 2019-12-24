@@ -2,8 +2,12 @@
 #define __JSMN_H_
 
 #include <stddef.h>
+#include <stdint.h>
 
 #define JSMN_PARENT_LINKS
+
+typedef uint32_t uword_t;
+typedef int32_t word_t;
 
 #ifdef __cplusplus
 extern "C" {

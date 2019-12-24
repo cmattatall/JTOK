@@ -4,11 +4,21 @@
    Author: Carl Mattatall
 */
 
+#define JTOK_VERBOSE
+
 #include "jtok.h"
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
+
+
+// user adds their own implementation for their embedded platform
+static void transmit(const char *const c)
+{
+  printf("%s", c);
+}
 
 static parseRetval_t retokenize(jparser_t *parser, const char *json, uword_t num_tokens);
 
@@ -17,61 +27,60 @@ static void fill_token(jtok_t *token,
                        word_t start,
                        word_t end);
 
-static jtok_t *alloc_token(jparser_t *parser,
-                           uword_t num_tokens);
+static jtok_t *alloc_token(jparser_t *parser, uword_t num_tokens);
 
-#include <stdio.h.>
-#include <assert.h>
 
-static void tprint(const char *json, jtok_t t)
-{
-  int i;
-  for (i = t.start; i < t.end; i++)
-  {
-    printf("%c", json[i]);
-  }
-  printf("\ntype   : %d"
-         "\nstart  : %d"
-         "\nend    : %d"
-         "\nsize   : %d"
-         "\nparent : %d\n\n",
-         t.type,
-         t.start,
-         t.end,
-         t.size,
-         t.parent);
-}
-
+//for some reason the heap implementation isnt working on stm despite allocating 8192 heap addresses.
+//I'm going to use a stack based implementation for now.
 parseRetval_t jtokenize(jparser_t *parser, const char *json)
 {
   parseRetval_t result;
 
-  // need to make this null so it gets assigned an address on heap
-  parser->tokens = NULL;
+#ifdef TOKEN_HEAP
+  parser->tokens = NULL; //init as precaution
+#endif
 
-  if (json == NULL)
+  if (json == NULL) //for when some idiot passes a null pointer as a string param
   {
     result.status = JPARSE_NULLSTR;
   }
-  else
+  else //normal usecase
   {
-    uword_t num_tokens = BASE_TKN_GUESS;
-    do
-    {
-      num_tokens = num_tokens * 2 + 1;
-      parser->tokens = (jtok_t *)realloc(parser->tokens, sizeof(jtok_t) * num_tokens);
-      result = retokenize(parser, json, num_tokens);
-    } while (result.status == JPARSE_NOHEAP);
+#ifdef TOKEN_HEAP
+    const uword_t max_safe_loops = 20;
+    word_t num_loops = max_safe_loops;
+    word_t num_tokens = BASE_TCNT_GUESS;
 
+    result = retokenize(parser, json, num_tokens); //attempt to parse again
+
+    //if failed due to alloc, retry several times with larger array size
+    while (result.status == JPARSE_NOMEM)
+      ;
+    {
+      if (parser->tokens != NULL)
+      {
+        free(parser->tokens);
+      }
+      parser->tokens = calloc((num_tokens = num_tokens * 2 + 1), sizeof(jtok_t));
+      result = retokenize(parser, json, num_tokens);
+      if (!--num_loops) //safety check
+      {
+        result.status = JPARSE_MAXHEAP_ATTEMPTS; //safety condition exceeded
+      }
+    }
     if (result.status != JPARSE_OK)
     {
       free(parser->tokens);
       parser->tokens = NULL;
     }
+#else
+    result = retokenize(parser, json, MAX_STACK_TCNT);
+#endif
   }
   return result;
 }
 
+/* This hides the actual parsing functionality and memory management from the user */
 static parseRetval_t retokenize(jparser_t *parser,
                                 const char *json,
                                 uword_t num_tokens)
@@ -79,6 +88,10 @@ static parseRetval_t retokenize(jparser_t *parser,
   parseRetval_t result;
   result.status = JPARSE_OK;
   result.cnt = 0;
+
+#if defined(JTOK_DEBUG) || defined(JTOK_VERBOSE)
+  uint8_t debug_msg[250];
+#endif
 
   // the parse state
   enum
@@ -91,7 +104,6 @@ static parseRetval_t retokenize(jparser_t *parser,
 
   //temporary variables
   jtok_t *token;
-  word_t temp;
 
   //initialize the parser
   parser->pos = 0;
@@ -108,270 +120,294 @@ static parseRetval_t retokenize(jparser_t *parser,
     for (; result.status == JPARSE_OK && json[parser->pos] != '\0'; parser->pos += 1)
     {
       jtokType_t type;
-
-      if (iscntrl(json[parser->pos]) == 0) //if current char is not a control character
+      switch (state)
       {
-        printf("%d : >%c<  state = %d,  cnt = %d, super = %d, status = %d | ", parser->pos, json[parser->pos], state, result.cnt, parser->toksuper, result.status);
-        switch (state)
+      case OBJECT:
+        switch (json[parser->pos])
         {
-        case OBJECT:
-          switch (json[parser->pos])
+        case '{': //start of parent object
+        case '[':
+          result.cnt += 1;
+          if ((token = alloc_token(parser, num_tokens)) == NULL)
           {
-          case '{': //start of parent object
-          case '[':
-            printf("found start of obj | ");
-            result.cnt += 1;
-            if ((token = alloc_token(parser, num_tokens)) == NULL)
+            result.status = JPARSE_NOMEM;
+          }
+          else
+          {
+            //if object has a parent node, increment the parent node's size
+            if (parser->toksuper != -1)
             {
-              result.status = JPARSE_NOHEAP;
+              parser->tokens[parser->toksuper].size += 1;
+              token->parent = parser->toksuper;
             }
-            else
-            {
-              //if object has a parent node, increment the parent node's size
-              if (parser->toksuper != -1)
-              {
-                parser->tokens[parser->toksuper].size += 1;
-                token->parent = parser->toksuper;
-              }
-              token->type = (json[parser->pos] == '{' ? JTOK_OBJ : JTOK_ARR);
-              token->start = parser->pos;
-              parser->toksuper = parser->toknext - 1;
-            }
-            break;
-          case '}': //end of parent object
-          case ']':
-            printf("found end of object | ");
-            type = (json[parser->pos] == '}' ? JTOK_OBJ : JTOK_ARR);
-            if (parser->toknext < 1)
-            {
-              result.status = JPARSE_INVAL;
-            }
-            else
-            {
-              token = &(parser->tokens[parser->toknext - 1]);
+            token->type = (json[parser->pos] == '{' ? JTOK_OBJ : JTOK_ARR);
+            token->start = parser->pos;
+            parser->toksuper = parser->toknext - 1;
+          }
+          break;
+        case '}': //end of parent object
+        case ']':
+          type = (json[parser->pos] == '}' ? JTOK_OBJ : JTOK_ARR);
+          if (parser->toknext < 1)
+          {
+            result.status = JPARSE_INVAL;
+          }
+          else
+          {
+            token = &(parser->tokens[parser->toknext - 1]);
 
-              //todo: this loop can be cleaned up
-              for (;;)
+            //todo: this loop can be cleaned up
+            for (;;)
+            {
+              if (token->start != -1) //if we've found the start of the token,
               {
-
-                if (token->start != -1) //if we've found the start of the token,
+                if (token->end == -1) //but not the end
                 {
-                  if (token->end == -1) //but not the end
+                  if (token->type == type) //and the bracket types of start and end match
                   {
-                    if (token->type == type) //and the bracket types of start and end match
-                    {
-                      token->end = parser->pos + 1;
-                      parser->toksuper = token->parent;
-                    }
-                    else
-                    {
-                      result.status = JPARSE_INVAL;
-                    }
-                    break;
+                    token->end = parser->pos + 1;
+                    parser->toksuper = token->parent;
                   }
-                }
-
-                if (token->parent == -1)
-                {
+                  else
+                  {
+                    result.status = JPARSE_INVAL;
+                  }
                   break;
                 }
+              }
+              if (token->parent != -1)
+              {
                 token = &(parser->tokens[token->parent]);
               }
             }
-            break;
-          case '\"':
-            printf("found start quote! | ");
-            parser->start = parser->pos;
-            state = STRING;
-            break;
-          case '\t': //skip whitespace when we're in object parsing mode
-          case '\r':
-          case '\n':
-          case ' ':
-            break;
-          case ':':
+          }
+          break;
+        case '\'': //single quote
+#ifndef SINGLE_QUOTING_ALLOWED
+          result.status = JPARSE_INVAL;
+          break;
+#endif
+        case '\"': //double quote. start of string mode
+          parser->start = parser->pos;
+          state = STRING;
+          break;
 
-            printf("found >:<. parser->toksuper == %d, newvalue of parser->toksuper == %d | ", parser->toksuper, parser->toknext - 1);
-            //store the index of current object 
+        //WHITESPACE
+        case '\t':
+        case ' ':
+        case '\r':
+        case '\n':
+          break;
 
-            //the token after the >:< is owned by the token before the >:<
-            parser->toksuper = parser->toknext - 1;
-            break;
-          case ',':
-            printf(" found comma! |");
-            if (
-                parser->tokens[parser->toksuper].type != JTOK_ARR &&
-                parser->tokens[parser->toksuper].type != JTOK_OBJ)
-            {
-              parser->toksuper = parser->tokens[parser->toksuper].parent;
-            }
-            else //NUM OR STRING MUST COME BEFORE COMMAS
-            {
-              result.status = JPARSE_INVAL;
-              break;
-            }
-            break;
-          case '-': /* primitives are: numbers and booleans */
-          case '0':
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7':
-          case '8':
-          case '9':
-          case 't':
-          case 'f':
-          case 'n':
-            printf(" found a primitive type! | ");
-            /* And they must not be keys of a parent object (keys MUST be quoted)*/
+        //KEY -> VAL DELIMITER
+        case ':':
+          //the token after the >:< has current token as its superior node
+          parser->toksuper = parser->toknext - 1;
+          break;
 
-            printf("superior node type == %d | ", (&parser->tokens[parser->toksuper])->type);
-            switch ((&parser->tokens[parser->toksuper])->type)
-            {
-            case JTOK_OBJ:
-              result.status = JPARSE_INVAL;
-              break;
-            case JTOK_ARR:
-              if ((&parser->tokens[parser->toksuper])->size != 0)
-              {
-                result.status = JPARSE_INVAL;
-              }
-              break;
-            case JTOK_NUM:
-            case JTOK_STR:
-              printf("superior node is string | ");
-              parser->start = parser->pos;
-              state = PRIMTIVE;
-              break;
-            default:
-              //critical
-              break;
-            }
-            break;
-          default: //unexpected character
+        //VAL -> KEY OR VAL -> VAL DELIMITER
+        //if current object is array, comma delimits list of values
+        //if current object is object,comma delimits lists of key:values
+        case ',':
+          if (parser->tokens[parser->toksuper].type != JTOK_ARR &&
+              parser->tokens[parser->toksuper].type != JTOK_OBJ)
+          {
+            parser->toksuper = parser->tokens[parser->toksuper].parent;
+          }
+          else //NUM OR STRING MUST COME BEFORE COMMAS
+          {
             result.status = JPARSE_INVAL;
             break;
           }
           break;
-        case STRING:
 
+        //start of primitives.
+        //primitives must be numbers or booleans.
+        case '-':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case 't':
+        case 'f':
+        case 'n':
+          /* And they must not be keys of a parent object (keys MUST be quoted)*/
+          switch ((&parser->tokens[parser->toksuper])->type)
+          {
+          case JTOK_OBJ:
+            result.status = JPARSE_INVAL;
+            break;
+          case JTOK_ARR:
+            if ((&parser->tokens[parser->toksuper])->size != 0)
+            {
+              result.status = JPARSE_INVAL;
+            }
+            break;
+          case JTOK_NUM:
+          case JTOK_STR:
+            parser->start = parser->pos;
+            state = PRIMTIVE;
+            break;
+          default:
+            if (iscntrl(json[parser->pos]) == 0)
+            {
+              result.status = JPARSE_INVAL;
+            }
+            else //something weird is happening. likely problem with program logic
+            {
+              result.status = JPARSE_CRITICAL;
+            }
+            break;
+          }
+          break;
+        default: //unexpected character
+          result.status = JPARSE_INVAL;
+          break;
+        }
+        break;
+      case STRING:
+        if (isalnum(json[parser->pos]) != 0)
+        {
+          //case where the character is alphanumeric
+        }
+        else
+        {
           switch (json[parser->pos])
           {
-          case '\"':
-            printf("found end quote! | ");
 
+          //we allow cr and lf because json could only be partially transmitted over serial.
+          //treat these like whitespace as they aren't necessarily in the string intentionally
+          case '\r':
+          case '\n':
+          case '!':
+            break;
+          case '\'':
+#ifndef SINGLE_QUOTING_ALLOWED
+            result.status = JPARSE_INVAL;
+            break;
+#endif
+          case '\"':
             if ((token = alloc_token(parser, num_tokens)) == NULL)
             {
               parser->pos = parser->start;
-              result.status = JPARSE_NOHEAP;
+              result.status = JPARSE_NOMEM;
             }
             else
             {
-              // start + 1 to skip beginning quote
+              // do start + 1 to skip the beginning quote
               fill_token(token, JTOK_STR, parser->start + 1, parser->pos);
               token->parent = parser->toksuper; //link to parent node
-              printf("assigned %d to tkn->parent | ", parser->toksuper);
 
               result.cnt += 1;
-              printf("increasing count! now cnt = %d |", result.cnt);
-
               parser->tokens[token->parent].size += 1; //increase the size of the parent token
-
-              printf("tkn has a parent. increasing parent size. now parent size = %d |", parser->tokens[parser->toksuper].size);
               state = OBJECT;
             }
             break;
+          //TODO: ADD SUPPORT FOR JSONS WITH STRING : NUM key-val formatting..
+
+          /*
+        To properly do this, we need to use a "key" mode and "value" mode instead of just "string"
+        mode.
+
+        we also need to differentiate object mode from array mode. 
+        This probably means storing the the type of the object we just left
+
+        ex: { "key1" : {"subobjectKey : [ "arraystringval1", "arraystringval2", "arraystringval3"]}}
+        ex: { "key1" : {"subobjectKey : [ arrayprimval1, arrayprimval2, arrayprimval3]}}
+        */
+
           //invalid characters. CURRENTLY WE DO NOT SUPPORT STRING : STRING, ONLY STRING : NUM.
-          //TODO: ADD SUPPORT FOR JSONS WITH STRING : NUM key-val formatting.
-          case ':':
-          case ',':
+          case ':': //there should never be >:< in a string
+          case ',': //there should never be >,< in a string
           case '}':
           case ']':
           case '[':
           case '{':
-          case '\'':
+
+          //todo: this case falls into the realm of quoted values eg: "-123"
+          //when in "key" mode, this is invalid but when in "value" mode, it isn't
           case '-':
             result.status = JPARSE_INVAL;
             break;
+          default: //default for string mode
+#if defined(JTOK_DEBUG) || defined(JTOK_VERBOSE)
+            snprintf((char*)debug_msg, sizeof(debug_msg), "STRINGMODE default case triggered by character >%c<", json[parser->pos]);
+            transmit((char*)debug_msg);
+#endif
+            break;
           }
-          break;
-        case PRIMTIVE:
-          switch (json[parser->pos])
+        }
+        break;
+      case PRIMTIVE:
+        switch (json[parser->pos])
+        {
+        //characters that would delimit a primitive token
+        case '\t':
+        case ' ':
+        case ',':
+        case ']':
+        case '}':
+          if ((token = alloc_token(parser, num_tokens)) == NULL)
           {
-          //characters that would delimit a primitive token
-          case '\t':
-          case '\r':
-          case '\n':
-          case ' ':
-          case ',':
-          case ']':
-          case '}':
+            parser->pos = parser->start;
+            result.status = JPARSE_NOMEM;
+          }
+          else
+          {
+            fill_token(token, JTOK_NUM, parser->start, parser->pos);
+            token->parent = parser->toksuper; //link to parent
 
-            printf("found end of primitive | ");
-            if ((token = alloc_token(parser, num_tokens)) == NULL)
-            {
-              parser->pos = parser->start;
-              result.status = JPARSE_NOHEAP;
-            }
-            else
-            {
-              fill_token(token, JTOK_NUM, parser->start, parser->pos);
-              token->parent = parser->toksuper; //link to parent
+            //restore parent object index.
+            parser->toksuper = parser->tokens[token->parent].parent;
 
-              //restore parent object index.
-              parser->toksuper = parser->tokens[token->parent].parent;
-
-              result.cnt += 1;
-              parser->tokens[token->parent].size += 1; //increase size of parent object
-              state = OBJECT;
-            }
-            break;
-          case ':': //invalid characters
-          case '{':
-          case '[':
-          case '\'':
-          case '\"':
-            result.status = JPARSE_INVAL;
-            break;
+            result.cnt += 1;
+            parser->tokens[token->parent].size += 1; //increase size of parent object
+            state = OBJECT;
           }
           break;
-        default:
-          //critical: somehow a pointer corrupted parsing state
+        case ':': //invalid characters
+        case '{':
+        case '[':
+        case '\'':
+        case '\"':
+          result.status = JPARSE_INVAL;
+          break;
+        default: //default for primitive mode
+
           break;
         }
-      }
-      else //control characters are invalid
-      {
-        result.status = JPARSE_INVAL;
+        break;
+      default:
+        //critical: somehow a pointer corrupted the parse state or something...
+        result.status = JPARSE_CRITICAL;
         break;
       }
-
-      printf("\n");
     }
-
-    word_t i;
-    for (i = 0; i < result.cnt; i++)
-    { 
-      printf("tkn[%d] : ", i);
-      tprint(json, parser->tokens[i]);
-    }
-
-    word_t idx;
-    for (idx = parser->toknext - 1; idx >= 0; idx--)
+    //last check is if the parsed string is a complete json, or if a child/topnode object hasn't been completed yet.
+    if (result.status == JPARSE_OK)
     {
-      // Unmatched opened object or array
-      if (parser->tokens[idx].start != -1)
+      word_t idx;
+
+      //for all populated tokens so far
+      for (idx = parser->toknext - 1; idx >= 0; idx--)
       {
-        if (parser->tokens[idx].end == -1)
-        { 
-          printf("FOUND AN INCOMPLETE TOKEN\n");
-          result.status = JPARSE_PARTIAL;
-          break;
+        if (parser->tokens[idx].start != -1) //if start index has been set
+        {
+          if (parser->tokens[idx].end == -1) //but end index hasn't
+          {
+            //then we don't have a complete json string
+            result.status = JPARSE_PARTIAL;
+            break;
+          }
         }
       }
+      result.status = JPARSE_INVAL;
     }
   }
   return result;
@@ -383,20 +419,21 @@ static jtok_t *alloc_token(jparser_t *parser,
   jtok_t *tok;
   if (parser->toknext >= num_tokens)
   {
-    return NULL;
+    tok = NULL;
   }
-
-  tok = &parser->tokens[parser->toknext];
-  parser->toknext += 1;
-
-  tok->start = tok->end = -1;
-  tok->size = 0;
-  tok->parent = -1;
+  else
+  {
+    tok = &parser->tokens[parser->toknext];
+    parser->toknext += 1;
+    tok->start = tok->end = -1;
+    tok->size = 0;
+    tok->parent = -1;
+  }
   return tok;
 }
 
 /**
- * Fills token type and boundaries.
+ * Fills token type and various fields
  */
 static void fill_token(jtok_t *token,
                        jtokType_t type,
