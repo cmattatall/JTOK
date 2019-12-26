@@ -8,10 +8,10 @@
 #include "jtok.h"
 
 static void tprint(const char *json, jtok_t t)
-{
+{ 
   int i;
   for (i = t.start; i < t.end; i++)
-  {
+  { 
     printf("%c", json[i]);
   }
   printf("\ntype   : %d"
@@ -30,7 +30,7 @@ int main(void)
 {
   const char *jsons[] =
       {
-          "{\"GPIO_PIN_CONFIG\":{\"id\":1, \"type\":0, \"label\":0, \"active\":1, \"trigger\":1, \"debounce\":10 }}",
+          "{\"GPIO_PIN_CONFIG\":{\"id\":1, \"type\":0, \"label\":0, \"active\":1, \"trigger\":1, \"debounce\":10 }}\r\n",
           "{\"GPIO_PIN_CONFIG\":{\"id\":2, \"type\":0, \"label\":0, \"active\":1, \"trigger\":1, \"debounce\":10 }}",
           "{\"GPIO_PIN_CONFIG\":{\"id\":3, \"type\":0, \"label\":0, \"active\":1, \"trigger\":1, \"debounce\":10 }}",
           "{\"GPIO_PIN_CONFIG\":{\"id\":4, \"type\":0, \"label\":0, \"active\":1, \"trigger\":1, \"debounce\":10 }}",
@@ -45,8 +45,6 @@ int main(void)
   int j = 0;
 
 
-  jtok_t *tokens;
-
   jparser_t parser;
 
   parseRetval_t ret; 
@@ -55,30 +53,29 @@ int main(void)
   
   printf("status = %d, cnt = %d\n", ret.status, ret.cnt);
   if(ret.status == JPARSE_OK)
-  {
+  { 
+    printf("status was ok :)\n");
     int t;
     for (t = 0; t < ret.cnt; t++)
-    {
-      tprint(jsons[j], tokens[t]);
+    { 
+      printf("token %d\n", t);
+      tprint(jsons[j], parser.tokens[t]);
     }
   }  
   else
   { 
-    printf("got this far:\n");
+    
+    printf("return status was not ok\n");
+    /*
     int x;
     for(x = 0; x < parser.pos; x++)
     {
       printf("%c", jsons[j][x]);
     }
     printf("\n");
+    */
   }
-  
 
-
-  if(tokens != NULL)
-  {
-    free(tokens);
-  }
   return 0;
 }
 

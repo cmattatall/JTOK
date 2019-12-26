@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
 // user adds their own implementation for their embedded platform
 static void transmit(const char *const c)
 {
@@ -28,7 +27,6 @@ static void fill_token(jtok_t *token,
                        word_t end);
 
 static jtok_t *alloc_token(jparser_t *parser, uword_t num_tokens);
-
 
 //for some reason the heap implementation isnt working on stm despite allocating 8192 heap addresses.
 //I'm going to use a stack based implementation for now.
@@ -79,7 +77,6 @@ parseRetval_t jtokenize(jparser_t *parser, const char *json)
   }
   return result;
 }
-
 
 /* This hides the actual parsing functionality and memory management from the user */
 static parseRetval_t retokenize(jparser_t *parser,
@@ -212,7 +209,7 @@ static parseRetval_t retokenize(jparser_t *parser,
         case ',':
           if (parser->tokens[parser->toksuper].type != JTOK_ARR &&
               parser->tokens[parser->toksuper].type != JTOK_OBJ)
-          { 
+          {
             //restore the superior node index
             parser->toksuper = parser->tokens[parser->toksuper].parent;
           }
@@ -269,88 +266,117 @@ static parseRetval_t retokenize(jparser_t *parser,
           }
           break;
         default: //unexpected character
-          #if defined(JTOK_DEBUG) || defined(JTOK_VERBOSE)
-          snprintf((char*)debug_msg, sizeof(debug_msg), "OBJECTMODE default case triggered by character >%c<\n", json[parser->pos]);
-          transmit((char * const)debug_msg);
-          #endif
+#if defined(JTOK_DEBUG) || defined(JTOK_VERBOSE)
+          snprintf((char *)debug_msg, sizeof(debug_msg), "OBJECTMODE default case triggered by character >%c<\n", json[parser->pos]);
+          transmit((char *const)debug_msg);
+#endif
           result.status = JPARSE_INVAL;
           break;
         }
         break;
       case STRING:
-        if (isalnum(json[parser->pos]) != 0)
+        switch (json[parser->pos])
         {
-          //case where the character is alphanumeric
-        }
-        else
-        {
-          switch (json[parser->pos])
+
+        //we allow cr and lf because json could only be partially transmitted over serial.
+        //treat these like whitespace as they aren't necessarily in the string intentionally.
+        //so we continue to look for the terminating quote.
+        //if not found, we'll issue a json partial error.
+        case '\r':
+        case '\n':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'g':
+        case 'h':
+        case 'i':
+        case 'j':
+        case 'k':
+        case 'l':
+        case 'm':
+        case 'n':
+        case 'o':
+        case 'p':
+        case 'q':
+        case 'r':
+        case 's':
+        case 't':
+        case 'u':
+        case 'v':
+        case 'w':
+        case 'x':
+        case 'y':
+        case 'z':
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+        case 'H':
+        case 'I':
+        case 'J':
+        case 'K':
+        case 'L':
+        case 'M':
+        case 'N':
+        case 'O':
+        case 'P':
+        case 'Q':
+        case 'R':
+        case 'S':
+        case 'T':
+        case 'U':
+        case 'V':
+        case 'W':
+        case 'X':
+        case 'Y':
+        case 'Z':
+        case '_': //underscore is allowed
+        case '+': //+ sign is allowed because current tkn isn't necessarily a key
+        case '-': //- same logic as + sign
+
+          //do nothing for valid characters
+          break;
+        case '\"':  //END OF STRING
+          if ((token = alloc_token(parser, num_tokens)) == NULL)
           {
-
-          //we allow cr and lf because json could only be partially transmitted over serial.
-          //treat these like whitespace as they aren't necessarily in the string intentionally
-          case '\r':
-          case '\n':
-          case '!':
-          case '_':
-          case '?':
-            break;
-          case '\'':
-#ifndef SINGLE_QUOTING_ALLOWED
-            result.status = JPARSE_INVAL;
-            break;
-#endif
-          case '\"':
-            if ((token = alloc_token(parser, num_tokens)) == NULL)
-            {
-              parser->pos = parser->start;
-              result.status = JPARSE_NOMEM;
-            }
-            else
-            {
-              // do start + 1 to skip the beginning quote
-              fill_token(token, JTOK_STR, parser->start + 1, parser->pos);
-              token->parent = parser->toksuper; //link to parent node
-
-              result.cnt += 1;
-              parser->tokens[token->parent].size += 1; //increase the size of the parent token
-              state = OBJECT;
-            }
-            break;
-          //TODO: ADD SUPPORT FOR JSONS WITH STRING : NUM key-val formatting..
-
-          /*
-        To properly do this, we need to use a "key" mode and "value" mode instead of just "string"
-        mode.
-
-        we also need to differentiate object mode from array mode. 
-        This probably means storing the the type of the object we just left
-
-        ex: { "key1" : {"subobjectKey : [ "arraystringval1", "arraystringval2", "arraystringval3"]}}
-        ex: { "key1" : {"subobjectKey : [ arrayprimval1, arrayprimval2, arrayprimval3]}}
-        */
-
-          //invalid characters. CURRENTLY WE DO NOT SUPPORT STRING : STRING, ONLY STRING : NUM.
-          case ':': //there should never be >:< in a string
-          case ',': //there should never be >,< in a string
-          case '}':
-          case ']':
-          case '[':
-          case '{':
-
-          //todo: this case falls into the realm of quoted values eg: "-123"
-          //when in "key" mode, this is invalid but when in "value" mode, it isn't
-          case '-':
-            result.status = JPARSE_INVAL;
-            break;
-          default: //default for string mode
-#if defined(JTOK_DEBUG) || defined(JTOK_VERBOSE)
-            snprintf((char*)debug_msg, sizeof(debug_msg), "STRINGMODE default case triggered by character >%c<", json[parser->pos]);
-            transmit((char*)debug_msg);
-#endif
-            break;
+            parser->pos = parser->start;
+            result.status = JPARSE_NOMEM;
           }
+          else
+          {
+            // do start + 1 to skip the beginning quote
+            fill_token(token, JTOK_STR, parser->start + 1, parser->pos);
+            token->parent = parser->toksuper; //link to parent node
+            result.cnt += 1;
+            parser->tokens[token->parent].size += 1; //increase the size of the parent token
+            state = OBJECT;
+          }
+          break;
+        default: //invalid characters
+#if defined(JTOK_DEBUG) || defined(JTOK_VERBOSE)
+          snprintf((char *)debug_msg, sizeof(debug_msg), "STRINGMODE default case triggered by character >%c<", json[parser->pos]);
+          transmit((char *)debug_msg);
+#endif
+          result.status = JPARSE_INVAL;
+          break;
         }
+
         break;
       case PRIMTIVE:
         switch (json[parser->pos])
@@ -387,7 +413,6 @@ static parseRetval_t retokenize(jparser_t *parser,
           result.status = JPARSE_INVAL;
           break;
         default: //default for primitive mode
-
           break;
         }
         break;
@@ -415,7 +440,6 @@ static parseRetval_t retokenize(jparser_t *parser,
           }
         }
       }
-      result.status = JPARSE_INVAL;
     }
   }
   return result;

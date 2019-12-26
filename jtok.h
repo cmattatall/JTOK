@@ -11,11 +11,10 @@ typedef int_fast16_t word_t;
 
 typedef enum
 {
-  JTOK_UNK,
   JTOK_OBJ,
   JTOK_ARR,
-  JTOK_KEY,
-  JTOK_VAL,
+  JTOK_STR,
+  JTOK_NUM,
 } jtokType_t;
 
 typedef enum
@@ -38,7 +37,7 @@ typedef struct
   word_t start;       // start idx in json
   word_t end;         // end idx in json
   uword_t size;        // number of elements in the token
-  uword_t parent;      // index of parent token
+  word_t parent;      // index of parent token
 } jtok_t;
 
 
