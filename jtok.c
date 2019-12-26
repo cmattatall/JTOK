@@ -80,6 +80,7 @@ parseRetval_t jtokenize(jparser_t *parser, const char *json)
   return result;
 }
 
+
 /* This hides the actual parsing functionality and memory management from the user */
 static parseRetval_t retokenize(jparser_t *parser,
                                 const char *json,
@@ -192,7 +193,7 @@ static parseRetval_t retokenize(jparser_t *parser,
           state = STRING;
           break;
 
-        //WHITESPACE
+        //WHITESPACE is ignored in object mode
         case '\t':
         case ' ':
         case '\r':
@@ -211,7 +212,8 @@ static parseRetval_t retokenize(jparser_t *parser,
         case ',':
           if (parser->tokens[parser->toksuper].type != JTOK_ARR &&
               parser->tokens[parser->toksuper].type != JTOK_OBJ)
-          {
+          { 
+            //restore the superior node index
             parser->toksuper = parser->tokens[parser->toksuper].parent;
           }
           else //NUM OR STRING MUST COME BEFORE COMMAS
@@ -267,6 +269,10 @@ static parseRetval_t retokenize(jparser_t *parser,
           }
           break;
         default: //unexpected character
+          #if defined(JTOK_DEBUG) || defined(JTOK_VERBOSE)
+          snprintf((char*)debug_msg, sizeof(debug_msg), "OBJECTMODE default case triggered by character >%c<\n", json[parser->pos]);
+          transmit((char * const)debug_msg);
+          #endif
           result.status = JPARSE_INVAL;
           break;
         }
@@ -286,6 +292,8 @@ static parseRetval_t retokenize(jparser_t *parser,
           case '\r':
           case '\n':
           case '!':
+          case '_':
+          case '?':
             break;
           case '\'':
 #ifndef SINGLE_QUOTING_ALLOWED

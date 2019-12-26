@@ -40,6 +40,8 @@ int main(void)
           "{\"GPIO_PIN_CONFIG\":{\"id\":8, \"type\":0, \"label\":0, \"active\":1, \"trigger\":1, \"debounce\":10 }}",
       };
 
+
+  
   int j = 0;
 
 
@@ -48,6 +50,7 @@ int main(void)
   jparser_t parser;
 
   parseRetval_t ret; 
+  
   ret = jtokenize(&parser, jsons[j]);
   
   printf("status = %d, cnt = %d\n", ret.status, ret.cnt);
@@ -59,6 +62,17 @@ int main(void)
       tprint(jsons[j], tokens[t]);
     }
   }  
+  else
+  { 
+    printf("got this far:\n");
+    int x;
+    for(x = 0; x < parser.pos; x++)
+    {
+      printf("%c", jsons[j][x]);
+    }
+    printf("\n");
+  }
+  
 
 
   if(tokens != NULL)
@@ -68,12 +82,3 @@ int main(void)
   return 0;
 }
 
-/*
-typedef enum 
-{
-	JSMN_PRIMITIVE = 0,
-	JSMN_OBJECT = 1,
-	JSMN_ARRAY = 2,
-	JSMN_STRING = 3
-} jsmntype_t;
-*/

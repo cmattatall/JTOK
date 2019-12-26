@@ -3,8 +3,8 @@
 #include <stdint.h>
 
 
-typedef uint32_t uword_t;
-typedef int32_t word_t;
+typedef uint_fast16_t uword_t;
+typedef int_fast16_t word_t;
 
 #define BASE_TCNT_GUESS 20 //start guess at 20 tokens
 #define MAX_STACK_TCNT 50
@@ -14,8 +14,8 @@ typedef enum
   JTOK_UNK,
   JTOK_OBJ,
   JTOK_ARR,
-  JTOK_STR,
-  JTOK_NUM,
+  JTOK_KEY,
+  JTOK_VAL,
 } jtokType_t;
 
 typedef enum
