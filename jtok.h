@@ -44,22 +44,22 @@ typedef enum
 
 typedef enum 
 {   
-    JTOK_VALUE_unk, /* default value, assume parsing error */
-    JTOK_VALUE_uint,
-    JTOK_VALUE_int,
-    JTOK_VALUE_real,
-    JTOK_VALUE_boolean,
-    JTOK_VALUE_empty,
-    JTOK_VALUE_null,
-    JTOK_VALUE_str,
-}   JTOK_VALUE_t;
+    JTOK_VALUE_TYPE_unk, /* default value, assume parsing error */
+    JTOK_VALUE_TYPE_uint,
+    JTOK_VALUE_TYPE_int,
+    JTOK_VALUE_TYPE_real,
+    JTOK_VALUE_TYPE_boolean,
+    JTOK_VALUE_TYPE_empty,
+    JTOK_VALUE_TYPE_null,
+    JTOK_VALUE_TYPE_str,
+}   JTOK_VALUE_TYPE_t;
 
 typedef enum
 {   
-    JTOK_VALUE_PRIMITIVE_empty,
-    JTOK_VALUE_PRIMITIVE_boolean,
-    JTOK_VALUE_PRIMITIVE_null
-}   JTOK_VALUE_PRIMITIVE_t;
+    JTOK_VALUE_TYPE_PRIMITIVE_empty,
+    JTOK_VALUE_TYPE_PRIMITIVE_boolean,
+    JTOK_VALUE_TYPE_PRIMITIVE_null
+}   JTOK_VALUE_TYPE_PRIMITIVE_t;
 
 
 /**
@@ -100,27 +100,32 @@ typedef struct
 } jtok_parser_t;
 
 
-typedef union 
+
+
+
+typedef struct 
 {
-    unsigned int as_uinteger;
-    int as_integer;
-
-    #if defined(JTOK_REAL_SINGLE_PRECISION)
-    float as_real;
-    #else
-    double as_real;
-    #endif /* if defined(JTOK_REAL_SINGLE_PRECISION) */
-
-    char as_str[MAX_JTOK_STRLEN];
+    JTOK_VALUE_TYPE_t type;
+    union 
+    {
+        unsigned int as_uinteger;
+        int as_integer;
+        #if defined(JTOK_REAL_SINGLE_PRECISION)
+        float as_real;
+        #else
+        double as_real;
+        #endif /* if defined(JTOK_REAL_SINGLE_PRECISION) */
+        char as_str[MAX_JTOK_STRLEN];
+    } value; 
 }   jtok_value_t;
+
 
 
 typedef struct 
 {
     jtoktok_t *token;
-    JTOK_VALUE_t value_type;
     jtok_value_t value;
-}   jtok_value_token_t;
+}   jtok_value_map_t;
 
 
 /**
@@ -307,6 +312,10 @@ bool jtok_tokenIsKey(jtoktok_t token);
  * @return int number of bytes written to buffer, else -1
  */
 int jtok_token_tostr(char * buf, unsigned int size, const char * json, jtoktok_t token);
+
+
+
+jtok_value_map_t parse_value(const jtoktok_t *token);
 
 
 #ifdef __cplusplus

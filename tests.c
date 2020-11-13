@@ -91,6 +91,9 @@ int main(void){
 
         #endif /* ifdef DEBUG */
 
+
+        return 0;
+
     }
     return 0;
 }

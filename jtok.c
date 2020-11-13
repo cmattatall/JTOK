@@ -2,16 +2,15 @@
  * @file jtok.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Statically allocated JTOK parser for embedded systems
- * @version 0.3
- * @date 2020-11-05
+ * @version 0.4
+ * @date 2020-11-13
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
- *
- * @todo Portability for various mcu word sizes
  */
 
 #include "jtok.h"
 
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -841,4 +840,12 @@ int jtok_token_tostr(char * buf, unsigned int size, const char * json, jtoktok_t
     {
         return -1;
     }
+}
+
+
+jtok_value_map_t parse_value(const jtoktok_t *token)
+{
+
+
+    /** @todo */
 }
