@@ -12,7 +12,7 @@ extern "C" {
 #include <stdbool.h>
 #include <limits.h>
 
-#define JTOK_STANDALONE_TOKENS
+#define MAX_JTOK_STRLEN 255
 
 /**
  * JTOK type identifier. Basic types are:
@@ -40,6 +40,26 @@ typedef enum
     /* The string is not a full JTOK packet, more bytes expected */
     JTOK_ERROR_PART = -3
 } jtokerr_t;
+
+
+typedef enum 
+{   
+    JTOK_VALUE_unk, /* default value, assume parsing error */
+    JTOK_VALUE_uint,
+    JTOK_VALUE_int,
+    JTOK_VALUE_real,
+    JTOK_VALUE_boolean,
+    JTOK_VALUE_empty,
+    JTOK_VALUE_null,
+    JTOK_VALUE_str,
+}   JTOK_VALUE_t;
+
+typedef enum
+{   
+    JTOK_VALUE_PRIMITIVE_empty,
+    JTOK_VALUE_PRIMITIVE_boolean,
+    JTOK_VALUE_PRIMITIVE_null
+}   JTOK_VALUE_PRIMITIVE_t;
 
 
 /**
@@ -78,6 +98,29 @@ typedef struct
     unsigned int toknext;  /* index of next token to allocate */
     int          toksuper; /* superior token node, e.g parent object or array */
 } jtok_parser_t;
+
+
+typedef union 
+{
+    unsigned int as_uinteger;
+    int as_integer;
+
+    #if defined(JTOK_REAL_SINGLE_PRECISION)
+    float as_real;
+    #else
+    double as_real;
+    #endif /* if defined(JTOK_REAL_SINGLE_PRECISION) */
+
+    char as_str[MAX_JTOK_STRLEN];
+}   jtok_value_t;
+
+
+typedef struct 
+{
+    jtoktok_t *token;
+    JTOK_VALUE_t value_type;
+    jtok_value_t value;
+}   jtok_value_token_t;
 
 
 /**
@@ -182,7 +225,7 @@ bool jtok_tokcmp(const char *str, const uint8_t *json, const jtoktok_t *tok);
  * @return true if equal within bytecount
  * @return false if not equal within bytecount
  */
-bool jtok_tokncmp(const uint8 *str, const uint8_t *json, const jtoktok_t *tok,
+bool jtok_tokncmp(const uint8_t *str, const uint8_t *json, const jtoktok_t *tok,
                   uint_least16_t n);
 
 /**

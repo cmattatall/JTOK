@@ -251,7 +251,7 @@ char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn,
 #else /* JTOK_STANDALONE_TOKENS is not defined */
 
 
-bool jtok_tokncmp(const char *str, const uint8_t *jtok, const jtoktok_t *tok,
+bool jtok_tokncmp(const uint8_t *str, const uint8_t *jtok, const jtoktok_t *tok,
                   uint_least16_t n)
 {
     bool result = false;

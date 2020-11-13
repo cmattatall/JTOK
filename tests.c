@@ -5,6 +5,7 @@
 
 
 static const char *validJTOK[] = {
+    "{\"key\" : { }}",
     "{\"key\" : \"value\"}",
     "{\"key\" : \"ThisIsAveryLongStringThatINeedToMakeVeryLong\"}",
     "{\"key\" : 1234 }",
@@ -14,7 +15,6 @@ static const char *validJTOK[] = {
     "{\"key\" : true}",
     "{\"key\" : false}",
     "{\"key\" : null}",
-    "{\"key\" : { }}",
     "{\"key\" : {[]}}",
     "{\"key\" : { [ ] } }",
     "{\"key\" : {\"childKey\" : 123}}"
@@ -59,6 +59,7 @@ static const char *validJTOK[] = {
     "{\"key1\" : [{\"arrJsonKey1\" : \"arrJsonVal1\"}, {\"arrJsonKey2\" : \"arrJsonVal2\"}]}",
 };
 
+#define DEBUG
 
 static jtoktok_t tokens[200];
 
@@ -80,12 +81,15 @@ int main(void){
         }
         printf("\n");
 
+        #ifdef DEBUG
         for(unsigned int j = 0; j < status; j++)
         {   
             char tmp[250];
             jtok_token_tostr(tmp, sizeof(tmp), p.json, tokens[j]);
             printf("%s\n", tmp);
         }
+
+        #endif /* ifdef DEBUG */
 
     }
     return 0;
