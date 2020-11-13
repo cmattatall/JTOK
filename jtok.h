@@ -73,6 +73,7 @@ struct jtoktok_struct
 typedef struct
 {
     char *       json;     /* ptr to start of json string */
+    unsigned int json_len; /* max length of json string   */
     unsigned int pos;      /* current parsing index in json string */
     unsigned int toknext;  /* index of next token to allocate */
     int          toksuper; /* superior token node, e.g parent object or array */
@@ -82,23 +83,23 @@ typedef struct
 /**
  * @brief construct jtok parser over and array of tokens
  *
+ * @param json the json string that will be parsed
  * @return the constructed jtok parser
+ * 
+ * @note json string must be nul-terminated!!
  */
-jtok_parser_t jtok_new_parser(void);
+jtok_parser_t jtok_new_parser(const char *nul_terminated_json);
 
 
 /**
  * @brief Parse a jtok
  *
  * @param parser jtok parser
- * @param js jtok string
- * @param len length of jtok string
  * @param tokens array of jtoktok (provided by caller)
  * @param num_tokens max number of tokens to parse
  * @return jtokerr_t parse status. Errors are indicated by return values < 0, otherwise the number of parsed tokens is returned
  */
-jtokerr_t jtok_parse(jtok_parser_t *parser, const char *js, size_t len,
-                     jtoktok_t *tokens, unsigned int num_tokens);
+jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_tokens);
 
 
 /**
@@ -249,6 +250,20 @@ char *jtok_jtokerr_messages(jtokerr_t err);
  */
 bool jtok_tokenIsKey(jtoktok_t token);
 
+
+
+
+
+/**
+ * @brief Load a buffer with the fields of a jtoktok_t token so it can be printed
+ * 
+ * @param buf the buffer to load
+ * @param size size of the buffer
+ * @param json the original json string
+ * @param token the jtoktok token
+ * @return int number of bytes written to buffer, else -1
+ */
+int jtok_token_tostr(char * buf, unsigned int size, const char * json, jtoktok_t token);
 
 
 #ifdef __cplusplus

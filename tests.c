@@ -66,9 +66,9 @@ int main(void){
     printf("\nTesting jtok parser against valid jtoks\n");
     for(unsigned int i = 0; i < sizeof(validJTOK)/sizeof(*validJTOK); i++)
     {   
-        jtok_parser_t p = jtok_new_parser();
+        jtok_parser_t p = jtok_new_parser(validJTOK[i]);
         printf("%s ... ", validJTOK[i]);
-        jtokerr_t status = jtok_parse(&p, validJTOK[i], strlen(validJTOK[i]), tokens, sizeof(tokens)/sizeof(*tokens));
+        jtokerr_t status = jtok_parse(&p, tokens, sizeof(tokens)/sizeof(*tokens));
         if(status < 0)
         {   
             printf("failed");
@@ -79,6 +79,15 @@ int main(void){
             printf("passed");
         }
         printf("\n");
+
+        for(unsigned int j = 0; j < status; j++)
+        {   
+            char tmp[250];
+            jtok_token_tostr(tmp, sizeof(tmp), p.json, tokens[j]);
+            printf("%s\n", tmp);
+        }
+
+        return 0;
     }
     return 0;
 }

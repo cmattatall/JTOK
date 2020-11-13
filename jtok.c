@@ -13,6 +13,7 @@
 #include "jtok.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 
@@ -581,14 +582,15 @@ static jtokerr_t jtok_parse_string(jtok_parser_t *parser, const char *js,
 }
 
 
-jtokerr_t jtok_parse(jtok_parser_t *parser, const char *js, size_t len,
-                     jtoktok_t *tokens, unsigned int num_tokens)
+jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_tokens)
 {
     jtokerr_t  r;
     int        i;
     jtoktok_t *token;
     int        count = 0;
 
+    unsigned int len = parser->json_len;
+    char *js = parser->json;
     for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
     {
         char       c;
@@ -788,15 +790,17 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, const char *js, size_t len,
 }
 
 
-jtok_parser_t jtok_new_parser(void)
+jtok_parser_t jtok_new_parser(const char *nul_terminated_json)
 {
     jtok_parser_t parser;
     parser.pos      = 0;
     parser.toknext  = 0;
     parser.toksuper = -1;
-    parser.json     = NULL;
+    parser.json     = (char*)nul_terminated_json;
+    parser.json_len = strlen(nul_terminated_json);
     return parser;
 }
+
 
 
 bool jtok_tokenIsKey(jtoktok_t token)
@@ -813,3 +817,28 @@ bool jtok_tokenIsKey(jtoktok_t token)
 
 
 
+int jtok_token_tostr(char * buf, unsigned int size, const char * json, jtoktok_t token)
+{   
+    if(buf != NULL)
+    {
+        int blen = 0;
+        blen += snprintf(buf + blen, size - blen, "token : ");
+        for(unsigned int k = token.start; k < token.end; k++)
+        {   
+            blen += snprintf(buf + blen, size - blen, "%c", json[k]);
+        }
+        blen += snprintf(buf + blen, size - blen, "\n");
+        blen += snprintf(buf + blen, size - blen, "type: %s\n", jtok_toktypename(token.type));
+
+        #ifdef DEBUG
+        blen += snprintf(buf + blen, size - blen, "start : %u\n", token.start);
+        blen += snprintf(buf + blen, size - blen, "end : %u\n", token.end);
+        #endif /* ifdef DEBUG */
+
+        return blen;
+    }
+    else
+    {
+        return -1;
+    }
+}
