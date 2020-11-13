@@ -87,7 +87,6 @@ int main(void){
             printf("%s\n", tmp);
         }
 
-        return 0;
     }
     return 0;
 }
