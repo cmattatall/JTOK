@@ -1,7 +1,7 @@
 /**
- * @file json.c
+ * @file jtok.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief Statically allocated JSON parser for embedded systems
+ * @brief Statically allocated JTOK parser for embedded systems
  * @version 0.3
  * @date 2020-11-05
  *
@@ -10,14 +10,14 @@
  * @todo Portability for various mcu word sizes
  */
 
-#include "json.h"
+#include "jtok.h"
 
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 
-#define JSON_ASCII_CHAR_LOWEST_VALUE 32   /* ' ' space */
-#define JSON_ASCII_CHAR_HIGHEST_VALUE 127 /* DEL */
+#define JTOK_ASCII_CHAR_LOWEST_VALUE 32   /* ' ' space */
+#define JTOK_ASCII_CHAR_HIGHEST_VALUE 127 /* DEL */
 
 
 /**
@@ -26,73 +26,73 @@
  * @param parser
  * @param tokens
  * @param num_tokens
- * @return jsontok_t*
+ * @return jtoktok_t*
  */
-static jsontok_t *json_alloc_token(json_parser *parser, jsontok_t *tokens,
+static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
                                    size_t num_tokens);
 
 
 /**
- * @brief Fill json_token type and boundaries
+ * @brief Fill jtok_token type and boundaries
  *
- * @param token the json token to populate
+ * @param token the jtok token to populate
  * @param type the token type
  * @param start stard index
  * @param end end index
  *
  * @return 0 on success, 1 on failure
  */
-static int json_fill_token(jsontok_t *token, jsontype_t type, int start,
+static int jtok_fill_token(jtoktok_t *token, jtoktype_t type, int start,
                            int end);
 
 
 /**
- * @brief Parse and fill next available token as json primitive
+ * @brief Parse and fill next available token as jtok primitive
  *
- * @param parser the json parser
- * @param js the json string
- * @param len length of json string
+ * @param parser the jtok parser
+ * @param js the jtok string
+ * @param len length of jtok string
  * @param tokens token array (caller provided)
  * @param num_tokens maximum number of tokens to parse
- * @return jsonerr_t parse status
+ * @return jtokerr_t parse status
  */
-static jsonerr_t json_parse_primitive(json_parser *parser, const char *js,
-                                      size_t len, jsontok_t *tokens,
+static jtokerr_t jtok_parse_primitive(jtok_parser_t *parser, const char *js,
+                                      size_t len, jtoktok_t *tokens,
                                       size_t num_tokens);
 
 
 /**
- * @brief Parse and fill next available json token as a json string
+ * @brief Parse and fill next available jtok token as a jtok string
  *
- * @param parser the json parser
- * @param js json string
- * @param len length of json string
+ * @param parser the jtok parser
+ * @param js jtok string
+ * @param len length of jtok string
  * @param tokens token array (caller provided)
  * @param num_tokens max number of tokens to parse
- * @return jsonerr_t parse status
+ * @return jtokerr_t parse status
  */
-static jsonerr_t json_parse_string(json_parser *parser, const char *js,
-                                   size_t len, jsontok_t *tokens,
+static jtokerr_t jtok_parse_string(jtok_parser_t *parser, const char *js,
+                                   size_t len, jtoktok_t *tokens,
                                    size_t num_tokens);
 
 
-char *json_toktypename(jsontype_t type)
+char *jtok_toktypename(jtoktype_t type)
 {
-    static const char *jsontok_type_names[] = {
-        [JSON_PRIMITIVE] = "JSON_PRIMITIVE",
-        [JSON_OBJECT]    = "JSON_OBJECT",
-        [JSON_ARRAY]     = "JSON_ARRAY",
-        [JSON_STRING]    = "JSON_STRING",
+    static const char *jtoktok_type_names[] = {
+        [JTOK_PRIMITIVE] = "JTOK_PRIMITIVE",
+        [JTOK_OBJECT]    = "JTOK_OBJECT",
+        [JTOK_ARRAY]     = "JTOK_ARRAY",
+        [JTOK_STRING]    = "JTOK_STRING",
     };
     char * retval = NULL;
     switch (type)
     {
-        case JSON_PRIMITIVE:
-        case JSON_OBJECT:
-        case JSON_ARRAY:
-        case JSON_STRING:
+        case JTOK_PRIMITIVE:
+        case JTOK_OBJECT:
+        case JTOK_ARRAY:
+        case JTOK_STRING:
         {
-            retval = (char*)jsontok_type_names[type];
+            retval = (char*)jtoktok_type_names[type];
         }
         break;
     }
@@ -100,36 +100,36 @@ char *json_toktypename(jsontype_t type)
 }
 
 
-char *json_jsonerr_messages(jsonerr_t err)
+char *jtok_jtokerr_messages(jtokerr_t err)
 {
-    static const char *jsonerr_messages[] = {
-        [0] = "Not enough jsontok_t tokens were provided",
-        [1] = "Invalid character inside JSON string",
-        [2] = "The string is not a full JSON packet, more bytes expected",
+    static const char *jtokerr_messages[] = {
+        [0] = "Not enough jtoktok_t tokens were provided",
+        [1] = "Invalid character inside JTOK string",
+        [2] = "The string is not a full JTOK packet, more bytes expected",
     };
     char *retval = NULL;
     switch (err)
     {
-        case JSON_ERROR_NOMEM:
+        case JTOK_ERROR_NOMEM:
         {
-            retval =  (char*)jsonerr_messages[0];
+            retval =  (char*)jtokerr_messages[0];
         }
         break;
-        case JSON_ERROR_INVAL:
+        case JTOK_ERROR_INVAL:
         {
-            retval =  (char*)jsonerr_messages[1];
+            retval =  (char*)jtokerr_messages[1];
         }
         break;
-        case JSON_ERROR_PART:
+        case JTOK_ERROR_PART:
         {
-            retval =  (char*)jsonerr_messages[2];
+            retval =  (char*)jtokerr_messages[2];
         }
         break;
     }
     return retval;
 }
 
-uint_least16_t json_toklen(const jsontok_t *tok)
+uint_least16_t jtok_toklen(const jtoktok_t *tok)
 {
     uint_least16_t len = 0;
     if (tok != NULL)
@@ -145,9 +145,9 @@ uint_least16_t json_toklen(const jsontok_t *tok)
 }
 
 
-#if defined(JSON_STANDALONE_TOKENS)
+#if defined(JTOK_STANDALONE_TOKENS)
 
-bool json_tokcmp(const char *str, const jsontok_t *tok)
+bool jtok_tokcmp(const char *str, const jtoktok_t *tok)
 {
     bool result = false;
     if (str == NULL)
@@ -166,7 +166,7 @@ bool json_tokcmp(const char *str, const jsontok_t *tok)
     }
     else
     {
-        uint_least16_t least_size = json_toklen(tok);
+        uint_least16_t least_size = jtok_toklen(tok);
         uint_least16_t slen       = strlen(str);
         if (least_size < slen)
         {
@@ -187,12 +187,12 @@ bool json_tokcmp(const char *str, const jsontok_t *tok)
     return result;
 }
 
-bool json_tokncmp(const char *str, const jsontok_t *tok, uint_least16_t n)
+bool jtok_tokncmp(const char *str, const jtoktok_t *tok, uint_least16_t n)
 {
     bool result = false;
     if (str != NULL && tok != NULL && tok->json != NULL)
     {
-        uint_least16_t least_size = json_toklen(tok);
+        uint_least16_t least_size = jtok_toklen(tok);
         uint_least16_t slen       = strlen(str);
         if (least_size < slen)
         {
@@ -219,12 +219,12 @@ bool json_tokncmp(const char *str, const jsontok_t *tok, uint_least16_t n)
 }
 
 
-char *json_tokcpy(char *dst, uint_least16_t bufsize, const jsontok_t *tkn)
+char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn)
 {
     char *result = NULL;
     if (dst != NULL && tkn != NULL && tkn->json != NULL)
     {
-        uint_least16_t copy_count = json_toklen(tkn);
+        uint_least16_t copy_count = jtok_toklen(tkn);
         if (copy_count > bufsize)
         {
             copy_count = bufsize;
@@ -234,7 +234,7 @@ char *json_tokcpy(char *dst, uint_least16_t bufsize, const jsontok_t *tkn)
     return result;
 }
 
-char *json_tokncpy(char *dst, uint_least16_t bufsize, const jsontok_t *tkn,
+char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn,
                    uint_least16_t n)
 {
     char *         result = NULL;
@@ -243,20 +243,20 @@ char *json_tokncpy(char *dst, uint_least16_t bufsize, const jsontok_t *tkn,
     {
         count = n;
     }
-    result = json_tokcpy(dst, count, tkn);
+    result = jtok_tokcpy(dst, count, tkn);
     return result;
 }
 
-#else /* JSON_STANDALONE_TOKENS is not defined */
+#else /* JTOK_STANDALONE_TOKENS is not defined */
 
 
-bool json_tokncmp(const char *str, const uint8_t *json, const jsontok_t *tok,
+bool jtok_tokncmp(const char *str, const uint8_t *jtok, const jtoktok_t *tok,
                   uint_least16_t n)
 {
     bool result = false;
-    if (str != NULL && json != NULL && tok != NULL)
+    if (str != NULL && jtok != NULL && tok != NULL)
     {
-        uint_least16_t least_size = json_toklen(tok);
+        uint_least16_t least_size = jtok_toklen(tok);
         uint_least16_t slen       = strlen(str);
         if (least_size < slen)
         {
@@ -269,7 +269,7 @@ bool json_tokncmp(const char *str, const uint8_t *json, const jsontok_t *tok,
         }
 
         /* actually compare them */
-        if (strncmp((const char *)str, (char *)&json[tok->start], least_size) ==
+        if (strncmp((const char *)str, (char *)&jtok[tok->start], least_size) ==
             0)
         {
             result = true;
@@ -282,18 +282,18 @@ bool json_tokncmp(const char *str, const uint8_t *json, const jsontok_t *tok,
 }
 
 
-bool json_tokcmp(const char *str, const uint8_t *json, const jsontok_t *tok)
+bool jtok_tokcmp(const char *str, const uint8_t *jtok, const jtoktok_t *tok)
 {
     bool result = false;
     if (str == NULL)
     {
-        if (json == NULL)
+        if (jtok == NULL)
         {
             result = true;
         }
         /* Fall to end, default return is false */
     }
-    else if (json == NULL)
+    else if (jtok == NULL)
     {
         if (str == NULL)
         {
@@ -303,7 +303,7 @@ bool json_tokcmp(const char *str, const uint8_t *json, const jsontok_t *tok)
     }
     else
     {
-        uint_least16_t least_size = json_toklen(tok);
+        uint_least16_t least_size = jtok_toklen(tok);
         uint_least16_t slen       = strlen(str);
         if (least_size < slen)
         {
@@ -311,7 +311,7 @@ bool json_tokcmp(const char *str, const uint8_t *json, const jsontok_t *tok)
         }
 
         /* actually compare them */
-        if (strncmp((const char *)str, (char *)&json[tok->start], least_size) ==
+        if (strncmp((const char *)str, (char *)&jtok[tok->start], least_size) ==
             0)
         {
             result = true;
@@ -324,25 +324,25 @@ bool json_tokcmp(const char *str, const uint8_t *json, const jsontok_t *tok)
     return result;
 }
 
-char *json_tokcpy(char *dst, uint_least16_t bufsize, const uint8_t *json,
-                  const jsontok_t *tkn)
+char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const uint8_t *jtok,
+                  const jtoktok_t *tkn)
 {
     char *result = NULL;
-    if (dst != NULL && json != NULL && tkn != NULL)
+    if (dst != NULL && jtok != NULL && tkn != NULL)
     {
-        uint_least16_t copy_count = json_toklen(tkn);
+        uint_least16_t copy_count = jtok_toklen(tkn);
         if (copy_count > bufsize)
         {
             copy_count = bufsize;
         }
-        result = strncpy(dst, (char *)&json[tkn->start], copy_count);
+        result = strncpy(dst, (char *)&jtok[tkn->start], copy_count);
     }
     return result;
 }
 
 
-char *json_tokncpy(char *dst, uint_least16_t bufsize, const uint8_t *json,
-                   const jsontok_t *tkn, uint_least16_t n)
+char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const uint8_t *jtok,
+                   const jtoktok_t *tkn, uint_least16_t n)
 {
     char *         result = NULL;
     uint_least16_t count  = bufsize;
@@ -350,28 +350,28 @@ char *json_tokncpy(char *dst, uint_least16_t bufsize, const uint8_t *json,
     {
         count = n;
     }
-    result = json_tokcpy(dst, count, json, tkn);
+    result = jtok_tokcpy(dst, count, jtok, tkn);
     return result;
 }
 
-#endif /* #if defined(JSON_STANDALONE_TOKENS) */
+#endif /* #if defined(JTOK_STANDALONE_TOKENS) */
 
 
-bool isValidJson(const jsontok_t *tokens, uint_least8_t tcnt)
+bool isValidJson(const jtoktok_t *tokens, uint_least8_t tcnt)
 {
     bool isValid = false;
     if (tokens != NULL)
     {
         if (tcnt > 1)
         {
-            if (tokens[0].type == JSON_OBJECT)
+            if (tokens[0].type == JTOK_OBJECT)
             {
                 isValid = true;
             }
 
             if (tcnt == 2) /* Cannot have something like { "myKey" } */
             {
-                if (tokens[1].type == JSON_ARRAY)
+                if (tokens[1].type == JTOK_ARRAY)
                 {
                     /* however, { [ ] } is still technically valid */
                     isValid = true;
@@ -379,10 +379,10 @@ bool isValidJson(const jsontok_t *tokens, uint_least8_t tcnt)
             }
             else
             {
-                /* First key in a json must be a "string" */
+                /* First key in a jtok must be a "string" */
                 if (tcnt > 2)
                 {
-                    if (tokens[1].type == JSON_STRING)
+                    if (tokens[1].type == JTOK_STRING)
                     {
                         isValid = true;
                     }
@@ -394,10 +394,10 @@ bool isValidJson(const jsontok_t *tokens, uint_least8_t tcnt)
 }
 
 
-static jsontok_t *json_alloc_token(json_parser *parser, jsontok_t *tokens,
+static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
                                    size_t num_tokens)
 {
-    jsontok_t *tok;
+    jtoktok_t *tok;
     if (parser->toknext >= num_tokens)
     {
         return NULL;
@@ -405,18 +405,18 @@ static jsontok_t *json_alloc_token(json_parser *parser, jsontok_t *tokens,
     tok        = &tokens[parser->toknext++];
     tok->start = tok->end = -1;
     tok->size             = 0;
-#if defined(JSON_PARENT_LINKS)
+#if defined(JTOK_PARENT_LINKS)
     tok->parent = -1;
-#endif /* #if defined(JSON_PARENT_LINKS) */
+#endif /* #if defined(JTOK_PARENT_LINKS) */
 
-#if defined(JSON_STANDALONE_TOKENS)
+#if defined(JTOK_STANDALONE_TOKENS)
     tok->json = parser->json;
-#endif /* #if defined(JSON_STANDALONE_TOKENS) */
+#endif /* #if defined(JTOK_STANDALONE_TOKENS) */
     return tok;
 }
 
 
-static int json_fill_token(jsontok_t *token, jsontype_t type, int start,
+static int jtok_fill_token(jtoktok_t *token, jtoktype_t type, int start,
                            int end)
 {
     if (token != NULL)
@@ -434,11 +434,11 @@ static int json_fill_token(jsontok_t *token, jsontype_t type, int start,
 }
 
 
-static jsonerr_t json_parse_primitive(json_parser *parser, const char *js,
-                                      size_t len, jsontok_t *tokens,
+static jtokerr_t jtok_parse_primitive(jtok_parser_t *parser, const char *js,
+                                      size_t len, jtoktok_t *tokens,
                                       size_t num_tokens)
 {
-    jsontok_t *token;
+    jtoktok_t *token;
     int        start;
     start = parser->pos;
 
@@ -446,7 +446,7 @@ static jsonerr_t json_parse_primitive(json_parser *parser, const char *js,
     {
         switch (js[parser->pos])
         {
-#ifndef JSON_STRICT
+#ifndef JTOK_STRICT
             /* In strict mode primitive must be followed by "," or
              * "}" or "]" */
             case ':':
@@ -460,46 +460,46 @@ static jsonerr_t json_parse_primitive(json_parser *parser, const char *js,
             case '}':
                 goto found;
         }
-        if (js[parser->pos] < JSON_ASCII_CHAR_LOWEST_VALUE ||
-            js[parser->pos] >= JSON_ASCII_CHAR_HIGHEST_VALUE)
+        if (js[parser->pos] < JTOK_ASCII_CHAR_LOWEST_VALUE ||
+            js[parser->pos] >= JTOK_ASCII_CHAR_HIGHEST_VALUE)
         {
             parser->pos = start;
-            return JSON_ERROR_INVAL;
+            return JTOK_ERROR_INVAL;
         }
     }
-#ifdef JSON_STRICT
+#ifdef JTOK_STRICT
     /* In strict mode primitive must be followed by a
      * comma/object/array */
     parser->pos = start;
-    return JSON_ERROR_PART;
+    return JTOK_ERROR_PART;
 #endif
 
 found:
     if (tokens == NULL)
     {
         parser->pos--;
-        return (jsonerr_t)0;
+        return (jtokerr_t)0;
     }
-    token = json_alloc_token(parser, tokens, num_tokens);
+    token = jtok_alloc_token(parser, tokens, num_tokens);
     if (token == NULL)
     {
         parser->pos = start;
-        return JSON_ERROR_NOMEM;
+        return JTOK_ERROR_NOMEM;
     }
-    json_fill_token(token, JSON_PRIMITIVE, start, parser->pos);
-#ifdef JSON_PARENT_LINKS
+    jtok_fill_token(token, JTOK_PRIMITIVE, start, parser->pos);
+#ifdef JTOK_PARENT_LINKS
     token->parent = parser->toksuper;
 #endif
     parser->pos--;
-    return (jsonerr_t)0;
+    return (jtokerr_t)0;
 }
 
 
-static jsonerr_t json_parse_string(json_parser *parser, const char *js,
-                                   size_t len, jsontok_t *tokens,
+static jtokerr_t jtok_parse_string(jtok_parser_t *parser, const char *js,
+                                   size_t len, jtoktok_t *tokens,
                                    size_t num_tokens)
 {
-    jsontok_t *token;
+    jtoktok_t *token;
 
     int start = parser->pos;
 
@@ -515,19 +515,19 @@ static jsonerr_t json_parse_string(json_parser *parser, const char *js,
         {
             if (tokens == NULL)
             {
-                return (jsonerr_t)0;
+                return (jtokerr_t)0;
             }
-            token = json_alloc_token(parser, tokens, num_tokens);
+            token = jtok_alloc_token(parser, tokens, num_tokens);
             if (token == NULL)
             {
                 parser->pos = start;
-                return JSON_ERROR_NOMEM;
+                return JTOK_ERROR_NOMEM;
             }
-            json_fill_token(token, JSON_STRING, start + 1, parser->pos);
-#ifdef JSON_PARENT_LINKS
+            jtok_fill_token(token, JTOK_STRING, start + 1, parser->pos);
+#ifdef JTOK_PARENT_LINKS
             token->parent = parser->toksuper;
 #endif
-            return (jsonerr_t)0;
+            return (jtokerr_t)0;
         }
 
         /* Backslash: Quoted symbol expected */
@@ -562,7 +562,7 @@ static jsonerr_t json_parse_string(json_parser *parser, const char *js,
                         if (!isxdigit(js[parser->pos]))
                         {
                             parser->pos = start;
-                            return JSON_ERROR_INVAL;
+                            return JTOK_ERROR_INVAL;
                         }
                         parser->pos++;
                     }
@@ -572,27 +572,27 @@ static jsonerr_t json_parse_string(json_parser *parser, const char *js,
                 /* Unexpected symbol */
                 default:
                     parser->pos = start;
-                    return JSON_ERROR_INVAL;
+                    return JTOK_ERROR_INVAL;
             }
         }
     }
     parser->pos = start;
-    return JSON_ERROR_PART;
+    return JTOK_ERROR_PART;
 }
 
 
-jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
-                     jsontok_t *tokens, unsigned int num_tokens)
+jtokerr_t jtok_parse(jtok_parser_t *parser, const char *js, size_t len,
+                     jtoktok_t *tokens, unsigned int num_tokens)
 {
-    jsonerr_t  r;
+    jtokerr_t  r;
     int        i;
-    jsontok_t *token;
+    jtoktok_t *token;
     int        count = 0;
 
     for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
     {
         char       c;
-        jsontype_t type;
+        jtoktype_t type;
 
         c = js[parser->pos];
         switch (c)
@@ -604,17 +604,17 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
                 {
                     break;
                 }
-                token = json_alloc_token(parser, tokens, num_tokens);
+                token = jtok_alloc_token(parser, tokens, num_tokens);
                 if (token == NULL)
-                    return JSON_ERROR_NOMEM;
+                    return JTOK_ERROR_NOMEM;
                 if (parser->toksuper != -1)
                 {
                     tokens[parser->toksuper].size++;
-#ifdef JSON_PARENT_LINKS
+#ifdef JTOK_PARENT_LINKS
                     token->parent = parser->toksuper;
 #endif
                 }
-                token->type      = (c == '{' ? JSON_OBJECT : JSON_ARRAY);
+                token->type      = (c == '{' ? JTOK_OBJECT : JTOK_ARRAY);
                 token->start     = parser->pos;
                 parser->toksuper = parser->toknext - 1;
                 break;
@@ -622,11 +622,11 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
             case ']':
                 if (tokens == NULL)
                     break;
-                type = (c == '}' ? JSON_OBJECT : JSON_ARRAY);
-#ifdef JSON_PARENT_LINKS
+                type = (c == '}' ? JTOK_OBJECT : JTOK_ARRAY);
+#ifdef JTOK_PARENT_LINKS
                 if (parser->toknext < 1)
                 {
-                    return JSON_ERROR_INVAL;
+                    return JTOK_ERROR_INVAL;
                 }
                 token = &tokens[parser->toknext - 1];
                 for (;;)
@@ -635,7 +635,7 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
                     {
                         if (token->type != type)
                         {
-                            return JSON_ERROR_INVAL;
+                            return JTOK_ERROR_INVAL;
                         }
                         token->end       = parser->pos + 1;
                         parser->toksuper = token->parent;
@@ -655,7 +655,7 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
                     {
                         if (token->type != type)
                         {
-                            return JSON_ERROR_INVAL;
+                            return JTOK_ERROR_INVAL;
                         }
                         parser->toksuper = -1;
                         token->end       = parser->pos + 1;
@@ -664,7 +664,7 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
                 }
                 /* Error if unmatched closing bracket */
                 if (i == -1)
-                    return JSON_ERROR_INVAL;
+                    return JTOK_ERROR_INVAL;
                 for (; i >= 0; i--)
                 {
                     token = &tokens[i];
@@ -678,7 +678,7 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
                 break;
             case '\"':
             {
-                r = json_parse_string(parser, js, len, tokens, num_tokens);
+                r = jtok_parse_string(parser, js, len, tokens, num_tokens);
                 if (r < 0)
                 {
                     return r;
@@ -705,16 +705,16 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
             case ',':
             {
                 if (tokens != NULL &&
-                    tokens[parser->toksuper].type != JSON_ARRAY &&
-                    tokens[parser->toksuper].type != JSON_OBJECT)
+                    tokens[parser->toksuper].type != JTOK_ARRAY &&
+                    tokens[parser->toksuper].type != JTOK_OBJECT)
                 {
-#ifdef JSON_PARENT_LINKS
+#ifdef JTOK_PARENT_LINKS
                     parser->toksuper = tokens[parser->toksuper].parent;
 #else
                     for (i = parser->toknext - 1; i >= 0; i--)
                     {
-                        if (tokens[i].type == JSON_ARRAY ||
-                            tokens[i].type == JSON_OBJECT)
+                        if (tokens[i].type == JTOK_ARRAY ||
+                            tokens[i].type == JTOK_OBJECT)
                         {
                             if (tokens[i].start != -1 && tokens[i].end == -1)
                             {
@@ -727,7 +727,7 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
                 }
             }
             break;
-#ifdef JSON_STRICT
+#ifdef JTOK_STRICT
             /* In strict mode primitives are: numbers and booleans
              */
             case '-':
@@ -747,11 +747,11 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
                 /* And they must not be keys of the object */
                 if (tokens != NULL)
                 {
-                    jsontok_t *t = &tokens[parser->toksuper];
-                    if (t->type == JSON_OBJECT ||
-                        (t->type == JSON_STRING && t->size != 0))
+                    jtoktok_t *t = &tokens[parser->toksuper];
+                    if (t->type == JTOK_OBJECT ||
+                        (t->type == JTOK_STRING && t->size != 0))
                     {
-                        return JSON_ERROR_INVAL;
+                        return JTOK_ERROR_INVAL;
                     }
                 }
 #else
@@ -759,7 +759,7 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
              * primitive */
             default:
 #endif
-                r = json_parse_primitive(parser, js, len, tokens, num_tokens);
+                r = jtok_parse_primitive(parser, js, len, tokens, num_tokens);
                 if (r < 0)
                     return r;
                 count++;
@@ -767,10 +767,10 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
                     tokens[parser->toksuper].size++;
                 break;
 
-#ifdef JSON_STRICT
+#ifdef JTOK_STRICT
             /* Unexpected char in strict mode */
             default:
-                return JSON_ERROR_INVAL;
+                return JTOK_ERROR_INVAL;
 #endif
         }
     }
@@ -780,20 +780,36 @@ jsonerr_t json_parse(json_parser *parser, const char *js, size_t len,
         /* Unmatched opened object or array */
         if (tokens[i].start != -1 && tokens[i].end == -1)
         {
-            return JSON_ERROR_PART;
+            return JTOK_ERROR_PART;
         }
     }
 
-    return (jsonerr_t)count;
+    return (jtokerr_t)count;
 }
 
 
-json_parser json_init(void)
+jtok_parser_t jtok_new_parser(void)
 {
-    json_parser parser;
+    jtok_parser_t parser;
     parser.pos      = 0;
     parser.toknext  = 0;
     parser.toksuper = -1;
     parser.json     = NULL;
     return parser;
 }
+
+
+bool jtok_tokenIsKey(jtoktok_t token)
+{
+    if(token.type == JTOK_STRING)
+    {
+        if(token.size == 1)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+

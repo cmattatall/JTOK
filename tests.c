@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "json.h"
+#include "jtok.h"
 
 
-static const char *validJSON[] = {
+static const char *validJTOK[] = {
     "{\"key\" : \"value\"}",
     "{\"key\" : \"ThisIsAveryLongStringThatINeedToMakeVeryLong\"}",
     "{\"key\" : 1234 }",
@@ -60,15 +60,15 @@ static const char *validJSON[] = {
 };
 
 
-static jsontok_t tokens[200];
+static jtoktok_t tokens[200];
 
 int main(void){
-    printf("\nTesting json parser against valid jsons\n");
-    for(unsigned int i = 0; i < sizeof(validJSON)/sizeof(*validJSON); i++)
+    printf("\nTesting jtok parser against valid jtoks\n");
+    for(unsigned int i = 0; i < sizeof(validJTOK)/sizeof(*validJTOK); i++)
     {   
-        json_parser p = json_init();
-        printf("%s ... ", validJSON[i]);
-        jsonerr_t status = json_parse(&p, validJSON[i], strlen(validJSON[i]), tokens, sizeof(tokens)/sizeof(*tokens));
+        jtok_parser_t p = jtok_new_parser();
+        printf("%s ... ", validJTOK[i]);
+        jtokerr_t status = jtok_parse(&p, validJTOK[i], strlen(validJTOK[i]), tokens, sizeof(tokens)/sizeof(*tokens));
         if(status < 0)
         {   
             printf("failed");
