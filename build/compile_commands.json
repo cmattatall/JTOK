@@ -1,7 +1,0 @@
-[
-{
-  "directory": "C:/Users/Adam/Desktop/JTOK/build",
-  "command": "C:\\MinGW\\bin\\gcc.exe  @CMakeFiles/JTOK.dir/includes_C.rsp -g -o CMakeFiles\\JTOK.dir\\src\\jtok.c.obj -c C:\\Users\\Adam\\Desktop\\JTOK\\src\\jtok.c",
-  "file": "C:/Users/Adam/Desktop/JTOK/src/jtok.c"
-}
-]

@@ -80,20 +80,6 @@ int main(void){
             printf("passed");
         }
         printf("\n");
-
-        #ifdef DEBUG
-        for(unsigned int j = 0; j < status; j++)
-        {   
-            char tmp[250];
-            jtok_token_tostr(tmp, sizeof(tmp), p.json, tokens[j]);
-            printf("%s\n", tmp);
-        }
-
-        #endif /* ifdef DEBUG */
-
-
-        return 0;
-
     }
     return 0;
 }

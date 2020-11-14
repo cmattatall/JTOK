@@ -1,3 +1,0 @@
-C:/Users/Adam/Desktop/JTOK/build/CMakeFiles/rebuild_cache.dir
-C:/Users/Adam/Desktop/JTOK/build/CMakeFiles/JTOK.dir
-C:/Users/Adam/Desktop/JTOK/build/CMakeFiles/edit_cache.dir
