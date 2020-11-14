@@ -82,6 +82,18 @@ static jtokerr_t jtok_parse_string(jtok_parser_t *parser, const char *js,
                                    size_t num_tokens);
 
 
+
+/**
+ * @brief Check if a parsed sequence of json tokens is valid
+ * 
+ * @param parser the parser
+ * @param tokens the token pool
+ * @return jtokerr_t status
+ */
+static jtokerr_t tokenChainIsValid(const jtok_parser_t *parser, jtoktok_t *tokens);
+
+
+
 char *jtok_toktypename(jtoktype_t type)
 {
     static const char *jtoktok_type_names[] = {
@@ -592,7 +604,7 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
     unsigned int len = parser->json_len;
     char *js = parser->json;
 
-    enum { KEY, VAL} expected = KEY;
+    enum { KEY, VALUE, COMMA, COLON} expected = KEY;
     enum { ARR, OBJ} object_type = OBJ;
 
     for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
@@ -613,11 +625,13 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
                 {
                     break;
                 }
+
                 token = jtok_alloc_token(parser, tokens, num_tokens);
                 if (token == NULL)
                 {
                     return JTOK_STATUS_NOMEM;
                 }
+
                 if (parser->toksuper != NO_PARENT_IDX)
                 {
                     tokens[parser->toksuper].size++;
@@ -746,6 +760,14 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
         }
     }
 
+    return tokenChainIsValid(parser, tokens);    
+}
+
+
+
+static jtokerr_t tokenChainIsValid(const jtok_parser_t *parser, jtoktok_t *tokens)
+{
+    int i;
     for (i = parser->toknext - 1; i >= 0; i--)
     {
         /* Unmatched opened object or array */
