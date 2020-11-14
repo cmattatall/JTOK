@@ -30,15 +30,31 @@ typedef enum
 } jtoktype_t;
 
 typedef enum
-{
+{   
+    JTOK_STATUS_PARSE_OK = 0,
+
+    /* For errors that have not yet been classified in source code */
+    JTOK_STATUS_UNKNOWN_ERROR = -1,
+
     /* Not enough tokens were provided */
-    JTOK_ERROR_NOMEM = -1,
+    JTOK_STATUS_NOMEM = -2,
 
     /* Invalid character inside JTOK string */
-    JTOK_ERROR_INVAL = -2,
+    JTOK_STATUS_INVAL = -3,
 
     /* The string is not a full JTOK packet, more bytes expected */
-    JTOK_ERROR_PART = -3
+    JTOK_STATUS_PART = -4,
+
+    /* key is missing value. ex: {"key\"}*/
+    JTOK_STATUS_KEY_NO_VAL = -5, 
+
+    /* something like { , "key" : 123, } */
+    JTOK_STATUS_COMMA_NO_KEY = -6,
+
+    /* Aggregate types must have parent 
+    types of string (other than top-level object) */
+    JTOK_STATUS_OBJECT_INVALID_PARENT = -7,
+
 } jtokerr_t;
 
 
@@ -80,9 +96,7 @@ struct jtoktok_struct
     int        start;    /* start index of token in json string */
     int        end;      /* end index of token in json string   */
     int        size;     /* number of sub-tokens in the token   */
-#if defined(JTOK_PARENT_LINKS)
     int parent;          /* index of parent in the token array  */
-#endif /* #if defined(JTOK_PARENT_LINKS) */
 };
 
 
@@ -97,6 +111,7 @@ typedef struct
     unsigned int pos;      /* current parsing index in json string */
     unsigned int toknext;  /* index of next token to allocate */
     int          toksuper; /* superior token node, e.g parent object or array */
+    int parse_count;       /* number of tokens successfully parsed */
 } jtok_parser_t;
 
 
@@ -145,7 +160,7 @@ jtok_parser_t jtok_new_parser(const char *nul_terminated_json);
  * @param parser jtok parser
  * @param tokens array of jtoktok (provided by caller)
  * @param num_tokens max number of tokens to parse
- * @return jtokerr_t parse status. Errors are indicated by return values < 0, otherwise the number of parsed tokens is returned
+ * @param final_idx pointer that is updated to the total number of tokens parsed from the json on success
  */
 jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_tokens);
 

@@ -3,7 +3,6 @@
 
 #include "jtok.h"
 
-
 static const char *validJTOK[] = {
     "{\"key\" : { }}",
     "{\"key\" : \"value\"}",
@@ -11,13 +10,10 @@ static const char *validJTOK[] = {
     "{\"key\" : 1234 }",
     "{\"key\" : [ 1, 2, 3] }",
     "{}",
-    "{[]}",
     "{\"key\" : true}",
     "{\"key\" : false}",
     "{\"key\" : null}",
-    "{\"key\" : {[]}}",
-    "{\"key\" : { [ ] } }",
-    "{\"key\" : {\"childKey\" : 123}}"
+    "{\"key\" : {\"childKey\" : 123}}",
     "{\"key\" : {\"childKey\" : \"childStringValue\"}}",
     "{\"key\" : {\"childKey\" : [ \"array\", \"of\", \"strings\", \"as\", \"child\", \"key\", \"values\"]}}",
     "{\"key\" : \"key\"}",
@@ -53,16 +49,13 @@ static const char *validJTOK[] = {
     "{\"exponentValue\": 1E+9}",
     "{\"differentTypesOfWhiteSpace\"\t:\t\"valueString\"}",
     "{\"recursion\" : {\"into\" : {\"child\" : {\"objects\" : {\"key\" : [ \"this\", \"is\", \"an\", \"array\", \"that\", \"is\", \"deeply\", \"nested\"]}}}}}",
-    "{\"key\" : {[{\"arrKey\" : \"arrValue\"}]}}",
+    "{\"key\" : {\"key\" : [{\"arrKey\" : \"arrValue\"}]}}",
     "{\"key\" : [1]}",
     "{\"key\" : [\"1\"]}",
     "{\"key1\" : [{\"arrJsonKey1\" : \"arrJsonVal1\"}, {\"arrJsonKey2\" : \"arrJsonVal2\"}]}",
 };
 
-#define DEBUG
-
 static jtoktok_t tokens[200];
-
 int main(void){
     printf("\nTesting jtok parser against valid jtoks\n");
     for(unsigned int i = 0; i < sizeof(validJTOK)/sizeof(*validJTOK); i++)
@@ -72,7 +65,7 @@ int main(void){
         jtokerr_t status = jtok_parse(&p, tokens, sizeof(tokens)/sizeof(*tokens));
         if(status < 0)
         {   
-            printf("failed");
+            printf("failed with status %d", (int)status);
             return 1;
         }
         else

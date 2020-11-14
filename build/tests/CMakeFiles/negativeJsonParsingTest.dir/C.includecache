@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../inc/jtok.h
+stddef.h
+-
+stdint.h
+-
+stdbool.h
+-
+limits.h
+-
+
+C:/Users/Adam/Desktop/JTOK/tests/negativeParseTest.c
+stdio.h
+-
+string.h
+-
+jtok.h
+C:/Users/Adam/Desktop/JTOK/tests/jtok.h
+
