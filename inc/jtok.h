@@ -55,6 +55,11 @@ typedef enum
     types of string (other than top-level object) */
     JTOK_STATUS_OBJECT_INVALID_PARENT = -7,
 
+    /* eg : { key : 123} */
+    JTOK_STATUS_INVALID_PRIMITIVE = -8, 
+
+    /* eg: "key" : 123 (literally missing the top-level object braces) */
+    JTOK_STATUS_NON_OBJECT = -9,
 } jtokerr_t;
 
 
