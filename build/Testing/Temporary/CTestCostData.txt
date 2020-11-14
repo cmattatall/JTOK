@@ -1,4 +1,5 @@
-positiveJsonParsingTest 20 0.00342698
+positiveJsonParsingTest 21 0
 negativeJsonParsingTest 1 0
 ---
+positiveJsonParsingTest
 negativeJsonParsingTest

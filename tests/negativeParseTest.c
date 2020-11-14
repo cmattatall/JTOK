@@ -26,6 +26,12 @@ static const char *invalidJSON[] = {
     "{{\"childKey\" : \"childValue\"}}", /* child json with no key */
     "{[]}", /* no key for empty array */
     "{\"key\" : {[]}}", /* array with no key inside child object */
+
+    /* ESCAPED HEX VALUES MUST BE INSIDE STRINGS */
+    "{\"hexValueKey\" : \\uFFFF}",
+    "{\"hexValueKey\" : \\u0000}",
+    "{\"hexValueKey\" : \\uabcd}",
+    "{\"hexValueKey\" : \\uABCD}",
 };
 
 static jtoktok_t tokens[200];

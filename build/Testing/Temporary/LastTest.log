@@ -1,10 +1,10 @@
-Start testing: Nov 14 16:42 Atlantic Standard Time
+Start testing: Nov 14 17:20 Atlantic Standard Time
 ----------------------------------------------------------
 1/2 Testing: positiveJsonParsingTest
 1/2 Test: positiveJsonParsingTest
 Command: "C:/Users/Adam/Desktop/JTOK/build/tests/positiveJsonParsingTest.exe" "--build-generator" "MinGW Makefiles" "--test-command" "C:/Program Files/CMake/bin/ctest.exe"
 Directory: C:/Users/Adam/Desktop/JTOK/build/tests
-"positiveJsonParsingTest" start time: Nov 14 16:42 Atlantic Standard Time
+"positiveJsonParsingTest" start time: Nov 14 17:20 Atlantic Standard Time
 Output:
 ----------------------------------------------------------
 
@@ -15,54 +15,12 @@ Testing jtok parser against valid jtoks
 {"key" : 1234 } ... passed
 {"key" : [ 1, 2, 3] } ... passed
 {} ... passed
-{"key" : true} ... passed
-{"key" : false} ... passed
-{"key" : null} ... passed
-{"key" : {"childKey" : 123}} ... passed
-{"key" : {"childKey" : "childStringValue"}} ... passed
-{"key" : {"childKey" : [ "array", "of", "strings", "as", "child", "key", "values"]}} ... passed
-{"key" : "key"} ... passed
-{"key" : [ true, true, false, false]} ... passed
-{"key" : "true"} ... passed
-{"key" : "false"} ... passed
-{"key" : "null"} ... passed
-{"true" : "true"} ... passed
-{"false" : "false"} ... passed
-{"null" : "null"} ... passed
-{"hexValueKey" : \uffff} ... passed
-{"hexValueKey" : \uFFFF} ... passed
-{"hexValueKey" : \u0000} ... passed
-{"hexValueKey" : \uabcd} ... passed
-{"hexValueKey" : \uABCD} ... passed
-{"hexValueStringifiedKey" : "\uffff"} ... passed
-{"hexValueStringifiedKey" : "\u0000"} ... passed
-{"hexValueStringifiedKey" : "\uFFFF"} ... passed
-{"hexValueStringifiedKey" : "\uABCD"} ... passed
-{"decimalValueKey" : 123.456} ... passed
-{"decimalValueString" : "123.456"} ... passed
-{"exponentValue": 1.001e-9} ... passed
-{"exponentValue": 1.001e9} ... passed
-{"exponentValue": 1.001e+9} ... passed
-{"exponentValue": 1.001E-9} ... passed
-{"exponentValue": 1.001E9} ... passed
-{"exponentValue": 1.001E+9} ... passed
-{"exponentValue": 1e-9} ... passed
-{"exponentValue": 1e9} ... passed
-{"exponentValue": 1e+9} ... passed
-{"exponentValue": 1E-9} ... passed
-{"exponentValue": 1E9} ... passed
-{"exponentValue": 1E+9} ... passed
-{"differentTypesOfWhiteSpace"	:	"valueString"} ... passed
-{"recursion" : {"into" : {"child" : {"objects" : {"key" : [ "this", "is", "an", "array", "that", "is", "deeply", "nested"]}}}}} ... passed
-{"key" : {"key" : [{"arrKey" : "arrValue"}]}} ... passed
-{"key" : [1]} ... passed
-{"key" : ["1"]} ... passed
-{"key1" : [{"arrJsonKey1" : "arrJsonVal1"}, {"arrJsonKey2" : "arrJsonVal2"}]} ... passed
+{"key" : true} ... failed with status -4
 <end of output>
-Test time =   0.07 sec
+Test time =   0.04 sec
 ----------------------------------------------------------
-Test Passed.
-"positiveJsonParsingTest" end time: Nov 14 16:42 Atlantic Standard Time
+Test Failed.
+"positiveJsonParsingTest" end time: Nov 14 17:20 Atlantic Standard Time
 "positiveJsonParsingTest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -70,7 +28,7 @@ Test Passed.
 2/2 Test: negativeJsonParsingTest
 Command: "C:/Users/Adam/Desktop/JTOK/build/tests/negativeJsonParsingTest.exe" "--build-generator" "MinGW Makefiles" "--test-command" "C:/Program Files/CMake/bin/ctest.exe"
 Directory: C:/Users/Adam/Desktop/JTOK/build/tests
-"negativeJsonParsingTest" start time: Nov 14 16:42 Atlantic Standard Time
+"negativeJsonParsingTest" start time: Nov 14 17:20 Atlantic Standard Time
 Output:
 ----------------------------------------------------------
 
@@ -84,11 +42,11 @@ key : 123 ... passed
 {["123", "456", "abc"]} ... passed
 {"key" : ["123" "456" "abc"]} ... failed with status 0
 <end of output>
-Test time =   0.04 sec
+Test time =   0.05 sec
 ----------------------------------------------------------
 Test Failed.
-"negativeJsonParsingTest" end time: Nov 14 16:42 Atlantic Standard Time
+"negativeJsonParsingTest" end time: Nov 14 17:20 Atlantic Standard Time
 "negativeJsonParsingTest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Nov 14 16:42 Atlantic Standard Time
+End testing: Nov 14 17:20 Atlantic Standard Time

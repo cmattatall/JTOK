@@ -4,13 +4,13 @@
 #include "jtok.h"
 
 static const char *validJTOK[] = {
+    "{\"key\" : true}",
     "{\"key\" : { }}",
     "{\"key\" : \"value\"}",
     "{\"key\" : \"ThisIsAveryLongStringThatINeedToMakeVeryLong\"}",
     "{\"key\" : 1234 }",
     "{\"key\" : [ 1, 2, 3] }",
     "{}",
-    "{\"key\" : true}",
     "{\"key\" : false}",
     "{\"key\" : null}",
     "{\"key\" : {\"childKey\" : 123}}",
@@ -24,11 +24,6 @@ static const char *validJTOK[] = {
     "{\"true\" : \"true\"}",
     "{\"false\" : \"false\"}",
     "{\"null\" : \"null\"}",
-    "{\"hexValueKey\" : \\uffff}",
-    "{\"hexValueKey\" : \\uFFFF}",
-    "{\"hexValueKey\" : \\u0000}",
-    "{\"hexValueKey\" : \\uabcd}",
-    "{\"hexValueKey\" : \\uABCD}",
     "{\"hexValueStringifiedKey\" : \"\\uffff\"}",
     "{\"hexValueStringifiedKey\" : \"\\u0000\"}",
     "{\"hexValueStringifiedKey\" : \"\\uFFFF\"}",
