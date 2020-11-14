@@ -19,7 +19,10 @@
 #define JTOK_ASCII_CHAR_LOWEST_VALUE 32   /* ' ' space */
 #define JTOK_ASCII_CHAR_HIGHEST_VALUE 127 /* DEL */
 
-#define NO_PARENT_IDX -1
+#define INVALID_ARRAY_INDEX -1
+#define NO_PARENT_IDX INVALID_ARRAY_INDEX
+#define JTOK_STRING_INDEX_NONE INVALID_ARRAY_INDEX
+
 #define HEXCHAR_ESCAPE_SEQ_COUNT 4 /* can escape 4 hex chars such as \uffea */
 
 
@@ -406,9 +409,9 @@ static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
         return NULL;
     }
     tok        = &tokens[parser->toknext++];
-    tok->start = tok->end = -1;
+    tok->start = tok->end = INVALID_ARRAY_INDEX;
     tok->size             = 0;
-    tok->parent = -1;
+    tok->parent = NO_PARENT_IDX;
 
 #if defined(JTOK_STANDALONE_TOKENS)
     tok->json = parser->json;
@@ -638,7 +641,7 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
                 token = &tokens[parser->toknext - 1];
                 for (;;)
                 {
-                    if (token->start != -1 && token->end == -1)
+                    if (token->start != JTOK_STRING_INDEX_NONE && token->end == JTOK_STRING_INDEX_NONE)
                     {
                         if (token->type != type)
                         {
@@ -746,9 +749,9 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
     for (i = parser->toknext - 1; i >= 0; i--)
     {
         /* Unmatched opened object or array */
-        if (tokens[i].start != -1)
+        if (tokens[i].start != JTOK_STRING_INDEX_NONE)
         {   
-            if(tokens[i].end == -1)
+            if(tokens[i].end == JTOK_STRING_INDEX_NONE)
             {
                 return JTOK_STATUS_PART;
             }
@@ -862,7 +865,7 @@ jtok_parser_t jtok_new_parser(const char *nul_terminated_json)
     jtok_parser_t parser;
     parser.pos      = 0;
     parser.toknext  = 0;
-    parser.toksuper = -1;
+    parser.toksuper = NO_PARENT_IDX;
     parser.json     = (char*)nul_terminated_json;
     parser.json_len = strlen(nul_terminated_json);
     return parser;
