@@ -32,6 +32,7 @@ static const char *invalidJSON[] = {
     "{\"hexValueKey\" : \\u0000}",
     "{\"hexValueKey\" : \\uabcd}",
     "{\"hexValueKey\" : \\uABCD}",
+    "{\"key\" : 12true}", /* valid primitive embedded in the invalid primitve */
 };
 
 static jtoktok_t tokens[200];

@@ -22,11 +22,12 @@ extern "C" {
  *  - Other primitive: number, boolean (true/false) or null
  */
 typedef enum
-{
-    JTOK_PRIMITIVE = 0,
-    JTOK_OBJECT    = 1,
-    JTOK_ARRAY     = 2,
-    JTOK_STRING    = 3
+{   
+    JTOK_UNASSIGNED_TOKEN = 0,
+    JTOK_PRIMITIVE        = 1,
+    JTOK_OBJECT           = 2,
+    JTOK_ARRAY            = 3,
+    JTOK_STRING           = 4,
 } jtoktype_t;
 
 typedef enum
@@ -116,7 +117,6 @@ typedef struct
     unsigned int pos;      /* current parsing index in json string */
     unsigned int toknext;  /* index of next token to allocate */
     int          toksuper; /* superior token node, e.g parent object or array */
-    int parse_count;       /* number of tokens successfully parsed */
 } jtok_parser_t;
 
 

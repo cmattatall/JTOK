@@ -1,26 +1,20 @@
-Start testing: Nov 14 17:20 Atlantic Standard Time
+Start testing: Nov 15 08:22 Atlantic Standard Time
 ----------------------------------------------------------
 1/2 Testing: positiveJsonParsingTest
 1/2 Test: positiveJsonParsingTest
 Command: "C:/Users/Adam/Desktop/JTOK/build/tests/positiveJsonParsingTest.exe" "--build-generator" "MinGW Makefiles" "--test-command" "C:/Program Files/CMake/bin/ctest.exe"
 Directory: C:/Users/Adam/Desktop/JTOK/build/tests
-"positiveJsonParsingTest" start time: Nov 14 17:20 Atlantic Standard Time
+"positiveJsonParsingTest" start time: Nov 15 08:22 Atlantic Standard Time
 Output:
 ----------------------------------------------------------
 
 Testing jtok parser against valid jtoks
-{"key" : { }} ... passed
-{"key" : "value"} ... passed
-{"key" : "ThisIsAveryLongStringThatINeedToMakeVeryLong"} ... passed
-{"key" : 1234 } ... passed
-{"key" : [ 1, 2, 3] } ... passed
-{} ... passed
 {"key" : true} ... failed with status -4
 <end of output>
-Test time =   0.04 sec
+Test time =   0.09 sec
 ----------------------------------------------------------
 Test Failed.
-"positiveJsonParsingTest" end time: Nov 14 17:20 Atlantic Standard Time
+"positiveJsonParsingTest" end time: Nov 15 08:22 Atlantic Standard Time
 "positiveJsonParsingTest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -28,7 +22,7 @@ Test Failed.
 2/2 Test: negativeJsonParsingTest
 Command: "C:/Users/Adam/Desktop/JTOK/build/tests/negativeJsonParsingTest.exe" "--build-generator" "MinGW Makefiles" "--test-command" "C:/Program Files/CMake/bin/ctest.exe"
 Directory: C:/Users/Adam/Desktop/JTOK/build/tests
-"negativeJsonParsingTest" start time: Nov 14 17:20 Atlantic Standard Time
+"negativeJsonParsingTest" start time: Nov 15 08:22 Atlantic Standard Time
 Output:
 ----------------------------------------------------------
 
@@ -42,11 +36,11 @@ key : 123 ... passed
 {["123", "456", "abc"]} ... passed
 {"key" : ["123" "456" "abc"]} ... failed with status 0
 <end of output>
-Test time =   0.05 sec
+Test time =   0.09 sec
 ----------------------------------------------------------
 Test Failed.
-"negativeJsonParsingTest" end time: Nov 14 17:20 Atlantic Standard Time
+"negativeJsonParsingTest" end time: Nov 15 08:22 Atlantic Standard Time
 "negativeJsonParsingTest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Nov 14 17:20 Atlantic Standard Time
+End testing: Nov 15 08:22 Atlantic Standard Time

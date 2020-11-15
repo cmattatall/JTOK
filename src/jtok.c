@@ -438,23 +438,11 @@ bool isValidJson(const jtoktok_t *tokens, uint_least8_t tcnt)
 }
 
 
-static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
-                                   size_t num_tokens)
-{
-    jtoktok_t *tok;
-    if (parser->toknext >= num_tokens)
-    {
-        return NULL;
-    }
-    tok        = &tokens[parser->toknext++];
-    tok->start = tok->end = INVALID_ARRAY_INDEX;
-    tok->size             = 0;
-    tok->parent = NO_PARENT_IDX;
 
-#if defined(JTOK_STANDALONE_TOKENS)
-    tok->json = parser->json;
-#endif /* #if defined(JTOK_STANDALONE_TOKENS) */
-    return tok;
+
+jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_tokens)
+{
+    return jtok_parse_object(parser, tokens, num_tokens);
 }
 
 
@@ -480,7 +468,7 @@ static jtokerr_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t *tokens, 
 {
     jtoktok_t *token;
     int        start = parser->pos;
-    char *js = parser->json;
+    const char *js = (const char*)parser->json;
     unsigned int len = parser->json_len;
     for(start = parser->pos; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
     {   
@@ -518,7 +506,10 @@ static jtokerr_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t *tokens, 
                 }
                 jtok_fill_token(token, JTOK_PRIMITIVE, start, parser->pos);
                 token->parent = parser->toksuper;
-                parser->pos--;
+
+                /* go back 1 spot so when we return from current function, the
+                calling context can look at the current character */
+                parser->pos--; 
                 return JTOK_STATUS_PARSE_OK;
             }
             break;
@@ -528,17 +519,17 @@ static jtokerr_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t *tokens, 
                 {
                     if(0 == strncmp(&js[start], "true", strlen("true")))
                     {
-                        parser->pos += strlen("true");
+                        parser->pos += strlen("true") - 1; /* subtract 1 so we don't end up at character AFTER the final char in token */
                         break;
                     }
                     else if(0 == strncmp(&js[start], "false", strlen("false")))
                     {
-                        parser->pos += strlen("false");
+                        parser->pos += strlen("false") - 1; /* subtract 1 so we don't end up at character AFTER the final char in token */
                         break;
                     }
                     else if(0 == strncmp(&js[start], "null", strlen("null")))
                     {
-                        parser->pos += strlen("null");
+                        parser->pos += strlen("null") - 1; /* subtract 1 so we don't end up at character AFTER the final char in token */
                         break;
                     }
                     else
@@ -560,19 +551,18 @@ static jtokerr_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t *tokens, 
 static jtokerr_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
 {
     jtoktok_t *token;
-    int start = parser->pos;
+    int start;
     char *js = parser->json;
     unsigned int len = parser->json_len;
     if(js[parser->pos] == '\"')
     {
         parser->pos++; /* advance to inside of quotes */
+        start = parser->pos; /* token start is first character after the quote */
         for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
         {
-            char c = js[parser->pos];
-
             /* Quote: end of string */
-            if (c == '\"')
-            {
+            if (js[parser->pos] == '\"')
+            {   
                 if (tokens == NULL)
                 {
                     return JTOK_STATUS_PARSE_OK;
@@ -583,52 +573,55 @@ static jtokerr_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens, siz
                     parser->pos = start;
                     return JTOK_STATUS_NOMEM;
                 }
-                jtok_fill_token(token, JTOK_STRING, start + sizeof((char)'\"'), parser->pos);
+                jtok_fill_token(token, JTOK_STRING, start, parser->pos);
                 token->parent = parser->toksuper;
                 return JTOK_STATUS_PARSE_OK;
             }
 
-            /* Backslash: Quoted symbol expected */
-            if (c == '\\' && parser->pos + sizeof((char)'\"') < len)
-            {
-                int i;
-                parser->pos++;
-                switch (js[parser->pos])
+            if (js[parser->pos] == '\\')
+            {   
+                if(parser->pos + sizeof((char)'\"') < len)
                 {
-                    /* Allowed escaped symbols */
-                    case '\"':
-                    case '/':
-                    case '\\':
-                    case 'b':
-                    case 'f':
-                    case 'r':
-                    case 'n':
-                    case 't':
+                    parser->pos++;
+                    switch (js[parser->pos])
                     {
-                    }
-                    break;
-                    case 'u': /* Allows escaped symbol \uXXXX */
-                    {
-                        parser->pos++;
-                        for (i = 0;
-                            i < HEXCHAR_ESCAPE_SEQ_COUNT && parser->pos < len && js[parser->pos] != '\0';
-                            i++)
+                        /* Allowed escaped symbols */
+                        case '\"':
+                        case '/':
+                        case '\\':
+                        case 'b':
+                        case 'f':
+                        case 'r':
+                        case 'n':
+                        case 't':
                         {
-                            /* If it isn't a hex character we have an
-                            * error */
-                            if (!isxdigit(js[parser->pos]))
-                            {
-                                parser->pos = start;
-                                return JTOK_STATUS_INVAL;
-                            }
-                            parser->pos++;
                         }
-                        parser->pos--;
+                        break;
+                        case 'u': /* Allows escaped symbol \uXXXX */
+                        {
+                            parser->pos++; /* move to first escaped hex character */
+                            unsigned int i;
+                            const unsigned int max_i = HEXCHAR_ESCAPE_SEQ_COUNT;
+                            for (i = 0; i < max_i && parser->pos < len && js[parser->pos] != '\0'; i++)
+                            {
+                                if (!isxdigit(js[parser->pos]))
+                                {   
+                                    /* reset parser position and return error */
+                                    parser->pos = start;
+                                    return JTOK_STATUS_INVAL;
+                                }
+                                parser->pos++;
+                            }
+                            parser->pos--;
+                        }
+                        break;
+                        default: /* Unexpected symbol */
+                        {
+                            parser->pos = start;
+                            return JTOK_STATUS_INVAL;
+                        }
+                        break;
                     }
-                    break;
-                    default: /* Unexpected symbol */
-                        parser->pos = start;
-                        return JTOK_STATUS_INVAL;
                 }
             }
         }
@@ -643,17 +636,21 @@ static jtokerr_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens, siz
 }
 
 
-jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_tokens)
+static jtokerr_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
+{
+    
+}
+
+
+
+static jtokerr_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
 {
     jtokerr_t  r;
-    int        i;
     jtoktok_t *token;
-    int        count = 0;
+    int        i;
+    int        object_idx;
     unsigned int len = parser->json_len;
     char *js = parser->json;
-
-    enum { KEY, VALUE, COMMA, COLON} expected = KEY;
-    enum { ARR, OBJ} object_type = OBJ;
 
     for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
     {
@@ -662,16 +659,12 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
         switch (js[parser->pos])
         {
             case '{':
-                object_type = OBJ;
             case '[':
-                object_type = ARR;
-
-                parser->parse_count++;
                 if (tokens == NULL)
                 {
                     break;
                 }
-
+                object_idx = parser->toknext;
                 token = jtok_alloc_token(parser, tokens, num_tokens);
                 if (token == NULL)
                 {
@@ -698,9 +691,11 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
                 {
                     return JTOK_STATUS_INVAL;
                 }
-                token = &tokens[parser->toknext - 1];
+                token = &tokens[object_idx]; /* This is the last allocated token */
+                
+                /* Walk back up the parent chain and link the parent indices up to top level object */
                 for (;;)
-                {
+                {   
                     if (token->start != JTOK_STRING_INDEX_NONE && token->end == JTOK_STRING_INDEX_NONE)
                     {
                         if (token->type != type)
@@ -715,7 +710,10 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
                     {
                         break;
                     }
-                    token = &tokens[token->parent];
+                    else
+                    {
+                        token = &tokens[token->parent];
+                    }
                 }
                 break;
             case '\"':
@@ -725,7 +723,6 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
                 {
                     return r;
                 }
-                parser->parse_count++;
                 if (parser->toksuper != NO_PARENT_IDX && tokens != NULL)
                 {
                     tokens[parser->toksuper].size++;
@@ -736,9 +733,7 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
             case '\r':
             case '\n':
             case ' ':
-            {
-            }
-            break;
+                continue; /* skip whitespce */
             case ':':
             {
                 parser->toksuper = parser->toknext - 1;
@@ -754,6 +749,7 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
                 }
             }
             break;
+            case '+':
             case '-':
             case '0':
             case '1':
@@ -765,18 +761,28 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
             case '7':
             case '8':
             case '9':
-            case 't':
-            case 'f':
+            case 't': 
+            case 'f': 
             case 'n':
-            {
-                /* And they must not be keys of the object */
+            {   
+                /* We're at the start of a primitive so validate parent type */
                 if (tokens != NULL)
                 {
-                    jtoktok_t *t = &tokens[parser->toksuper];
-                    if (t->type == JTOK_OBJECT ||
-                        (t->type == JTOK_STRING && t->size != 0))
+                    jtoktok_t *parent = &tokens[parser->toksuper];
+                    switch(parent->type)
                     {
-                        return JTOK_STATUS_INVAL;
+                        case JTOK_OBJECT:
+                            /* primitives cannot be keys (they are not quoted) */
+                            return JTOK_STATUS_INVAL;
+                        case JTOK_STRING:
+                            if(parent->size != 0)
+                            {   
+                                /* key can only have 1 primitive value */
+                                return JTOK_STATUS_INVAL;
+                            }
+                            break;
+                        default:
+                            break;
                     }
                 }
 
@@ -785,7 +791,6 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
                 {
                     return r;
                 }
-                parser->parse_count++;
                 if (parser->toksuper != NO_PARENT_IDX && tokens != NULL)
                 {
                     tokens[parser->toksuper].size++;
@@ -804,20 +809,25 @@ jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_
 }
 
 
-static jtokerr_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
+
+static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
+                                   size_t num_tokens)
 {
-    
+    jtoktok_t *tok;
+    if (parser->toknext >= num_tokens)
+    {
+        return NULL;
+    }
+    tok        = &tokens[parser->toknext++];
+    tok->start = tok->end = INVALID_ARRAY_INDEX;
+    tok->size             = 0;
+    tok->parent = NO_PARENT_IDX;
+
+#if defined(JTOK_STANDALONE_TOKENS)
+    tok->json = parser->json;
+#endif /* #if defined(JTOK_STANDALONE_TOKENS) */
+    return tok;
 }
-
-
-
-static jtokerr_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
-{
-
-
-}
-
-
 
 
 static jtokerr_t tokenChainIsValid(const jtok_parser_t *parser, jtoktok_t *tokens)
@@ -945,7 +955,6 @@ jtok_parser_t jtok_new_parser(const char *nul_terminated_json)
     parser.toksuper = NO_PARENT_IDX;
     parser.json     = (char*)nul_terminated_json;
     parser.json_len = strlen(nul_terminated_json);
-    parser.parse_count = 0;
     return parser;
 }
 
