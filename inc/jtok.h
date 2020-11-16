@@ -67,6 +67,18 @@ typedef enum
 
     /* Token had an invalid end index */
     JTOK_PARSE_STATUS_INVALID_END = -11,
+
+    /* { {...}}  jtok_string must be first token inside object */ 
+    JTOK_PARSE_STATUS_OBJ_NOKEY = -12, 
+
+    /* eg : { "key" : [123, "123"]} */
+    JTOK_STATUS_MIXED_ARRAY = -13,
+
+    /* eg { "key" : [123, 123]} */
+    JTOK_PARSE_STATUS_ARRAY_SEPARATOR = -14,
+
+    /* eg: { "key" : [123,, 123]} */
+    JTOK_PARSE_STATUS_STRAY_COMMA = -15,
 } JTOK_PARSE_STATUS_t;
 
 
