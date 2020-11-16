@@ -79,6 +79,15 @@ typedef enum
 
     /* eg: { "key" : [123,, 123]} */
     JTOK_PARSE_STATUS_STRAY_COMMA = -15,
+
+    /* eg : { "key" "value "} */
+    JTOK_PARSE_STATUS_VAL_NO_COLON = -16,
+
+    /* eg { "key" : 123 : 456} */
+    JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL = -17, 
+
+    /* eg { [1234] : :123 } */
+    JTOK_PARSE_STATUS_INVALID_PARENT = -18,
 } JTOK_PARSE_STATUS_t;
 
 

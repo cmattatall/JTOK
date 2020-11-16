@@ -927,7 +927,7 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
     unsigned int len = parser->json_len;
     int object_token_index = parser->toksuper;
 
-    enum {OBJECT_START, OBJECT_KEY, OBJECT_VALUE} state = OBJECT_START;
+    enum {OBJECT_START, OBJECT_KEY, OBJECT_COLON, OBJECT_VALUE, OBJECT_COMMA} state = OBJECT_START;
 
     if(tokens == NULL)
     {
@@ -968,46 +968,71 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
         {
             case '{':
             {   
-                if(state == OBJECT_VALUE)
+                switch(state)
                 {
-                    status = jtok_parse_object(parser, tokens, num_tokens);
-                }
-                else
-                {   
-                    status = JTOK_PARSE_STATUS_OBJ_NOKEY;
-                }
+                    case OBJECT_START:
+                    case OBJECT_KEY:
+                    {
+                        status = JTOK_PARSE_STATUS_OBJ_NOKEY;
+                    }
+                    break;
+                    case OBJECT_COLON:
+                    {
+                        status = JTOK_PARSE_STATUS_VAL_NO_COLON;
+                    }
+                    break;
+                    case OBJECT_VALUE:
+                    {
+                        status = jtok_parse_object(parser, tokens, num_tokens);
+                    }
+                    break;
+                    case OBJECT_COMMA:
+                    default:
+                    {
+                        status = JTOK_PARSE_STATUS_INVAL;
+                    }
+                    break;
+                } 
             }
             break;
             case '[':
             {   
-                if(state == OBJECT_VALUE)
+                switch(state)
                 {
-                    status = jtok_parse_array(parser, tokens, num_tokens);
-                    if(status == JTOK_PARSE_STATUS_PARSE_OK)
+                    case OBJECT_START:
+                    case OBJECT_KEY:
                     {
-                        /* Need to link tokens */
+                        status = JTOK_PARSE_STATUS_OBJ_NOKEY;
                     }
+                    break;
+                    case OBJECT_COLON:
+                    {
+                        status = JTOK_PARSE_STATUS_VAL_NO_COLON;
+                    }
+                    break;
+                    case OBJECT_VALUE:
+                    {
+                        status = jtok_parse_array(parser, tokens, num_tokens);
+                    }
+                    break;
+                    case OBJECT_COMMA:
+                    default:
+                    {
+                        status = JTOK_PARSE_STATUS_INVAL;
+                    }
+                    break;
                 }
-                else
-                {
-                    status = JTOK_PARSE_STATUS_OBJ_NOKEY;
-                }
-
             }
             break;
             case '}':
             {   
-                if(state == OBJECT_START || state == OBJECT_KEY)
+                switch(state)
                 {
-                    if(tokens == NULL)
+                    case OBJECT_START:
+                    case OBJECT_KEY:
                     {
-                        parser->pos = start;
-                        status = JTOK_PARSE_STATUS_PARSE_OK;
-                    }
-                    else
-                    {   
                         jtoktok_t *token = &tokens[object_token_index];
-                        if(token->type != JTOK_OBJECT || parser->toknext < 1)
+                        if(token->type != JTOK_OBJECT || parser->toknext == 0)
                         {   
                             parser->pos = start;
                             status = JTOK_PARSE_STATUS_INVAL;
@@ -1018,64 +1043,112 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
                             parser->toksuper = token->parent;
                         }
                     }
-                }
-                else
-                {   
-                    parser->pos = tokens[parser->toknext - 1].start;
-                    status = JTOK_PARSE_STATUS_KEY_NO_VAL;
+                    break;
+                    case OBJECT_COLON:
+                    {
+                        status = JTOK_PARSE_STATUS_KEY_NO_VAL;
+                    }
+                    break;
+                    case OBJECT_VALUE:
+                    {
+                        parser->pos = tokens[parser->toknext - 1].start;
+                        status = JTOK_PARSE_STATUS_KEY_NO_VAL;
+                    }
+                    break;
+                    case OBJECT_COMMA:
+                    default:
+                    {
+                        status = JTOK_PARSE_STATUS_INVAL;
+                    }
+                    break;
                 }
             }
             break;
             case '\"':
             {   
+                jtoktok_t *parent = &tokens[parser->toksuper];
+                switch(state)
+                {
+                    case OBJECT_START:
+                    {
+                        state = OBJECT_KEY;
+                    }   /* fallthrough and transition to key state */
+                    case OBJECT_KEY:
+                    case OBJECT_VALUE:
+                    {
+                        switch(parent->type)
+                        {
+                            case JTOK_OBJECT:
+                            {
+                                /* don't have to do anything */
+                            }
+                            break;
+                            case JTOK_STRING: /* current token is the value for a key */
+                            {   
+                                if(parent->size != 0)
+                                {   
+                                    /* an object key can only have 1 value */
+                                    parser->pos = start;
+                                    status = JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL;
+                                }
+                            }
+                            break;
+                            default:
+                            {
+                                status = JTOK_PARSE_STATUS_INVALID_PARENT;
+                            }
+                            break;
+                        }
+
+                        if(status == JTOK_PARSE_STATUS_PARSE_OK)
+                        {
+                            status = jtok_parse_string(parser, tokens, num_tokens);
+                            if(status == JTOK_PARSE_STATUS_PARSE_OK)
+                            {
+                                if (parser->toksuper != NO_PARENT_IDX)
+                                {
+                                    tokens[parser->toksuper].size++;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                    case OBJECT_COLON:
+                    {
+                        status = JTOK_PARSE_STATUS_VAL_NO_COLON;
+                    }
+                    break;
+                        if(parent->type != JTOK_STRING)
+                        {
+                            /* If the current token is a value, 
+                            then the parent token MUST be a string */
+                            parser->pos = start;
+                            status = JTOK_PARSE_STATUS_INVAL;
+                        }
+                        else
+                        {
+#warning TODO THIS SECTION WAS INTERRUPTED BY IN-FLIGHT TURBULENCE
+                        }
+                    }
+                    break;
+                    case OBJECT_COMMA:
+                    {
+
+                    }
+                    break;
+                    default:
+                    {
+                        status = JTOK_PARSE_STATUS_INVAL;
+                    }
+                    break;
+                }
                 /* We've found the first key inside the object */
                 if(state == OBJECT_START)
                 {
                     state = OBJECT_KEY;
                 }
 
-                if (tokens != NULL)
-                {
-                    jtoktok_t *parent = &tokens[parser->toksuper];
-                    switch(parent->type)
-                    {
-                        case JTOK_OBJECT:
-                        {   
-                            /* If the current token is a value, 
-                            then the parent token cannot be an object */
-                            if(state == OBJECT_VALUE)
-                            {
-                                parser->pos = start;
-                                status = JTOK_PARSE_STATUS_INVAL;
-                            }
-                        }
-                        break;
-                        case JTOK_STRING: /* current token is the value for a key */
-                        {   
-                            if(parent->size != 0 || state != OBJECT_VALUE)
-                            {   
-                                /* an object key can only have 1 value */
-                                parser->pos = start;
-                                status = JTOK_PARSE_STATUS_INVAL;
-                            }
-                        }
-                        break;
-                        default:
-                        {
-                            status = JTOK_PARSE_STATUS_INVAL;
-                        }
-                        break;
-                    }
-                }
-
-                status = jtok_parse_string(parser, tokens, num_tokens);
-                if(status == JTOK_PARSE_STATUS_PARSE_OK)
-                {
-                    if (parser->toksuper != NO_PARENT_IDX && tokens != NULL)
-                    {
-                        tokens[parser->toksuper].size++;
-                    }
-                }
+                
             }
             break;
             case '\t':
@@ -1169,12 +1242,18 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
                             }
                             break;
                             default:
-                            {
-                                /* other types are valid */
+                            {   
+                                /* 
+                                 * If we're inside parse_object, 
+                                 * other types cannot be parent tokens 
+                                 */
+                                status = JTOK_PARSE_STATUS_INVAL;
                             }
                             break;
                         }
                     }
+
+                    state = 
 
                     status = jtok_parse_primitive(parser, tokens, num_tokens);
                     if(status == JTOK_PARSE_STATUS_PARSE_OK)
