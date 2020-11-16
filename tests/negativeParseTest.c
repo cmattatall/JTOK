@@ -82,7 +82,7 @@ int main(void){
     {   
         jtok_parser_t p = jtok_new_parser(invalidJSON[i]);
         printf("\n%s ... ", invalidJSON[i]);
-        jtokerr_t status = jtok_parse(&p, tokens, sizeof(tokens)/sizeof(*tokens));
+        JTOK_PARSE_STATUS_t status = jtok_parse(&p, tokens, sizeof(tokens)/sizeof(*tokens));
         if(status >= 0)
         {   
             printf("failed with status %d", status);

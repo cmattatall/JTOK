@@ -32,36 +32,42 @@ typedef enum
 
 typedef enum
 {   
-    JTOK_STATUS_PARSE_OK = 0,
+    JTOK_PARSE_STATUS_PARSE_OK = 0,
 
     /* For errors that have not yet been classified in source code */
-    JTOK_STATUS_UNKNOWN_ERROR = -1,
+    JTOK_PARSE_STATUS_UNKNOWN_ERROR = -1,
 
     /* Not enough tokens were provided */
-    JTOK_STATUS_NOMEM = -2,
+    JTOK_PARSE_STATUS_NOMEM = -2,
 
     /* Invalid character inside JTOK string */
-    JTOK_STATUS_INVAL = -3,
+    JTOK_PARSE_STATUS_INVAL = -3,
 
     /* The string is not a full JTOK packet, more bytes expected */
-    JTOK_STATUS_PARTIAL_TOKEN = -4,
+    JTOK_PARSE_STATUS_PARTIAL_TOKEN = -4,
 
     /* key is missing value. ex: {"key\"}*/
-    JTOK_STATUS_KEY_NO_VAL = -5, 
+    JTOK_PARSE_STATUS_KEY_NO_VAL = -5, 
 
     /* something like { , "key" : 123, } */
-    JTOK_STATUS_COMMA_NO_KEY = -6,
+    JTOK_PARSE_STATUS_COMMA_NO_KEY = -6,
 
     /* Aggregate types must have parent 
     types of string (other than top-level object) */
-    JTOK_STATUS_OBJECT_INVALID_PARENT = -7,
+    JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT = -7,
 
     /* eg : { key : 123} */
-    JTOK_STATUS_INVALID_PRIMITIVE = -8, 
+    JTOK_PARSE_STATUS_INVALID_PRIMITIVE = -8, 
 
     /* eg: "key" : 123 (literally missing the top-level object braces) */
-    JTOK_STATUS_NON_OBJECT = -9,
-} jtokerr_t;
+    JTOK_PARSE_STATUS_NON_OBJECT = -9,
+
+    /* Token had an invalid start index */
+    JTOK_PARSE_STATUS_INVALID_START = -10,
+
+    /* Token had an invalid end index */
+    JTOK_PARSE_STATUS_INVALID_END = -11,
+} JTOK_PARSE_STATUS_t;
 
 
 typedef enum 
@@ -167,7 +173,7 @@ jtok_parser_t jtok_new_parser(const char *nul_terminated_json);
  * @param num_tokens max number of tokens to parse
  * @param final_idx pointer that is updated to the total number of tokens parsed from the json on success
  */
-jtokerr_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_tokens);
+JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_tokens);
 
 
 /**
@@ -301,12 +307,12 @@ char *jtok_toktypename(jtoktype_t type);
 
 
 /**
- * @brief Utility wrapper for printing a string corresponding to a jtokerr_t
+ * @brief Utility wrapper for printing a string corresponding to a JTOK_PARSE_STATUS_t
  *
  * @param err the error code
  * @return char* the error message
  */
-char *jtok_jtokerr_messages(jtokerr_t err);
+char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err);
 
 
 /**
