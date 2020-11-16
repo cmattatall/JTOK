@@ -1,20 +1,143 @@
-Start testing: Nov 15 08:22 Atlantic Standard Time
+Start testing: Nov 15 10:21 Atlantic Standard Time
 ----------------------------------------------------------
 1/2 Testing: positiveJsonParsingTest
 1/2 Test: positiveJsonParsingTest
 Command: "C:/Users/Adam/Desktop/JTOK/build/tests/positiveJsonParsingTest.exe" "--build-generator" "MinGW Makefiles" "--test-command" "C:/Program Files/CMake/bin/ctest.exe"
 Directory: C:/Users/Adam/Desktop/JTOK/build/tests
-"positiveJsonParsingTest" start time: Nov 15 08:22 Atlantic Standard Time
+"positiveJsonParsingTest" start time: Nov 15 10:21 Atlantic Standard Time
 Output:
 ----------------------------------------------------------
 
-Testing jtok parser against valid jtoks
-{"key" : true} ... failed with status -4
+Testing jtok parser against valid jsons
+
+{"key" : true} ... passed
+
+{"key" : false} ... passed
+
+{"key" : null} ... passed
+
+{"key" : "value"} ... passed
+
+{"key" : "ThisIsAveryLongStringThatINeedToMakeVeryLong"} ... passed
+
+{"key" : "true"} ... passed
+
+{"key" : "false"} ... passed
+
+{"key" : "null"} ... passed
+
+{"key" : "key"} ... passed
+
+{"false" : "false"} ... passed
+
+{"null" : "null"} ... passed
+
+{"true" : "true"} ... passed
+
+{"decimalValueKey" : 123.456} ... passed
+
+{"key" : 1234 } ... passed
+
+{"decimalValueString" : "123.456"} ... passed
+
+{"exponentValue": 1.001e-9} ... passed
+
+{"exponentValue": 1.001e9} ... passed
+
+{"exponentValue": 1.001e+9} ... passed
+
+{"exponentValue": 1.001E-9} ... passed
+
+{"exponentValue": 1.001E9} ... passed
+
+{"exponentValue": 1.001E+9} ... passed
+
+{"exponentValue": 1e-9} ... passed
+
+{"exponentValue": 1e9} ... passed
+
+{"exponentValue": 1e+9} ... passed
+
+{"exponentValue": 1E-9} ... passed
+
+{"exponentValue": 1E9} ... passed
+
+{"exponentValue": 1E+9} ... passed
+
+{"decimalValueString" : "-123.456"} ... passed
+
+{"exponentValue": -1.001e-9} ... passed
+
+{"exponentValue": -1.001e9} ... passed
+
+{"exponentValue": -1.001e+9} ... passed
+
+{"exponentValue": -1.001E-9} ... passed
+
+{"exponentValue": -1.001E9} ... passed
+
+{"exponentValue": -1.001E+9} ... passed
+
+{"exponentValue": -1e-9} ... passed
+
+{"exponentValue": -1e9} ... passed
+
+{"exponentValue": -1e+9} ... passed
+
+{"exponentValue": -1E-9} ... passed
+
+{"exponentValue": -1E9} ... passed
+
+{"exponentValue": -1E+9} ... passed
+
+{"hexValueStringifiedKey" : "\uffff"} ... passed
+
+{"hexValueStringifiedKey" : "\u0000"} ... passed
+
+{"hexValueStringifiedKey" : "\uFFFF"} ... passed
+
+{"hexValueStringifiedKey" : "\uABCD"} ... passed
+
+{} ... passed
+
+{"key" : {}} ... passed
+
+{"key" : {"childKey" : 123}} ... passed
+
+{"key" : {"childKey" : "childStringValue"}} ... passed
+
+{"key" : [ true, true, false, false]} ... passed
+
+{"key" : { }} ... passed
+
+{"key" : [ 1, 2, 3] } ... passed
+
+{"key1" : [{"arrJsonKey1" : "arrJsonVal1"}, {"arrJsonKey2" : "arrJsonVal2"}]} ... passed
+
+{"key" : ["1"]} ... passed
+
+{"key" : [1]} ... passed
+
+{"key" : []} ... passed
+
+{"recursion" : {"into" : {"child" : {"objects" : {"key" : [ "array", "that", "is", "deeply", "nested"]}}}}} ... passed
+
+{"key" : {"key" : [{"arrKey" : "arrValue"}]}} ... passed
+
+{"key" : {"childKey" : [ "array", "of", "strings", "as", "child", "key", "values"]}} ... passed
+
+{"differentTypesOfWhiteSpace"	:	"valueString"} ... passed
+
+{
+"differentTypesOfWhiteSpace"
+:
+"valueString"
+} ... passed
 <end of output>
-Test time =   0.09 sec
+Test time =   0.21 sec
 ----------------------------------------------------------
-Test Failed.
-"positiveJsonParsingTest" end time: Nov 15 08:22 Atlantic Standard Time
+Test Passed.
+"positiveJsonParsingTest" end time: Nov 15 10:21 Atlantic Standard Time
 "positiveJsonParsingTest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -22,25 +145,33 @@ Test Failed.
 2/2 Test: negativeJsonParsingTest
 Command: "C:/Users/Adam/Desktop/JTOK/build/tests/negativeJsonParsingTest.exe" "--build-generator" "MinGW Makefiles" "--test-command" "C:/Program Files/CMake/bin/ctest.exe"
 Directory: C:/Users/Adam/Desktop/JTOK/build/tests
-"negativeJsonParsingTest" start time: Nov 15 08:22 Atlantic Standard Time
+"negativeJsonParsingTest" start time: Nov 15 10:21 Atlantic Standard Time
 Output:
 ----------------------------------------------------------
 
 Testing jtok parser against invalid jsons
+
 {key : 123 } ... passed
+
 key : 123 ... passed
+
 {"key"} ... passed
+
 [ ] ... passed
+
 "key" ... passed
+
 123 ... passed
+
 {["123", "456", "abc"]} ... passed
+
 {"key" : ["123" "456" "abc"]} ... failed with status 0
 <end of output>
 Test time =   0.09 sec
 ----------------------------------------------------------
 Test Failed.
-"negativeJsonParsingTest" end time: Nov 15 08:22 Atlantic Standard Time
+"negativeJsonParsingTest" end time: Nov 15 10:21 Atlantic Standard Time
 "negativeJsonParsingTest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Nov 15 08:22 Atlantic Standard Time
+End testing: Nov 15 10:21 Atlantic Standard Time

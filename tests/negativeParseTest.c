@@ -33,6 +33,46 @@ static const char *invalidJSON[] = {
     "{\"hexValueKey\" : \\uabcd}",
     "{\"hexValueKey\" : \\uABCD}",
     "{\"key\" : 12true}", /* valid primitive embedded in the invalid primitve */
+
+    /* invalid exponent / primitive / decimal formats */
+    "{\"key\" : .123}",
+    "{\"key\" : e9}",
+    "{\"key\" : e-9}",
+    "{\"key\" : e+9}",
+    "{\"key\" : e.9}",
+    "{\"key\" : .123}",
+    "{\"key\" : E9}",
+    "{\"key\" : E-9}",
+    "{\"key\" : E+9}",
+    "{\"key\" : E.9}",
+    "{\"key\" : 123.}",
+    "{\"key\" : 123.e9}",
+    "{\"key\" : 123.e+9}",
+    "{\"key\" : 123.e-9}",
+    "{\"key\" : 123.e9.}",
+    "{\"key\" : 123.e-9.}",
+    "{\"key\" : 123.e+9.}",
+    "{\"key\" : 123.e+9.0}",
+    "{\"key\" : 123.e-9.0}",
+    "{\"key\" : 123.e9.0}",
+    "{\"key\" : 123true}",
+    "{\"key\" : 123false}",
+    "{\"key\" : 123null}",
+    "{\"key\" : true123}",
+    "{\"key\" : false123}",
+    "{\"key\" : null123}",
+
+
+    /* Arrays */
+    "{\"key\" : [,]}",
+    "{\"key\" : [123 456 789]}",
+    "{\"key\" : [123, ]}",
+    "{\"key\" : [\"abc\", 123, {\"childkey\" : \"childval\"}]}", /* mixed types */
+
+    /* Misc */
+    "{\"key\" : }",
+    "{: \"key\" }",
+    "{\"\" : \"value\"}",
 };
 
 static jtoktok_t tokens[200];
@@ -41,7 +81,7 @@ int main(void){
     for(unsigned int i = 0; i < sizeof(invalidJSON)/sizeof(*invalidJSON); i++)
     {   
         jtok_parser_t p = jtok_new_parser(invalidJSON[i]);
-        printf("%s ... ", invalidJSON[i]);
+        printf("\n%s ... ", invalidJSON[i]);
         jtokerr_t status = jtok_parse(&p, tokens, sizeof(tokens)/sizeof(*tokens));
         if(status >= 0)
         {   

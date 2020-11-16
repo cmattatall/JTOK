@@ -73,7 +73,7 @@ static const char *validJSON[] = {
     "{\"key\" : []}", /* empty array */
 
     /* Mixing object types */
-    "{\"recursion\" : {\"into\" : {\"child\" : {\"objects\" : {\"key\" : [ \"this\", \"is\", \"an\", \"array\", \"that\", \"is\", \"deeply\", \"nested\"]}}}}}",
+    "{\"recursion\" : {\"into\" : {\"child\" : {\"objects\" : {\"key\" : [ \"array\", \"that\", \"is\", \"deeply\", \"nested\"]}}}}}",
     "{\"key\" : {\"key\" : [{\"arrKey\" : \"arrValue\"}]}}",
     "{\"key\" : {\"childKey\" : [ \"array\", \"of\", \"strings\", \"as\", \"child\", \"key\", \"values\"]}}",
 
@@ -89,7 +89,7 @@ int main(void){
     for(unsigned int i = 0; i < sizeof(validJSON)/sizeof(*validJSON); i++)
     {   
         jtok_parser_t p = jtok_new_parser(validJSON[i]);
-        printf("%s ... ", validJSON[i]);
+        printf("\n%s ... ", validJSON[i]);
         jtokerr_t status = jtok_parse(&p, tokens, sizeof(tokens)/sizeof(*tokens));
         if(status < 0)
         {   

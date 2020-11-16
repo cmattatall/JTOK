@@ -44,7 +44,7 @@ typedef enum
     JTOK_STATUS_INVAL = -3,
 
     /* The string is not a full JTOK packet, more bytes expected */
-    JTOK_STATUS_PART = -4,
+    JTOK_STATUS_PARTIAL_TOKEN = -4,
 
     /* key is missing value. ex: {"key\"}*/
     JTOK_STATUS_KEY_NO_VAL = -5, 
