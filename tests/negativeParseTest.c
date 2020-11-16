@@ -85,12 +85,12 @@ int main(void){
         JTOK_PARSE_STATUS_t status = jtok_parse(&p, tokens, sizeof(tokens)/sizeof(*tokens));
         if(status >= 0)
         {   
-            printf("failed with status %d", status);
+            printf("test failed. Expected status < 0");
             return 1;
         }
         else
         {
-            printf("passed");
+            printf("test passed. status == %d", status);
         }
         printf("\n");
     }

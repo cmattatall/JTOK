@@ -795,7 +795,7 @@ static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *to
                             {
                                 tokens[parser->toksuper].size++;
                             }
-                            
+
                             state = COMMA;
                         }
                     }
@@ -908,7 +908,6 @@ static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *to
         parser->pos = start;
         status = JTOK_PARSE_STATUS_PARTIAL_TOKEN;
     }
-
 
     return status;
 }
