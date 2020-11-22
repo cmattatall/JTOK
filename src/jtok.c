@@ -763,9 +763,6 @@ jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
         return JTOK_PARSE_STATUS_NON_ARRAY;
     }
 
-    /* go inside the array */
-    parser->pos++;
-
     jtoktok_t *token = jtok_alloc_token(parser, tokens, num_tokens);
     if (token == NULL)
     {
@@ -812,10 +809,16 @@ jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
                             element_type       = JTOK_OBJECT;
                         }
 
+                        int super = parser->toksuper;
                         status = jtok_parse_object(parser, tokens, num_tokens);
                         if (status == JTOK_PARSE_STATUS_PARSE_OK)
                         {
-                            state = ARRAY_COMMA;
+                            if (super != NO_PARENT_IDX)
+                            {
+                                tokens[super].size++;
+                            }
+                            state            = ARRAY_COMMA;
+                            parser->toksuper = super;
                         }
                     }
                     break;
@@ -831,6 +834,7 @@ jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
                     break;
                 }
             }
+            break;
 
 #ifdef SUBARRAYS
 #error SUBARRAYS ARE CURRENTLY NOT IMPLEMENTED
@@ -864,13 +868,13 @@ jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
                             element_type       = JTOK_OBJECT;
                         }
 
+                        int super = parser->toksuper;
                         status = jtok_parse_string(parser, tokens, num_tokens);
                         if (status == JTOK_PARSE_STATUS_PARSE_OK)
                         {
-                            if (parser->toksuper != NO_PARENT_IDX &&
-                                tokens != NULL)
+                            if (super != NO_PARENT_IDX)
                             {
-                                tokens[parser->toksuper].size++;
+                                tokens[super].size++;
                             }
 
                             state = ARRAY_COMMA;
@@ -1200,12 +1204,12 @@ jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
                     {
                         if (parent->type == JTOK_OBJECT)
                         {
+                            int super = parser->toksuper;
                             status =
                                 jtok_parse_string(parser, tokens, num_tokens);
                             if (status == JTOK_PARSE_STATUS_PARSE_OK)
                             {
-                                int parent_idx = parser->toksuper;
-                                tokens[parent_idx].size++;
+                                tokens[super].size++;
                             }
                         }
                         else
@@ -1225,21 +1229,12 @@ jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
                             }
                             else
                             {
-                                status = jtok_parse_string(parser, tokens,
+                                int super = parser->toksuper;
+                                status    = jtok_parse_string(parser, tokens,
                                                            num_tokens);
                                 if (status == JTOK_PARSE_STATUS_PARSE_OK)
                                 {
-                                    int parent_idx = parent->parent;
-                                    if (parent_idx != NO_PARENT_IDX)
-                                    {
-                                        tokens[parent_idx].size++;
-                                    }
-                                    else
-                                    {
-                                        /* Keys must have a parent token */
-                                        status =
-                                            JTOK_PARSE_STATUS_INVALID_PARENT;
-                                    }
+                                    tokens[super].size++;
                                 }
                             }
                         }

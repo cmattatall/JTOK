@@ -1,21 +1,125 @@
-Start testing: Nov 22 10:37 AST
+Start testing: Nov 22 10:49 AST
 ----------------------------------------------------------
 1/2 Testing: positiveJsonParsingTest
 1/2 Test: positiveJsonParsingTest
 Command: "/home/carl/Desktop/Dev/JTOK/build/tests/positiveJsonParsingTest" "--build-generator" "Unix Makefiles" "--test-command" "/usr/local/bin/ctest"
 Directory: /home/carl/Desktop/Dev/JTOK/build/tests
-"positiveJsonParsingTest" start time: Nov 22 10:37 AST
+"positiveJsonParsingTest" start time: Nov 22 10:49 AST
 Output:
 ----------------------------------------------------------
 
 Testing jtok parser against valid jsons
 
-{"key" : [ true, true, false, false]} ... test failed. (status == -4)
+{"key" : [ true, true, false, false]} ... test passed. 
+
+{"key" : true} ... test passed. 
+
+{"key" : false} ... test passed. 
+
+{"key" : null} ... test passed. 
+
+{"key" : "value"} ... test passed. 
+
+{"key" : "ThisIsAveryLongStringThatINeedToMakeVeryLong"} ... test passed. 
+
+{"key" : "true"} ... test passed. 
+
+{"key" : "false"} ... test passed. 
+
+{"key" : "null"} ... test passed. 
+
+{"key" : "key"} ... test passed. 
+
+{"false" : "false"} ... test passed. 
+
+{"null" : "null"} ... test passed. 
+
+{"true" : "true"} ... test passed. 
+
+{"decimalValueKey" : 123.456} ... test passed. 
+
+{"key" : 1234 } ... test passed. 
+
+{"decimalValueString" : "123.456"} ... test passed. 
+
+{"exponentValue": 1.001e-9} ... test passed. 
+
+{"exponentValue": 1.001e9} ... test passed. 
+
+{"exponentValue": 1.001e+9} ... test passed. 
+
+{"exponentValue": 1.001E-9} ... test passed. 
+
+{"exponentValue": 1.001E9} ... test passed. 
+
+{"exponentValue": 1.001E+9} ... test passed. 
+
+{"exponentValue": 1e-9} ... test passed. 
+
+{"exponentValue": 1e9} ... test passed. 
+
+{"exponentValue": 1e+9} ... test passed. 
+
+{"exponentValue": 1E-9} ... test passed. 
+
+{"exponentValue": 1E9} ... test passed. 
+
+{"exponentValue": 1E+9} ... test passed. 
+
+{"decimalValueString" : "-123.456"} ... test passed. 
+
+{"exponentValue": -1.001e-9} ... test passed. 
+
+{"exponentValue": -1.001e9} ... test passed. 
+
+{"exponentValue": -1.001e+9} ... test passed. 
+
+{"exponentValue": -1.001E-9} ... test passed. 
+
+{"exponentValue": -1.001E9} ... test passed. 
+
+{"exponentValue": -1.001E+9} ... test passed. 
+
+{"exponentValue": -1e-9} ... test passed. 
+
+{"exponentValue": -1e9} ... test passed. 
+
+{"exponentValue": -1e+9} ... test passed. 
+
+{"exponentValue": -1E-9} ... test passed. 
+
+{"exponentValue": -1E9} ... test passed. 
+
+{"exponentValue": -1E+9} ... test passed. 
+
+{"hexValueStringifiedKey" : "\uffff"} ... test passed. 
+
+{"hexValueStringifiedKey" : "\u0000"} ... test passed. 
+
+{"hexValueStringifiedKey" : "\uFFFF"} ... test passed. 
+
+{"hexValueStringifiedKey" : "\uABCD"} ... test passed. 
+
+{} ... test passed. 
+
+{"key" : {}} ... test passed. 
+
+{"key" : {"childKey" : 123}} ... test passed. 
+
+{"key" : {"childKey" : "childStringValue"}} ... test passed. 
+
+{"key" : [ true, true, false, false]} ... test passed. 
+
+{"key" : { }} ... test passed. 
+
+{"key" : [ 1, 2, 3] } ... test passed. 
+
+{"key1" : [{"arrJsonKey1" : "arrJsonVal1"}, {"arrJsonKey2" : "arrJsonVal2"}]} ... test failed. (status == -14)
 <end of output>
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Failed.
-"positiveJsonParsingTest" end time: Nov 22 10:37 AST
+"positiveJsonParsingTest" end time: Nov 22 10:49 AST
 "positiveJsonParsingTest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -23,7 +127,7 @@ Test Failed.
 2/2 Test: negativeJsonParsingTest
 Command: "/home/carl/Desktop/Dev/JTOK/build/tests/negativeJsonParsingTest" "--build-generator" "Unix Makefiles" "--test-command" "/usr/local/bin/ctest"
 Directory: /home/carl/Desktop/Dev/JTOK/build/tests
-"negativeJsonParsingTest" start time: Nov 22 10:37 AST
+"negativeJsonParsingTest" start time: Nov 22 10:49 AST
 Output:
 ----------------------------------------------------------
 
@@ -62,8 +166,8 @@ key : 123 ... test passed. status == -9
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Failed.
-"negativeJsonParsingTest" end time: Nov 22 10:37 AST
+"negativeJsonParsingTest" end time: Nov 22 10:49 AST
 "negativeJsonParsingTest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Nov 22 10:37 AST
+End testing: Nov 22 10:49 AST
