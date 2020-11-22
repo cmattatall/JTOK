@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "C:/Users/Adam/Desktop/JTOK/src/jtok.c" "C:/Users/Adam/Desktop/JTOK/build/CMakeFiles/JTOK.dir/src/jtok.c.obj"
+  "/home/carl/Desktop/Dev/JTOK/src/jtok.c" "/home/carl/Desktop/Dev/JTOK/build/CMakeFiles/JTOK.dir/src/jtok.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

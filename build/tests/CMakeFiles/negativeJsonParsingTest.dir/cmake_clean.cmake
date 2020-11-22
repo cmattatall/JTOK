@@ -1,8 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/negativeJsonParsingTest.dir/negativeParseTest.c.obj"
-  "libnegativeJsonParsingTest.dll.a"
-  "negativeJsonParsingTest.exe"
-  "negativeJsonParsingTest.exe.manifest"
+  "CMakeFiles/negativeJsonParsingTest.dir/negativeParseTest.c.o"
+  "negativeJsonParsingTest"
   "negativeJsonParsingTest.pdb"
 )
 

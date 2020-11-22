@@ -48,7 +48,8 @@ static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
  *
  * @return 0 on success, 1 on failure
  */
-static int jtok_fill_token(jtoktok_t *token, jtoktype_t type, int start, int end);
+static int jtok_fill_token(jtoktok_t *token, jtoktype_t type, int start,
+                           int end);
 
 
 /**
@@ -59,17 +60,20 @@ static int jtok_fill_token(jtoktok_t *token, jtoktype_t type, int start, int end
  * @param num_tokens max number of tokens to parse
  * @return JTOK_PARSE_STATUS_t parse status
  */
-static JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens);
+static JTOK_PARSE_STATUS_t
+jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens);
 
 /**
- * @brief Parse and fill the next available jtok token as a jtok array, recursing into sub-objects
- * 
+ * @brief Parse and fill the next available jtok token as a jtok array,
+ * recursing into sub-objects
+ *
  * @param parser the json parser
  * @param tokens token array (caller provided)
  * @param num_tokens max number of tokens to parser
  * @return JTOK_PARSE_STATUS_t parser status
  */
-static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens);
+static JTOK_PARSE_STATUS_t
+jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens);
 
 
 /**
@@ -80,41 +84,37 @@ static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *to
  * @param num_tokens max number of tokens to parse
  * @return JTOK_PARSE_STATUS_t parse status
  */
-static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens);
+static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
+                                                jtoktok_t *    tokens,
+                                                size_t         num_tokens);
 
 
 /**
- * @brief Parse and fill the next available jtok token as a jtok object, recursing into sub-objects
- * 
+ * @brief Parse and fill the next available jtok token as a jtok object,
+ * recursing into sub-objects
+ *
  * @param parser the json parser
  * @param tokens token array (caller provided)
  * @param num_tokens max number of tokens to parser
  * @return JTOK_PARSE_STATUS_t parser status
  */
-static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens);
-
-
-
+static JTOK_PARSE_STATUS_t
+jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens);
 
 
 /**
  * @brief Check if a parsed sequence of json tokens is valid
- * 
+ *
  * @param parser the parser
  * @param tokens the token pool
  * @return JTOK_PARSE_STATUS_t status
  */
-static JTOK_PARSE_STATUS_t tokenChainIsValid(const jtok_parser_t *parser, jtoktok_t *tokens);
-
-
-
-
-
+static JTOK_PARSE_STATUS_t tokenChainIsValid(const jtok_parser_t *parser,
+                                             jtoktok_t *          tokens);
 
 
 static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
                                    size_t num_tokens);
-
 
 
 char *jtok_toktypename(jtoktype_t type)
@@ -125,7 +125,7 @@ char *jtok_toktypename(jtoktype_t type)
         [JTOK_ARRAY]     = "JTOK_ARRAY",
         [JTOK_STRING]    = "JTOK_STRING",
     };
-    char * retval = NULL;
+    char *retval = NULL;
     switch (type)
     {
         case JTOK_PRIMITIVE:
@@ -133,7 +133,7 @@ char *jtok_toktypename(jtoktype_t type)
         case JTOK_ARRAY:
         case JTOK_STRING:
         {
-            retval = (char*)jtoktok_type_names[type];
+            retval = (char *)jtoktok_type_names[type];
         }
         break;
     }
@@ -153,17 +153,17 @@ char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err)
     {
         case JTOK_PARSE_STATUS_NOMEM:
         {
-            retval =  (char*)jtokerr_messages[0];
+            retval = (char *)jtokerr_messages[0];
         }
         break;
         case JTOK_PARSE_STATUS_INVAL:
         {
-            retval =  (char*)jtokerr_messages[1];
+            retval = (char *)jtokerr_messages[1];
         }
         break;
         case JTOK_PARSE_STATUS_PARTIAL_TOKEN:
         {
-            retval =  (char*)jtokerr_messages[2];
+            retval = (char *)jtokerr_messages[2];
         }
         break;
     }
@@ -435,9 +435,8 @@ bool isValidJson(const jtoktok_t *tokens, uint_least8_t tcnt)
 }
 
 
-
-
-JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_tokens)
+JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens,
+                               unsigned int num_tokens)
 {
     return jtok_parse_object(parser, tokens, num_tokens);
 }
@@ -461,19 +460,27 @@ static int jtok_fill_token(jtoktok_t *token, jtoktype_t type, int start,
 }
 
 
-static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
+static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
+                                                jtoktok_t *    tokens,
+                                                size_t         num_tokens)
 {
-    jtoktok_t *token;
-    int        start = parser->pos;
-    const char *js = (const char*)parser->json;
-    unsigned int len = parser->json_len;
+    jtoktok_t *  token;
+    int          start = parser->pos;
+    const char * js    = (const char *)parser->json;
+    unsigned int len   = parser->json_len;
 
-    enum {NUMBER, BOOLEAN, ERROR} primitive_type = ERROR;
-    bool exponent = false;
-    for(start = parser->pos; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
-    {   
+    enum
+    {
+        NUMBER,
+        BOOLEAN,
+        ERROR
+    } primitive_type = ERROR;
+    bool exponent    = false;
+    for (start = parser->pos; parser->pos < len && js[parser->pos] != '\0';
+         parser->pos++)
+    {
         switch (js[parser->pos])
-        {   
+        {
             case '0':
             case '1':
             case '2':
@@ -485,7 +492,7 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t
             case '8':
             case '9':
             {
-                if(parser->pos == start)
+                if (parser->pos == start)
                 {
                     primitive_type = NUMBER;
                 }
@@ -493,30 +500,30 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t
             break;
             case '+':
             case '-':
-            /* signs must come at beginning, or as an exponent */
-            if(start == parser->pos)
-            {
-                primitive_type = NUMBER;
-            }
-            else if(exponent)
-            {   
-                /* do nothing */
-            }
-            else
-            {
-                parser->pos = start;
-                return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
-            }
-            break;
+                /* signs must come at beginning, or as an exponent */
+                if (start == parser->pos)
+                {
+                    primitive_type = NUMBER;
+                }
+                else if (exponent)
+                {
+                    /* do nothing */
+                }
+                else
+                {
+                    parser->pos = start;
+                    return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
+                }
+                break;
             case '.': /* decimal */
-            {   
-                if(parser->pos == start)
-                {   
+            {
+                if (parser->pos == start)
+                {
                     /* {"key" : .123} is invalid */
                     parser->pos = start;
                     return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
                 }
-                else if(exponent)
+                else if (exponent)
                 {
                     /* { "key" : 123e+9.01} is invalid */
                     parser->pos = start;
@@ -527,21 +534,21 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t
             case 'e':
             case 'E':
             {
-                if(start == parser->pos)
-                {   
+                if (start == parser->pos)
+                {
                     /* {"key" : e9"} is invalid */
                     parser->pos = start;
                     return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
                 }
                 else
                 {
-                    if(isdigit(js[parser->pos -1]))
-                    {   
+                    if (isdigit(js[parser->pos - 1]))
+                    {
                         exponent = true;
                         continue;
                     }
                     else
-                    {   
+                    {
                         /* { "key" : -e9 } is invalid */
                         parser->pos = start;
                         return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
@@ -564,9 +571,9 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t
                 }
                 char last = js[parser->pos - 1];
 
-                if(exponent)
+                if (exponent)
                 {
-                    switch(last)
+                    switch (last)
                     {
                         case '+':
                         case '-':
@@ -587,27 +594,36 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t
 
                 /* go back 1 spot so when we return from current function, the
                 calling context can look at the current character */
-                parser->pos--; 
+                parser->pos--;
                 return JTOK_PARSE_STATUS_PARSE_OK;
             }
             break;
             default:
-            {   
-                if(parser->pos == start)
+            {
+                if (parser->pos == start)
                 {
-                    if(0 == strncmp(&js[start], "true", strlen("true")))
+                    if (0 == strncmp(&js[start], "true", strlen("true")))
                     {
-                        parser->pos += strlen("true") - 1; /* subtract 1 so we don't end up at character AFTER the final char in token */
+                        parser->pos +=
+                            strlen("true") -
+                            1; /* subtract 1 so we don't end up at character
+                                  AFTER the final char in token */
                         break;
                     }
-                    else if(0 == strncmp(&js[start], "false", strlen("false")))
+                    else if (0 == strncmp(&js[start], "false", strlen("false")))
                     {
-                        parser->pos += strlen("false") - 1; /* subtract 1 so we don't end up at character AFTER the final char in token */
+                        parser->pos +=
+                            strlen("false") -
+                            1; /* subtract 1 so we don't end up at character
+                                  AFTER the final char in token */
                         break;
                     }
-                    else if(0 == strncmp(&js[start], "null", strlen("null")))
+                    else if (0 == strncmp(&js[start], "null", strlen("null")))
                     {
-                        parser->pos += strlen("null") - 1; /* subtract 1 so we don't end up at character AFTER the final char in token */
+                        parser->pos +=
+                            strlen("null") -
+                            1; /* subtract 1 so we don't end up at character
+                                  AFTER the final char in token */
                         break;
                     }
                     else
@@ -626,21 +642,23 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser, jtoktok_t
 }
 
 
-static JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
+static JTOK_PARSE_STATUS_t
+jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
 {
-    jtoktok_t *token;
-    int start;
-    char *js = parser->json;
+    jtoktok_t *  token;
+    int          start;
+    char *       js  = parser->json;
     unsigned int len = parser->json_len;
-    if(js[parser->pos] == '\"')
+    if (js[parser->pos] == '\"')
     {
         parser->pos++; /* advance to inside of quotes */
-        start = parser->pos; /* token start is first character after the quote */
+        start =
+            parser->pos; /* token start is first character after the quote */
         for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
         {
             /* Quote: end of string */
             if (js[parser->pos] == '\"')
-            {   
+            {
                 if (tokens == NULL)
                 {
                     return JTOK_PARSE_STATUS_PARSE_OK;
@@ -657,8 +675,8 @@ static JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *t
             }
 
             if (js[parser->pos] == '\\')
-            {   
-                if(parser->pos + sizeof((char)'\"') < len)
+            {
+                if (parser->pos + sizeof((char)'\"') < len)
                 {
                     parser->pos++;
                     switch (js[parser->pos])
@@ -677,13 +695,16 @@ static JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *t
                         break;
                         case 'u': /* Allows escaped symbol \uXXXX */
                         {
-                            parser->pos++; /* move to first escaped hex character */
-                            unsigned int i;
+                            parser->pos++; /* move to first escaped hex
+                                              character */
+                            unsigned int       i;
                             const unsigned int max_i = HEXCHAR_ESCAPE_SEQ_COUNT;
-                            for (i = 0; i < max_i && parser->pos < len && js[parser->pos] != '\0'; i++)
+                            for (i = 0; i < max_i && parser->pos < len &&
+                                        js[parser->pos] != '\0';
+                                 i++)
                             {
                                 if (!isxdigit(js[parser->pos]))
-                                {   
+                                {
                                     /* reset parser position and return error */
                                     parser->pos = start;
                                     return JTOK_PARSE_STATUS_INVAL;
@@ -707,41 +728,49 @@ static JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *t
         return JTOK_PARSE_STATUS_PARTIAL_TOKEN;
     }
     else
-    {   
+    {
         /* parse_string was called on a non-string */
-        return JTOK_PARSE_STATUS_UNKNOWN_ERROR; 
+        return JTOK_PARSE_STATUS_UNKNOWN_ERROR;
     }
 }
 
 
-static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
+static JTOK_PARSE_STATUS_t
+jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
 {
-    JTOK_PARSE_STATUS_t status = JTOK_PARSE_STATUS_PARSE_OK;
-    unsigned int start = parser->pos;
-    const char *json = parser->json;
-    int array_token_index = parser->toksuper;
+    JTOK_PARSE_STATUS_t status            = JTOK_PARSE_STATUS_PARSE_OK;
+    unsigned int        start             = parser->pos;
+    const char *        json              = parser->json;
+    int                 array_token_index = parser->toksuper;
 
-    bool element_type_found = false;
+    bool       element_type_found = false;
     jtoktype_t element_type;
-    enum {ARRAY_START, ARRAY_VALUE, ARRAY_COMMA} state = ARRAY_START;
+    enum
+    {
+        ARRAY_START,
+        ARRAY_VALUE,
+        ARRAY_COMMA
+    } state = ARRAY_START;
 
     /* go inside the array */
-    parser->pos++; 
+    parser->pos++;
 
-    for(; parser->pos < parser->json_len && json[parser->pos] != '\0' && status == JTOK_PARSE_STATUS_PARSE_OK; parser->pos++)
+    for (; parser->pos < parser->json_len && json[parser->pos] != '\0' &&
+           status == JTOK_PARSE_STATUS_PARSE_OK;
+         parser->pos++)
     {
-        switch(json[parser->pos])
+        switch (json[parser->pos])
         {
             case '{':
-            {    
-                switch(state)
+            {
+                switch (state)
                 {
                     case ARRAY_START:
                     case ARRAY_VALUE:
                     {
-                        if(element_type_found)
+                        if (element_type_found)
                         {
-                            if(element_type != JTOK_OBJECT)
+                            if (element_type != JTOK_OBJECT)
                             {
                                 status = JTOK_STATUS_MIXED_ARRAY;
                             }
@@ -749,11 +778,11 @@ static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *to
                         else
                         {
                             element_type_found = true;
-                            element_type = JTOK_OBJECT;
+                            element_type       = JTOK_OBJECT;
                         }
 
                         status = jtok_parse_object(parser, tokens, num_tokens);
-                        if(status == JTOK_PARSE_STATUS_PARSE_OK)
+                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
                         {
                             state = ARRAY_COMMA;
                         }
@@ -774,14 +803,14 @@ static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *to
             break;
             case '\"':
             {
-                switch(state)
+                switch (state)
                 {
                     case ARRAY_START:
                     case ARRAY_VALUE:
                     {
-                        if(element_type_found)
+                        if (element_type_found)
                         {
-                            if(element_type != JTOK_OBJECT)
+                            if (element_type != JTOK_OBJECT)
                             {
                                 status = JTOK_STATUS_MIXED_ARRAY;
                             }
@@ -789,13 +818,14 @@ static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *to
                         else
                         {
                             element_type_found = true;
-                            element_type = JTOK_OBJECT;
+                            element_type       = JTOK_OBJECT;
                         }
-                        
+
                         status = jtok_parse_string(parser, tokens, num_tokens);
-                        if(status == JTOK_PARSE_STATUS_PARSE_OK)
+                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
                         {
-                            if (parser->toksuper != NO_PARENT_IDX && tokens != NULL)
+                            if (parser->toksuper != NO_PARENT_IDX &&
+                                tokens != NULL)
                             {
                                 tokens[parser->toksuper].size++;
                             }
@@ -823,8 +853,8 @@ static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *to
             case ' ':
                 continue; /* skip whitespce */
             case ',':
-            {   
-                switch(state)
+            {
+                switch (state)
                 {
                     case ARRAY_COMMA:
                     {
@@ -857,18 +887,18 @@ static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *to
             case '7':
             case '8':
             case '9':
-            case 't': 
-            case 'f': 
+            case 't':
+            case 'f':
             case 'n':
-            {   
-                switch(state)
+            {
+                switch (state)
                 {
                     case ARRAY_START:
                     case ARRAY_VALUE:
                     {
-                        if(element_type_found)
+                        if (element_type_found)
                         {
-                            if(element_type != JTOK_PRIMITIVE)
+                            if (element_type != JTOK_PRIMITIVE)
                             {
                                 status = JTOK_STATUS_MIXED_ARRAY;
                             }
@@ -876,13 +906,15 @@ static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *to
                         else
                         {
                             element_type_found = true;
-                            element_type = JTOK_PRIMITIVE;
+                            element_type       = JTOK_PRIMITIVE;
                         }
 
-                        status = jtok_parse_primitive(parser, tokens, num_tokens);
-                        if(status == JTOK_PARSE_STATUS_PARSE_OK)
+                        status =
+                            jtok_parse_primitive(parser, tokens, num_tokens);
+                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
                         {
-                            if (parser->toksuper != NO_PARENT_IDX && tokens != NULL)
+                            if (parser->toksuper != NO_PARENT_IDX &&
+                                tokens != NULL)
                             {
                                 tokens[parser->toksuper].size++;
                             }
@@ -907,46 +939,53 @@ static JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *to
         }
     }
 
-    if(status == JTOK_PARSE_STATUS_PARSE_OK)
+    if (status == JTOK_PARSE_STATUS_PARSE_OK)
     {
         parser->pos = start;
-        status = JTOK_PARSE_STATUS_PARTIAL_TOKEN;
+        status      = JTOK_PARSE_STATUS_PARTIAL_TOKEN;
     }
 
     return status;
 }
 
 
-
-static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
-{   
+static JTOK_PARSE_STATUS_t
+jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
+{
     JTOK_PARSE_STATUS_t status = JTOK_PARSE_STATUS_PARSE_OK;
 
-    unsigned int start = parser->pos;
-    const char *json = parser->json;
-    unsigned int len = parser->json_len;
-    int object_token_index = parser->toksuper;
+    unsigned int start              = parser->pos;
+    const char * json               = parser->json;
+    unsigned int len                = parser->json_len;
+    int          object_token_index = parser->toksuper;
 
-    enum {OBJECT_START, OBJECT_KEY, OBJECT_COLON, OBJECT_VALUE, OBJECT_COMMA} state = OBJECT_START;
+    enum
+    {
+        OBJECT_START,
+        OBJECT_KEY,
+        OBJECT_COLON,
+        OBJECT_VALUE,
+        OBJECT_COMMA
+    } state = OBJECT_START;
 
-    if(tokens == NULL)
+    if (tokens == NULL)
     {
         return status;
     }
 
     jtoktok_t *token = jtok_alloc_token(parser, tokens, num_tokens);
-    if(token == NULL)
+    if (token == NULL)
     {
-        /* 
-         * Do not reset parser->pos because we want 
-         * caller to see which token maxed out the 
+        /*
+         * Do not reset parser->pos because we want
+         * caller to see which token maxed out the
          * pool
          */
-         status = JTOK_PARSE_STATUS_NOMEM;
+        status = JTOK_PARSE_STATUS_NOMEM;
     }
     else
     {
-        if(parser->toksuper != NO_PARENT_IDX)
+        if (parser->toksuper != NO_PARENT_IDX)
         {
             tokens[parser->toksuper].size++;
             token->parent = parser->toksuper;
@@ -959,16 +998,18 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
     }
 
     /* go inside the object */
-    parser->pos++; 
+    parser->pos++;
 
-    
-    for(; parser->pos < len && json[parser->pos] != '\0' && status == JTOK_PARSE_STATUS_PARSE_OK; parser->pos++)
+
+    for (; parser->pos < len && json[parser->pos] != '\0' &&
+           status == JTOK_PARSE_STATUS_PARSE_OK;
+         parser->pos++)
     {
-        switch(json[parser->pos])
+        switch (json[parser->pos])
         {
             case '{':
-            {   
-                switch(state)
+            {
+                switch (state)
                 {
                     case OBJECT_START:
                     case OBJECT_KEY:
@@ -992,12 +1033,12 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
                         status = JTOK_PARSE_STATUS_INVAL;
                     }
                     break;
-                } 
+                }
             }
             break;
             case '[':
-            {   
-                switch(state)
+            {
+                switch (state)
                 {
                     case OBJECT_START:
                     case OBJECT_KEY:
@@ -1025,21 +1066,21 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
             }
             break;
             case '}':
-            {   
-                switch(state)
+            {
+                switch (state)
                 {
                     case OBJECT_START:
                     case OBJECT_KEY:
                     {
                         jtoktok_t *token = &tokens[object_token_index];
-                        if(token->type != JTOK_OBJECT || parser->toknext == 0)
-                        {   
+                        if (token->type != JTOK_OBJECT || parser->toknext == 0)
+                        {
                             parser->pos = start;
-                            status = JTOK_PARSE_STATUS_INVAL;
+                            status      = JTOK_PARSE_STATUS_INVAL;
                         }
                         else
                         {
-                            token->end = parser->pos + 1;
+                            token->end       = parser->pos + 1;
                             parser->toksuper = token->parent;
                         }
                     }
@@ -1052,7 +1093,7 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
                     case OBJECT_VALUE:
                     {
                         parser->pos = tokens[parser->toknext - 1].start;
-                        status = JTOK_PARSE_STATUS_KEY_NO_VAL;
+                        status      = JTOK_PARSE_STATUS_KEY_NO_VAL;
                     }
                     break;
                     case OBJECT_COMMA:
@@ -1065,28 +1106,29 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
             }
             break;
             case '\"':
-            {   
+            {
                 jtoktok_t *parent = &tokens[parser->toksuper];
-                switch(state)
+                switch (state)
                 {
                     case OBJECT_START:
                     {
                         state = OBJECT_KEY;
-                    }   /* fallthrough and transition to key state */
+                    } /* fallthrough and transition to key state */
                     case OBJECT_KEY:
                     case OBJECT_VALUE:
                     {
-                        switch(parent->type)
+                        switch (parent->type)
                         {
                             case JTOK_OBJECT:
                             {
                                 /* don't have to do anything */
                             }
                             break;
-                            case JTOK_STRING: /* current token is the value for a key */
-                            {   
-                                if(parent->size != 0)
-                                {   
+                            case JTOK_STRING: /* current token is the value for
+                                                 a key */
+                            {
+                                if (parent->size != 0)
+                                {
                                     /* an object key can only have 1 value */
                                     parser->pos = start;
                                     status = JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL;
@@ -1100,10 +1142,11 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
                             break;
                         }
 
-                        if(status == JTOK_PARSE_STATUS_PARSE_OK)
+                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
                         {
-                            status = jtok_parse_string(parser, tokens, num_tokens);
-                            if(status == JTOK_PARSE_STATUS_PARSE_OK)
+                            status =
+                                jtok_parse_string(parser, tokens, num_tokens);
+                            if (status == JTOK_PARSE_STATUS_PARSE_OK)
                             {
                                 if (parser->toksuper != NO_PARENT_IDX)
                                 {
@@ -1118,22 +1161,20 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
                         status = JTOK_PARSE_STATUS_VAL_NO_COLON;
                     }
                     break;
-                        if(parent->type != JTOK_STRING)
+                        if (parent->type != JTOK_STRING)
                         {
-                            /* If the current token is a value, 
+                            /* If the current token is a value,
                             then the parent token MUST be a string */
                             parser->pos = start;
-                            status = JTOK_PARSE_STATUS_INVAL;
+                            status      = JTOK_PARSE_STATUS_INVAL;
                         }
                         else
                         {
 #warning TODO THIS SECTION WAS INTERRUPTED BY IN-FLIGHT TURBULENCE
                         }
-                    }
-                    break;
+                        break;
                     case OBJECT_COMMA:
                     {
-
                     }
                     break;
                     default:
@@ -1143,12 +1184,10 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
                     break;
                 }
                 /* We've found the first key inside the object */
-                if(state == OBJECT_START)
+                if (state == OBJECT_START)
                 {
                     state = OBJECT_KEY;
                 }
-
-                
             }
             break;
             case '\t':
@@ -1157,39 +1196,39 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
             case ' ':
                 continue; /* skip whitespce */
             case ':':
-            {   
-                if(state == OBJECT_KEY)
-                {   
-                    state = OBJECT_VALUE;
+            {
+                if (state == OBJECT_KEY)
+                {
+                    state            = OBJECT_VALUE;
                     parser->toksuper = parser->toknext - 1;
                 }
-                else if(state == OBJECT_START)
-                {   
+                else if (state == OBJECT_START)
+                {
                     status = JTOK_PARSE_STATUS_OBJ_NOKEY;
                 }
                 else
                 {
                     parser->pos = start;
-                    status = JTOK_PARSE_STATUS_INVAL;
+                    status      = JTOK_PARSE_STATUS_INVAL;
                 }
             }
             break;
             case ',':
-            {   
-                if(state == OBJECT_VALUE)
-                {   
+            {
+                if (state == OBJECT_VALUE)
+                {
                     state = OBJECT_KEY;
 
 
                     jtoktok_t *token = &tokens[parser->toksuper];
-                    switch(token->type)
+                    switch (token->type)
                     {
                         case JTOK_PRIMITIVE:
                         case JTOK_STRING:
-                        {   
-                            /* 
-                             * Update the toksuper index to 
-                             * the KEY's parent (the current object) 
+                        {
+                            /*
+                             * Update the toksuper index to
+                             * the KEY's parent (the current object)
                              */
                             parser->toksuper = tokens[parser->toksuper].parent;
                         }
@@ -1214,38 +1253,41 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
             case '7':
             case '8':
             case '9':
-            case 't': 
-            case 'f': 
+            case 't':
+            case 'f':
             case 'n':
-            {   
+            {
                 /* We must be expecting a value */
-                if(state == OBJECT_VALUE)
+                if (state == OBJECT_VALUE)
                 {
-                    /* We're at the start of a primitive so validate parent type */
+                    /* We're at the start of a primitive so validate parent type
+                     */
                     if (tokens != NULL)
                     {
                         jtoktok_t *parent = &tokens[parser->toksuper];
-                        switch(parent->type)
+                        switch (parent->type)
                         {
                             case JTOK_OBJECT:
                             {
-                                /* primitives cannot be keys (they are not quoted) */
+                                /* primitives cannot be keys (they are not
+                                 * quoted)
+                                 */
                                 parser->pos = start;
-                                status = JTOK_PARSE_STATUS_INVAL;
+                                status      = JTOK_PARSE_STATUS_INVAL;
                             }
                             case JTOK_STRING:
-                            if(parent->size != 0)
-                            {   
-                                /* an object key can only have 1 value */
-                                parser->pos = start;
-                                status = JTOK_PARSE_STATUS_INVAL;
-                            }
-                            break;
+                                if (parent->size != 0)
+                                {
+                                    /* an object key can only have 1 value */
+                                    parser->pos = start;
+                                    status      = JTOK_PARSE_STATUS_INVAL;
+                                }
+                                break;
                             default:
-                            {   
-                                /* 
-                                 * If we're inside parse_object, 
-                                 * other types cannot be parent tokens 
+                            {
+                                /*
+                                 * If we're inside parse_object,
+                                 * other types cannot be parent tokens
                                  */
                                 status = JTOK_PARSE_STATUS_INVAL;
                             }
@@ -1253,10 +1295,11 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
                         }
                     }
 
-                    state = 
+                    state =
 
-                    status = jtok_parse_primitive(parser, tokens, num_tokens);
-                    if(status == JTOK_PARSE_STATUS_PARSE_OK)
+                        status =
+                            jtok_parse_primitive(parser, tokens, num_tokens);
+                    if (status == JTOK_PARSE_STATUS_PARSE_OK)
                     {
                         if (parser->toksuper != NO_PARENT_IDX && tokens != NULL)
                         {
@@ -1271,24 +1314,24 @@ static JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *t
             }
             break;
             default: /* unexpected character */
-            {   
+            {
                 parser->pos = start;
-                status = JTOK_PARSE_STATUS_INVAL;
+                status      = JTOK_PARSE_STATUS_INVAL;
             }
-            break; 
-        }   /* end of character switch statement */
+            break;
+        } /* end of character switch statement */
     }
-    
-    if(status == JTOK_PARSE_STATUS_PARSE_OK)
-    {   
-        /* If we didnt find the } to close current object, we have partial JSON */
+
+    if (status == JTOK_PARSE_STATUS_PARSE_OK)
+    {
+        /* If we didnt find the } to close current object, we have partial JSON
+         */
         parser->pos = start;
-        status = JTOK_PARSE_STATUS_PARTIAL_TOKEN;
+        status      = JTOK_PARSE_STATUS_PARTIAL_TOKEN;
     }
-    
+
     return status;
 }
-
 
 
 static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
@@ -1302,7 +1345,7 @@ static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
     tok        = &tokens[parser->toknext++];
     tok->start = tok->end = INVALID_ARRAY_INDEX;
     tok->size             = 0;
-    tok->parent = NO_PARENT_IDX;
+    tok->parent           = NO_PARENT_IDX;
 
 #if defined(JTOK_STANDALONE_TOKENS)
     tok->json = parser->json;
@@ -1311,46 +1354,49 @@ static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
 }
 
 
-static JTOK_PARSE_STATUS_t tokenChainIsValid(const jtok_parser_t *parser, jtoktok_t *tokens)
+static JTOK_PARSE_STATUS_t tokenChainIsValid(const jtok_parser_t *parser,
+                                             jtoktok_t *          tokens)
 {
     int i;
     for (i = parser->toknext - 1; i >= 0; i--)
     {
         /* Unmatched opened object or array */
         if (tokens[i].start != JTOK_STRING_INDEX_NONE)
-        {   
-            if(tokens[i].end == JTOK_STRING_INDEX_NONE)
+        {
+            if (tokens[i].end == JTOK_STRING_INDEX_NONE)
             {
                 return JTOK_PARSE_STATUS_PARTIAL_TOKEN;
             }
             else
-            {   
-                if(i == 0)
+            {
+                if (i == 0)
                 {
-                    if(tokens[i].parent != NO_PARENT_IDX)
+                    if (tokens[i].parent != NO_PARENT_IDX)
                     {
                         return JTOK_PARSE_STATUS_UNKNOWN_ERROR;
                     }
-                    
-                    if(tokens[i].type != JTOK_OBJECT)
+
+                    if (tokens[i].type != JTOK_OBJECT)
                     {
                         return JTOK_PARSE_STATUS_NON_OBJECT;
                     }
                 }
                 else
                 {
-                    switch(tokens[i].type)
+                    switch (tokens[i].type)
                     {
                         case JTOK_OBJECT:
                         {
                             int parent_idx = tokens[i].parent;
-                            switch(tokens[parent_idx].type)
-                            {   
-                                /* normally, objects' parent type must be string (key) */
+                            switch (tokens[parent_idx].type)
+                            {
+                                /* normally, objects' parent type must be string
+                                 * (key) */
                                 case JTOK_STRING:
-                                /* but also, objects can be elements of an array */
+                                /* but also, objects can be elements of an array
+                                 */
                                 /* ex: { "key" : [ {}, {}, {}]} is valid */
-                                case JTOK_ARRAY: 
+                                case JTOK_ARRAY:
                                     break;
                                 default:
                                     return JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT;
@@ -1359,15 +1405,15 @@ static JTOK_PARSE_STATUS_t tokenChainIsValid(const jtok_parser_t *parser, jtokto
                         break;
                         case JTOK_ARRAY:
                         {
-                            if(i == 0)
-                            {   
+                            if (i == 0)
+                            {
                                 /* first token cant be array */
-                                return JTOK_PARSE_STATUS_INVAL; 
+                                return JTOK_PARSE_STATUS_INVAL;
                             }
                             else
-                            {   
+                            {
                                 int parent_idx = tokens[i].parent;
-                                if(tokens[parent_idx].type != JTOK_STRING)
+                                if (tokens[parent_idx].type != JTOK_STRING)
                                 {
                                     return JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT;
                                 }
@@ -1379,9 +1425,9 @@ static JTOK_PARSE_STATUS_t tokenChainIsValid(const jtok_parser_t *parser, jtokto
                             int parent_idx = tokens[i].parent;
 
                             /* keys require values */
-                            if(tokens[parent_idx].type == JTOK_OBJECT)
+                            if (tokens[parent_idx].type == JTOK_OBJECT)
                             {
-                                if(tokens[i].size == 0)
+                                if (tokens[i].size == 0)
                                 {
                                     return JTOK_PARSE_STATUS_KEY_NO_VAL;
                                 }
@@ -1390,22 +1436,25 @@ static JTOK_PARSE_STATUS_t tokenChainIsValid(const jtok_parser_t *parser, jtokto
                         break;
                         case JTOK_PRIMITIVE:
                         {
-                            if(tokens[i].size == 0)
+                            if (tokens[i].size == 0)
                             {
                                 int parent_idx = tokens[i].parent;
-                                if(parent_idx == NO_PARENT_IDX)
+                                if (parent_idx == NO_PARENT_IDX)
                                 {
                                     return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
                                 }
                                 else
                                 {
-                                    switch(tokens[parent_idx].type)
-                                    {   
-                                        /* normally, objects' parent type must be string (key) */
+                                    switch (tokens[parent_idx].type)
+                                    {
+                                        /* normally, objects' parent type must
+                                         * be string (key) */
                                         case JTOK_STRING:
-                                        /* but also, objects can be elements of an array */
-                                        /* ex: { "key" : [ {}, {}, {}]} is valid */
-                                        case JTOK_ARRAY: 
+                                        /* but also, objects can be elements of
+                                         * an array */
+                                        /* ex: { "key" : [ {}, {}, {}]} is valid
+                                         */
+                                        case JTOK_ARRAY:
                                             break;
                                         default:
                                             return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
@@ -1420,7 +1469,6 @@ static JTOK_PARSE_STATUS_t tokenChainIsValid(const jtok_parser_t *parser, jtokto
                         break;
                     }
                 }
-               
             }
         }
     }
@@ -1434,18 +1482,17 @@ jtok_parser_t jtok_new_parser(const char *nul_terminated_json)
     parser.pos      = 0;
     parser.toknext  = 0;
     parser.toksuper = NO_PARENT_IDX;
-    parser.json     = (char*)nul_terminated_json;
+    parser.json     = (char *)nul_terminated_json;
     parser.json_len = strlen(nul_terminated_json);
     return parser;
 }
 
 
-
 bool jtok_tokenIsKey(jtoktok_t token)
 {
-    if(token.type == JTOK_STRING)
+    if (token.type == JTOK_STRING)
     {
-        if(token.size == 1)
+        if (token.size == 1)
         {
             return true;
         }
@@ -1454,19 +1501,20 @@ bool jtok_tokenIsKey(jtoktok_t token)
 }
 
 
-
-int jtok_token_tostr(char * buf, unsigned int size, const char * json, jtoktok_t token)
-{   
-    if(buf != NULL)
+int jtok_token_tostr(char *buf, unsigned int size, const char *json,
+                     jtoktok_t token)
+{
+    if (buf != NULL)
     {
         int blen = 0;
         blen += snprintf(buf + blen, size - blen, "token : ");
-        for(unsigned int k = token.start; k < token.end; k++)
-        {   
+        for (unsigned int k = token.start; k < token.end; k++)
+        {
             blen += snprintf(buf + blen, size - blen, "%c", json[k]);
         }
         blen += snprintf(buf + blen, size - blen, "\n");
-        blen += snprintf(buf + blen, size - blen, "type: %s\n", jtok_toktypename(token.type));
+        blen += snprintf(buf + blen, size - blen, "type: %s\n",
+                         jtok_toktypename(token.type));
 
 #ifdef DEBUG
         blen += snprintf(buf + blen, size - blen, "start : %u\n", token.start);

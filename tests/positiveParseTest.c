@@ -4,7 +4,7 @@
 #include "jtok.h"
 
 static const char *validJSON[] = {
-    
+
     /* primitive */
     "{\"key\" : true}",
     "{\"key\" : false}",
@@ -56,7 +56,7 @@ static const char *validJSON[] = {
     "{\"hexValueStringifiedKey\" : \"\\u0000\"}",
     "{\"hexValueStringifiedKey\" : \"\\uFFFF\"}",
     "{\"hexValueStringifiedKey\" : \"\\uABCD\"}",
-    
+
     /* Child objects */
     "{}",
     "{\"key\" : {}}", /* empty object */
@@ -67,15 +67,18 @@ static const char *validJSON[] = {
 
     /* Arrays */
     "{\"key\" : [ 1, 2, 3] }",
-    "{\"key1\" : [{\"arrJsonKey1\" : \"arrJsonVal1\"}, {\"arrJsonKey2\" : \"arrJsonVal2\"}]}",
+    "{\"key1\" : [{\"arrJsonKey1\" : \"arrJsonVal1\"}, {\"arrJsonKey2\" : "
+    "\"arrJsonVal2\"}]}",
     "{\"key\" : [\"1\"]}",
     "{\"key\" : [1]}",
     "{\"key\" : []}", /* empty array */
 
     /* Mixing object types */
-    "{\"recursion\" : {\"into\" : {\"child\" : {\"objects\" : {\"key\" : [ \"array\", \"that\", \"is\", \"deeply\", \"nested\"]}}}}}",
+    "{\"recursion\" : {\"into\" : {\"child\" : {\"objects\" : {\"key\" : [ "
+    "\"array\", \"that\", \"is\", \"deeply\", \"nested\"]}}}}}",
     "{\"key\" : {\"key\" : [{\"arrKey\" : \"arrValue\"}]}}",
-    "{\"key\" : {\"childKey\" : [ \"array\", \"of\", \"strings\", \"as\", \"child\", \"key\", \"values\"]}}",
+    "{\"key\" : {\"childKey\" : [ \"array\", \"of\", \"strings\", \"as\", "
+    "\"child\", \"key\", \"values\"]}}",
 
     /* Misc */
     "{\"differentTypesOfWhiteSpace\"\t:\t\"valueString\"}",
@@ -84,21 +87,23 @@ static const char *validJSON[] = {
 };
 
 static jtoktok_t tokens[200];
-int main(void){
+int              main(void)
+{
     printf("\nTesting jtok parser against valid jsons\n");
-    for(unsigned int i = 0; i < sizeof(validJSON)/sizeof(*validJSON); i++)
-    {   
+    for (unsigned int i = 0; i < sizeof(validJSON) / sizeof(*validJSON); i++)
+    {
         jtok_parser_t p = jtok_new_parser(validJSON[i]);
         printf("\n%s ... ", validJSON[i]);
-        JTOK_PARSE_STATUS_t status = jtok_parse(&p, tokens, sizeof(tokens)/sizeof(*tokens));
-        if(status < 0)
-        {   
+        JTOK_PARSE_STATUS_t status =
+            jtok_parse(&p, tokens, sizeof(tokens) / sizeof(*tokens));
+        if (status < 0)
+        {
             printf("test failed. (status == %d)", status);
             return 1;
         }
         else
         {
-            printf("test passed. ", status);
+            printf("test passed. ");
         }
         printf("\n");
     }

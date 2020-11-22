@@ -1,2 +1,2 @@
-C:\MinGW\bin\ar.exe qc libJTOK.a CMakeFiles/JTOK.dir/src/jtok.c.obj
-C:\MinGW\bin\ranlib.exe libJTOK.a
+/usr/bin/ar qc libJTOK.a CMakeFiles/JTOK.dir/src/jtok.c.o
+/usr/bin/ranlib libJTOK.a

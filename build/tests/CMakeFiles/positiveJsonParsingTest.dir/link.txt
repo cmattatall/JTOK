@@ -1,3 +1,1 @@
-"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\positiveJsonParsingTest.dir/objects.a
-C:\MinGW\bin\ar.exe cr CMakeFiles\positiveJsonParsingTest.dir/objects.a @CMakeFiles\positiveJsonParsingTest.dir\objects1.rsp
-C:\MinGW\bin\gcc.exe -g -Wl,--whole-archive CMakeFiles\positiveJsonParsingTest.dir/objects.a -Wl,--no-whole-archive -o positiveJsonParsingTest.exe -Wl,--out-implib,libpositiveJsonParsingTest.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\positiveJsonParsingTest.dir\linklibs.rsp
+/usr/bin/cc -g CMakeFiles/positiveJsonParsingTest.dir/positiveParseTest.c.o -o positiveJsonParsingTest  ../libJTOK.a 

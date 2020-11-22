@@ -1,17 +1,17 @@
 [
 {
-  "directory": "C:/Users/Adam/Desktop/JTOK/build",
-  "command": "C:\\MinGW\\bin\\gcc.exe  @CMakeFiles/JTOK.dir/includes_C.rsp -g -o CMakeFiles\\JTOK.dir\\src\\jtok.c.obj -c C:\\Users\\Adam\\Desktop\\JTOK\\src\\jtok.c",
-  "file": "C:/Users/Adam/Desktop/JTOK/src/jtok.c"
+  "directory": "/home/carl/Desktop/Dev/JTOK/build",
+  "command": "/usr/bin/cc  -I/home/carl/Desktop/Dev/JTOK/inc -g -o CMakeFiles/JTOK.dir/src/jtok.c.o -c /home/carl/Desktop/Dev/JTOK/src/jtok.c",
+  "file": "/home/carl/Desktop/Dev/JTOK/src/jtok.c"
 },
 {
-  "directory": "C:/Users/Adam/Desktop/JTOK/build/tests",
-  "command": "C:\\MinGW\\bin\\gcc.exe  @CMakeFiles/negativeJsonParsingTest.dir/includes_C.rsp -g -o CMakeFiles\\negativeJsonParsingTest.dir\\negativeParseTest.c.obj -c C:\\Users\\Adam\\Desktop\\JTOK\\tests\\negativeParseTest.c",
-  "file": "C:/Users/Adam/Desktop/JTOK/tests/negativeParseTest.c"
+  "directory": "/home/carl/Desktop/Dev/JTOK/build/tests",
+  "command": "/usr/bin/cc  -I/home/carl/Desktop/Dev/JTOK/inc -g -o CMakeFiles/positiveJsonParsingTest.dir/positiveParseTest.c.o -c /home/carl/Desktop/Dev/JTOK/tests/positiveParseTest.c",
+  "file": "/home/carl/Desktop/Dev/JTOK/tests/positiveParseTest.c"
 },
 {
-  "directory": "C:/Users/Adam/Desktop/JTOK/build/tests",
-  "command": "C:\\MinGW\\bin\\gcc.exe  @CMakeFiles/positiveJsonParsingTest.dir/includes_C.rsp -g -o CMakeFiles\\positiveJsonParsingTest.dir\\positiveParseTest.c.obj -c C:\\Users\\Adam\\Desktop\\JTOK\\tests\\positiveParseTest.c",
-  "file": "C:/Users/Adam/Desktop/JTOK/tests/positiveParseTest.c"
+  "directory": "/home/carl/Desktop/Dev/JTOK/build/tests",
+  "command": "/usr/bin/cc  -I/home/carl/Desktop/Dev/JTOK/inc -g -o CMakeFiles/negativeJsonParsingTest.dir/negativeParseTest.c.o -c /home/carl/Desktop/Dev/JTOK/tests/negativeParseTest.c",
+  "file": "/home/carl/Desktop/Dev/JTOK/tests/negativeParseTest.c"
 }
 ]

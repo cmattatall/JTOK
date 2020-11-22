@@ -1,3 +1,1 @@
-"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\negativeJsonParsingTest.dir/objects.a
-C:\MinGW\bin\ar.exe cr CMakeFiles\negativeJsonParsingTest.dir/objects.a @CMakeFiles\negativeJsonParsingTest.dir\objects1.rsp
-C:\MinGW\bin\gcc.exe -g -Wl,--whole-archive CMakeFiles\negativeJsonParsingTest.dir/objects.a -Wl,--no-whole-archive -o negativeJsonParsingTest.exe -Wl,--out-implib,libnegativeJsonParsingTest.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\negativeJsonParsingTest.dir\linklibs.rsp
+/usr/bin/cc -g CMakeFiles/negativeJsonParsingTest.dir/negativeParseTest.c.o -o negativeJsonParsingTest  ../libJTOK.a 

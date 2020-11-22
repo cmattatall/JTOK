@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/JTOK.dir/src/jtok.c.obj"
+  "CMakeFiles/JTOK.dir/src/jtok.c.o"
   "libJTOK.a"
   "libJTOK.pdb"
 )
