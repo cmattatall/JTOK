@@ -4,6 +4,7 @@
 #include "jtok.h"
 
 static const char *validJSON[] = {
+    "{\"key\" : [ true, true, false, false]}",
 
     /* primitive */
     "{\"key\" : true}",

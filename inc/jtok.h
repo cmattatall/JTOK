@@ -74,7 +74,7 @@ typedef enum
     /* eg : { "key" : [123, "123"]} */
     JTOK_STATUS_MIXED_ARRAY = -13,
 
-    /* eg { "key" : [123, 123]} */
+    /* eg { "key" : [123 123]} */
     JTOK_PARSE_STATUS_ARRAY_SEPARATOR = -14,
 
     /* eg: { "key" : [123,, 123]} */
@@ -91,6 +91,8 @@ typedef enum
 
     /* eg { "key" : 123 "key2"...} */
     JTOK_PARSE_STATUS_VAL_NO_COMMA = -19,
+
+    JTOK_PARSE_STATUS_NON_ARRAY = -20,
 } JTOK_PARSE_STATUS_t;
 
 
