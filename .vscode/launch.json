@@ -5,7 +5,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tests/positiveJsonParsingTest.exe",
+            "program": "${workspaceFolder}/build/tests/${input:executable}",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -19,24 +19,16 @@
                     "ignoreFailures": true
                 }
             ]
-        },
-
-        {
-            "name": "(gdb) Attach",
-            "type": "cppdbg",
-            "request": "attach",
-            "program": "enter program name, for example ${workspaceFolder}/a.exe",
-            "processId": "${command:pickProcess}",
-            "MIMode": "gdb",
-            "miDebuggerPath": "/path/to/gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ]
-        },
+        }
     ],
-    "compounds": []
+    "compounds": [],
+
+    "inputs": [
+        {   
+            "id": "executable",
+            "type": "promptString",
+            "default": "positiveJsonParsingTest",
+            "description": "The executable file to debug"
+        }
+    ]
 }

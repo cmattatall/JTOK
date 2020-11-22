@@ -22,7 +22,7 @@ extern "C" {
  *  - Other primitive: number, boolean (true/false) or null
  */
 typedef enum
-{   
+{
     JTOK_UNASSIGNED_TOKEN = 0,
     JTOK_PRIMITIVE        = 1,
     JTOK_OBJECT           = 2,
@@ -31,7 +31,7 @@ typedef enum
 } jtoktype_t;
 
 typedef enum
-{   
+{
     JTOK_PARSE_STATUS_PARSE_OK = 0,
 
     /* For errors that have not yet been classified in source code */
@@ -47,17 +47,17 @@ typedef enum
     JTOK_PARSE_STATUS_PARTIAL_TOKEN = -4,
 
     /* key is missing value. ex: {"key\"}*/
-    JTOK_PARSE_STATUS_KEY_NO_VAL = -5, 
+    JTOK_PARSE_STATUS_KEY_NO_VAL = -5,
 
     /* something like { , "key" : 123, } */
     JTOK_PARSE_STATUS_COMMA_NO_KEY = -6,
 
-    /* Aggregate types must have parent 
+    /* Aggregate types must have parent
     types of string (other than top-level object) */
     JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT = -7,
 
     /* eg : { key : 123} */
-    JTOK_PARSE_STATUS_INVALID_PRIMITIVE = -8, 
+    JTOK_PARSE_STATUS_INVALID_PRIMITIVE = -8,
 
     /* eg: "key" : 123 (literally missing the top-level object braces) */
     JTOK_PARSE_STATUS_NON_OBJECT = -9,
@@ -68,8 +68,8 @@ typedef enum
     /* Token had an invalid end index */
     JTOK_PARSE_STATUS_INVALID_END = -11,
 
-    /* { {...}}  jtok_string must be first token inside object */ 
-    JTOK_PARSE_STATUS_OBJ_NOKEY = -12, 
+    /* { {...}}  jtok_string must be first token inside object */
+    JTOK_PARSE_STATUS_OBJ_NOKEY = -12,
 
     /* eg : { "key" : [123, "123"]} */
     JTOK_STATUS_MIXED_ARRAY = -13,
@@ -84,15 +84,18 @@ typedef enum
     JTOK_PARSE_STATUS_VAL_NO_COLON = -16,
 
     /* eg { "key" : 123 : 456} */
-    JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL = -17, 
+    JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL = -17,
 
     /* eg { [1234] : :123 } */
     JTOK_PARSE_STATUS_INVALID_PARENT = -18,
+
+    /* eg { "key" : 123 "key2"...} */
+    JTOK_PARSE_STATUS_VAL_NO_COMMA = -19,
 } JTOK_PARSE_STATUS_t;
 
 
-typedef enum 
-{   
+typedef enum
+{
     JTOK_VALUE_TYPE_unk, /* default value, assume parsing error */
     JTOK_VALUE_TYPE_uint,
     JTOK_VALUE_TYPE_int,
@@ -101,14 +104,14 @@ typedef enum
     JTOK_VALUE_TYPE_empty,
     JTOK_VALUE_TYPE_null,
     JTOK_VALUE_TYPE_str,
-}   JTOK_VALUE_TYPE_t;
+} JTOK_VALUE_TYPE_t;
 
 typedef enum
-{   
+{
     JTOK_VALUE_TYPE_PRIMITIVE_empty,
     JTOK_VALUE_TYPE_PRIMITIVE_boolean,
     JTOK_VALUE_TYPE_PRIMITIVE_null
-}   JTOK_VALUE_TYPE_PRIMITIVE_t;
+} JTOK_VALUE_TYPE_PRIMITIVE_t;
 
 
 /**
@@ -122,14 +125,14 @@ typedef struct jtoktok_struct jtoktok_t;
 struct jtoktok_struct
 {
 #if defined(JTOK_STANDALONE_TOKENS)
-    char *json;          /* pointer to json string              */
-    jtoktok_t *list;     /* pointer to start of token list      */
-#endif /* #if defined(JTOK_STANDALONE_TOKENS) */
-    jtoktype_t type;     /* the type of token                   */
-    int        start;    /* start index of token in json string */
-    int        end;      /* end index of token in json string   */
-    int        size;     /* number of sub-tokens in the token   */
-    int parent;          /* index of parent in the token array  */
+    char *     json;   /* pointer to json string              */
+    jtoktok_t *list;   /* pointer to start of token list      */
+#endif                 /* #if defined(JTOK_STANDALONE_TOKENS) */
+    jtoktype_t type;   /* the type of token                   */
+    int        start;  /* start index of token in json string */
+    int        end;    /* end index of token in json string   */
+    int        size;   /* number of sub-tokens in the token   */
+    int        parent; /* index of parent in the token array  */
 };
 
 
@@ -147,32 +150,28 @@ typedef struct
 } jtok_parser_t;
 
 
-
-
-
-typedef struct 
+typedef struct
 {
     JTOK_VALUE_TYPE_t type;
-    union 
+    union
     {
         unsigned int as_uinteger;
-        int as_integer;
-        #if defined(JTOK_REAL_SINGLE_PRECISION)
+        int          as_integer;
+#if defined(JTOK_REAL_SINGLE_PRECISION)
         float as_real;
-        #else
+#else
         double as_real;
-        #endif /* if defined(JTOK_REAL_SINGLE_PRECISION) */
+#endif /* if defined(JTOK_REAL_SINGLE_PRECISION) */
         char as_str[MAX_JTOK_STRLEN];
-    } value; 
-}   jtok_value_t;
+    } value;
+} jtok_value_t;
 
 
-
-typedef struct 
+typedef struct
 {
-    jtoktok_t *token;
+    jtoktok_t *  token;
     jtok_value_t value;
-}   jtok_value_map_t;
+} jtok_value_map_t;
 
 
 /**
@@ -180,7 +179,7 @@ typedef struct
  *
  * @param json the json string that will be parsed
  * @return the constructed jtok parser
- * 
+ *
  * @note json string must be nul-terminated!!
  */
 jtok_parser_t jtok_new_parser(const char *nul_terminated_json);
@@ -192,9 +191,11 @@ jtok_parser_t jtok_new_parser(const char *nul_terminated_json);
  * @param parser jtok parser
  * @param tokens array of jtoktok (provided by caller)
  * @param num_tokens max number of tokens to parse
- * @param final_idx pointer that is updated to the total number of tokens parsed from the json on success
+ * @param final_idx pointer that is updated to the total number of tokens parsed
+ * from the json on success
  */
-JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens, unsigned int num_tokens);
+JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens,
+                               unsigned int num_tokens);
 
 
 /**
@@ -328,7 +329,8 @@ char *jtok_toktypename(jtoktype_t type);
 
 
 /**
- * @brief Utility wrapper for printing a string corresponding to a JTOK_PARSE_STATUS_t
+ * @brief Utility wrapper for printing a string corresponding to a
+ * JTOK_PARSE_STATUS_t
  *
  * @param err the error code
  * @return char* the error message
@@ -338,7 +340,7 @@ char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err);
 
 /**
  * @brief Test if a token is a key
- * 
+ *
  * @param token the token to check
  * @return true if the token is a json key
  * @return false otherwise
@@ -346,20 +348,18 @@ char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err);
 bool jtok_tokenIsKey(jtoktok_t token);
 
 
-
-
-
 /**
- * @brief Load a buffer with the fields of a jtoktok_t token so it can be printed
- * 
+ * @brief Load a buffer with the fields of a jtoktok_t token so it can be
+ * printed
+ *
  * @param buf the buffer to load
  * @param size size of the buffer
  * @param json the original json string
  * @param token the jtoktok token
  * @return int number of bytes written to buffer, else -1
  */
-int jtok_token_tostr(char * buf, unsigned int size, const char * json, jtoktok_t token);
-
+int jtok_token_tostr(char *buf, unsigned int size, const char *json,
+                     jtoktok_t token);
 
 
 jtok_value_map_t parse_value(const jtoktok_t *token);
