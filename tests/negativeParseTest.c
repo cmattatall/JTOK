@@ -4,6 +4,7 @@
 #include "jtok.h"
 
 static const char *invalidJSON[] = {
+
     "{\"key\"}", /* no value */
 
     "{\"key\" : {}", /* mismatched braces */

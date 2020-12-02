@@ -481,7 +481,11 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
         BOOLEAN,
         ERROR
     } primitive_type = ERROR;
-    bool exponent    = false;
+
+    bool exponent             = false;
+    bool found_exponent_power = false;
+    bool decimal              = false;
+    bool found_decimal_places = false;
     for (start = parser->pos; parser->pos < len && js[parser->pos] != '\0';
          parser->pos++)
     {
@@ -501,6 +505,20 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
                 if (parser->pos == start)
                 {
                     primitive_type = NUMBER;
+                }
+                else
+                {
+                    if (primitive_type == NUMBER)
+                    {
+                        if (decimal)
+                        {
+                            found_decimal_places = true;
+                        }
+                    }
+                    else
+                    {
+                        return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
+                    }
                 }
             }
             break;
@@ -529,11 +547,34 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
                     parser->pos = start;
                     return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
                 }
-                else if (exponent)
+                else
                 {
-                    /* { "key" : 123e+9.01} is invalid */
-                    parser->pos = start;
-                    return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
+                    if (primitive_type == NUMBER)
+                    {
+                        if (decimal)
+                        {
+                            /* 123.0.1 is invalid primitive */
+                            if (found_decimal_places)
+                            {
+                                return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
+                            }
+                        }
+                        else
+                        {
+                            decimal = true;
+                        }
+
+                        if (exponent)
+                        {
+                            /* { "key" : 123e+9.01} is invalid */
+                            parser->pos = start;
+                            return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
+                        }
+                    }
+                    else
+                    {
+                        return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
+                    }
                 }
             }
             break;
@@ -548,15 +589,22 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
                 }
                 else
                 {
-                    if (isdigit(js[parser->pos - 1]))
+                    if (primitive_type == NUMBER)
                     {
-                        exponent = true;
-                        continue;
+                        /* previous char has to be a digit eg: 10e9 */
+                        if (isdigit(js[parser->pos - 1]))
+                        {
+                            exponent = true;
+                            continue;
+                        }
+                        else /* { "key" : -e9 } is invalid */
+                        {
+                            parser->pos = start;
+                            return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
+                        }
                     }
                     else
                     {
-                        /* { "key" : -e9 } is invalid */
-                        parser->pos = start;
                         return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
                     }
                 }
@@ -584,9 +632,17 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
                         case '+':
                         case '-':
                         case '.':
+                        {
                             parser->pos = start;
                             return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
+                        }
                     }
+                }
+
+                if (decimal && last == '.')
+                {
+                    parser->pos = start;
+                    return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
                 }
 
                 token = jtok_alloc_token(parser, tokens, num_tokens);
