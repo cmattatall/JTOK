@@ -901,6 +901,10 @@ jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
 #endif
             case ']':
             {
+                if (expecting != ARRAY_COMMA)
+                {
+                    status = JTOK_PARSE_STATUS_ARRAY_SEPARATOR;
+                }
                 return status;
             }
             break;
@@ -1026,6 +1030,7 @@ jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
 
                                 expecting = ARRAY_COMMA;
                             }
+                            parser->toksuper = super;
                         }
                     }
                     break;

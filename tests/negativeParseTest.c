@@ -4,6 +4,7 @@
 #include "jtok.h"
 
 static const char *invalidJSON[] = {
+    "{\"\" : \"value\"}",
 
     "{\"key\"}", /* no value */
 
