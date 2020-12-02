@@ -4,11 +4,14 @@
 #include "jtok.h"
 
 static const char *invalidJSON[] = {
-    "{key : 123 }", /* unquoted key */
-    "key : 123", /* no braces */
     "{\"key\"}", /* no value */
-    "[ ]", /* no json */
-    "\"key\"", /* quoted string without braces */
+
+    "{\"key\" : {}", /* mismatched braces */
+
+    "{key : 123 }", /* unquoted key */
+    "key : 123",    /* no braces */
+    "[ ]",          /* no json */
+    "\"key\"",      /* quoted string without braces */
     "123",
     "{[\"123\", \"456\", \"abc\"]}",
     "{\"key\" : [\"123\" \"456\" \"abc\"]}", /* commas are missing from array */
@@ -16,15 +19,16 @@ static const char *invalidJSON[] = {
     "{keyMissingFirstQuote\" : \"stringValue\"}",
     "{\"key\" : valueStringMissingFirstQuote\"}",
     "{\"key\" : \"valueStringMissingSecondQuote}",
-    "{\"key\" : \\uxxxx}", /* invalid hex string */
+    "{\"key\" : \\uxxxx}",    /* invalid hex string */
     "{\"key\" : \"\\uxxxx\"}" /* invalid quoted hex string */
-    "{\"key\" : {}", /* mismatched braces */
-    "{\"key\" : }}", /* mismatched braces */
-    "{ \"key\": [}", /* mismatched square brackets */
-    "{\"key\":]}",   /* mismatched square brackets */
-    "{123}", /* value without key */
+
+
+    "{\"key\" : }}",                     /* mismatched braces */
+    "{ \"key\": [}",                     /* mismatched square brackets */
+    "{\"key\":]}",                       /* mismatched square brackets */
+    "{123}",                             /* value without key */
     "{{\"childKey\" : \"childValue\"}}", /* child json with no key */
-    "{[]}", /* no key for empty array */
+    "{[]}",                              /* no key for empty array */
     "{\"key\" : {[]}}", /* array with no key inside child object */
 
     /* ESCAPED HEX VALUES MUST BE INSIDE STRINGS */
@@ -67,7 +71,8 @@ static const char *invalidJSON[] = {
     "{\"key\" : [,]}",
     "{\"key\" : [123 456 789]}",
     "{\"key\" : [123, ]}",
-    "{\"key\" : [\"abc\", 123, {\"childkey\" : \"childval\"}]}", /* mixed types */
+    "{\"key\" : [\"abc\", 123, {\"childkey\" : \"childval\"}]}", /* mixed types
+                                                                  */
 
     /* Misc */
     "{\"key\" : }",
@@ -76,15 +81,18 @@ static const char *invalidJSON[] = {
 };
 
 static jtoktok_t tokens[200];
-int main(void){
+int              main(void)
+{
     printf("\nTesting jtok parser against invalid jsons\n");
-    for(unsigned int i = 0; i < sizeof(invalidJSON)/sizeof(*invalidJSON); i++)
-    {   
+    for (unsigned int i = 0; i < sizeof(invalidJSON) / sizeof(*invalidJSON);
+         i++)
+    {
         jtok_parser_t p = jtok_new_parser(invalidJSON[i]);
         printf("\n%s ... ", invalidJSON[i]);
-        JTOK_PARSE_STATUS_t status = jtok_parse(&p, tokens, sizeof(tokens)/sizeof(*tokens));
-        if(status >= 0)
-        {   
+        JTOK_PARSE_STATUS_t status =
+            jtok_parse(&p, tokens, sizeof(tokens) / sizeof(*tokens));
+        if (status >= 0)
+        {
             printf("test failed. Expected status < 0");
             return 1;
         }

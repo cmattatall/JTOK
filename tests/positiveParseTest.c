@@ -4,8 +4,6 @@
 #include "jtok.h"
 
 static const char *validJSON[] = {
-    "{\"key1\" : [{\"arrJsonKey1\" : \"arrJsonVal1\"}, {\"arrJsonKey2\" : "
-    "\"arrJsonVal2\"}]}",
 
     /* primitive */
     "{\"key\" : true}",
@@ -81,6 +79,8 @@ static const char *validJSON[] = {
     "{\"key\" : {\"key\" : [{\"arrKey\" : \"arrValue\"}]}}",
     "{\"key\" : {\"childKey\" : [ \"array\", \"of\", \"strings\", \"as\", "
     "\"child\", \"key\", \"values\"]}}",
+    "{\"key1\" : [{\"arrJsonKey1\" : \"arrJsonVal1\"}, {\"arrJsonKey2\" : "
+    "\"arrJsonVal2\"}]}",
 
     /* Misc */
     "{\"differentTypesOfWhiteSpace\"\t:\t\"valueString\"}",
