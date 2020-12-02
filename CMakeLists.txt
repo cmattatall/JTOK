@@ -1,12 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
-
 project(JTOK VERSION 1.0 LANGUAGES C)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # vscode
-
-
 add_library(JTOK STATIC)
-
-
 target_include_directories(JTOK PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/inc")
 target_sources(JTOK PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/jtok.c")
 

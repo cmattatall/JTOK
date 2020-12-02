@@ -1,6 +1,5 @@
 #ifndef JTOK_H_
 #define JTOK_H_
-
 #ifndef __JTOK_H_
 #define __JTOK_H_
 #include <stddef.h>
@@ -140,7 +139,6 @@ struct jtoktok_struct
     int        parent; /* index of parent in the token array  */
 };
 
-
 /**
  * JTOK parser. Contains an array of token blocks available. Also stores
  * the string being parsed now and current position in that string
@@ -153,31 +151,6 @@ typedef struct
     unsigned int toknext;  /* index of next token to allocate */
     int          toksuper; /* superior token node, e.g parent object or array */
 } jtok_parser_t;
-
-
-typedef struct
-{
-    JTOK_VALUE_TYPE_t type;
-    union
-    {
-        unsigned int as_uinteger;
-        int          as_integer;
-#if defined(JTOK_REAL_SINGLE_PRECISION)
-        float as_real;
-#else
-        double as_real;
-#endif /* if defined(JTOK_REAL_SINGLE_PRECISION) */
-        char as_str[MAX_JTOK_STRLEN];
-    } value;
-} jtok_value_t;
-
-
-typedef struct
-{
-    jtoktok_t *  token;
-    jtok_value_t value;
-} jtok_value_map_t;
-
 
 /**
  * @brief construct jtok parser over and array of tokens
@@ -312,7 +285,6 @@ char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const uint8_t *json,
 
 #endif /* #if defined(JTOK_STANDALONE_TOKENS) */
 
-
 /**
  * @brief Check if a jtoktok array constitutes a valid jtok structure
  *
@@ -367,12 +339,8 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
                      jtoktok_t token);
 
 
-jtok_value_map_t parse_value(const jtoktok_t *token);
-
-
 #ifdef __cplusplus
 }
 #endif
 #endif /* __JTOK_H_ */
-
 #endif /* JTOK_H_ */
