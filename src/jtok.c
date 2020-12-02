@@ -718,9 +718,13 @@ jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
             /* Quote: end of string */
             if (js[parser->pos] == '\"')
             {
-                if (tokens == NULL)
+                if (parser->pos == start)
                 {
-                    return JTOK_PARSE_STATUS_PARSE_OK;
+                    token = &tokens[parser->toksuper];
+                    if (token->type != JTOK_STRING)
+                    {
+                        return JTOK_PARSE_STATUS_EMPTY_KEY;
+                    }
                 }
                 token = jtok_alloc_token(parser, tokens, num_tokens);
                 if (token == NULL)
@@ -901,9 +905,19 @@ jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
 #endif
             case ']':
             {
-                if (expecting != ARRAY_COMMA)
+                switch (expecting)
                 {
-                    status = JTOK_PARSE_STATUS_ARRAY_SEPARATOR;
+                    case ARRAY_COMMA:
+                    case ARRAY_START:
+                    {
+                        /* Do nothing */
+                    }
+                    break;
+                    default:
+                    {
+                        status = JTOK_PARSE_STATUS_ARRAY_SEPARATOR;
+                    }
+                    break;
                 }
                 return status;
             }

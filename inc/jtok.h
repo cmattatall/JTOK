@@ -93,6 +93,9 @@ typedef enum
     JTOK_PARSE_STATUS_VAL_NO_COMMA = -19,
 
     JTOK_PARSE_STATUS_NON_ARRAY = -20,
+
+    /* eg {"" : "value"} */
+    JTOK_PARSE_STATUS_EMPTY_KEY = -21,
 } JTOK_PARSE_STATUS_t;
 
 
