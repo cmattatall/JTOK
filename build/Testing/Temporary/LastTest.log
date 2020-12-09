@@ -1,0 +1,285 @@
+Start testing: Dec 09 13:45 AST
+----------------------------------------------------------
+1/2 Testing: positiveJsonParsingTest
+1/2 Test: positiveJsonParsingTest
+Command: "/home/carl/workspace_v10/ADCS_Firmware/JTOK/build/tests/positiveJsonParsingTest" "--build-generator" "Unix Makefiles" "--test-command" "/usr/local/bin/ctest"
+Directory: /home/carl/workspace_v10/ADCS_Firmware/JTOK/build/tests
+"positiveJsonParsingTest" start time: Dec 09 13:45 AST
+Output:
+----------------------------------------------------------
+
+Testing jtok parser against valid jsons
+
+{"key" : []} ... test passed. 
+
+{"key" : true} ... test passed. 
+
+{"key" : false} ... test passed. 
+
+{"key" : null} ... test passed. 
+
+{"key" : "value"} ... test passed. 
+
+{"key" : "ThisIsAveryLongStringThatINeedToMakeVeryLong"} ... test passed. 
+
+{"key" : "true"} ... test passed. 
+
+{"key" : "false"} ... test passed. 
+
+{"key" : "null"} ... test passed. 
+
+{"key" : "key"} ... test passed. 
+
+{"false" : "false"} ... test passed. 
+
+{"null" : "null"} ... test passed. 
+
+{"true" : "true"} ... test passed. 
+
+{"decimalValueKey" : 123.456} ... test passed. 
+
+{"key" : 1234 } ... test passed. 
+
+{"decimalValueString" : "123.456"} ... test passed. 
+
+{"exponentValue": 1.001e-9} ... test passed. 
+
+{"exponentValue": 1.001e9} ... test passed. 
+
+{"exponentValue": 1.001e+9} ... test passed. 
+
+{"exponentValue": 1.001E-9} ... test passed. 
+
+{"exponentValue": 1.001E9} ... test passed. 
+
+{"exponentValue": 1.001E+9} ... test passed. 
+
+{"exponentValue": 1e-9} ... test passed. 
+
+{"exponentValue": 1e9} ... test passed. 
+
+{"exponentValue": 1e+9} ... test passed. 
+
+{"exponentValue": 1E-9} ... test passed. 
+
+{"exponentValue": 1E9} ... test passed. 
+
+{"exponentValue": 1E+9} ... test passed. 
+
+{"decimalValueString" : "-123.456"} ... test passed. 
+
+{"exponentValue": -1.001e-9} ... test passed. 
+
+{"exponentValue": -1.001e9} ... test passed. 
+
+{"exponentValue": -1.001e+9} ... test passed. 
+
+{"exponentValue": -1.001E-9} ... test passed. 
+
+{"exponentValue": -1.001E9} ... test passed. 
+
+{"exponentValue": -1.001E+9} ... test passed. 
+
+{"exponentValue": -1e-9} ... test passed. 
+
+{"exponentValue": -1e9} ... test passed. 
+
+{"exponentValue": -1e+9} ... test passed. 
+
+{"exponentValue": -1E-9} ... test passed. 
+
+{"exponentValue": -1E9} ... test passed. 
+
+{"exponentValue": -1E+9} ... test passed. 
+
+{"hexValueStringifiedKey" : "\uffff"} ... test passed. 
+
+{"hexValueStringifiedKey" : "\u0000"} ... test passed. 
+
+{"hexValueStringifiedKey" : "\uFFFF"} ... test passed. 
+
+{"hexValueStringifiedKey" : "\uABCD"} ... test passed. 
+
+{} ... test passed. 
+
+{"key" : {}} ... test passed. 
+
+{"key" : {"childKey" : 123}} ... test passed. 
+
+{"key" : {"childKey" : "childStringValue"}} ... test passed. 
+
+{"key" : [ true, true, false, false]} ... test passed. 
+
+{"key" : { }} ... test passed. 
+
+{"key" : [ 1, 2, 3] } ... test passed. 
+
+{"key1" : [{"arrJsonKey1" : "arrJsonVal1"}, {"arrJsonKey2" : "arrJsonVal2"}]} ... test passed. 
+
+{"key" : ["1"]} ... test passed. 
+
+{"key" : [1]} ... test passed. 
+
+{"key" : []} ... test passed. 
+
+{"recursion" : {"into" : {"child" : {"objects" : {"key" : [ "array", "that", "is", "deeply", "nested"]}}}}} ... test passed. 
+
+{"key" : {"key" : [{"arrKey" : "arrValue"}]}} ... test passed. 
+
+{"key" : {"childKey" : [ "array", "of", "strings", "as", "child", "key", "values"]}} ... test passed. 
+
+{"key1" : [{"arrJsonKey1" : "arrJsonVal1"}, {"arrJsonKey2" : "arrJsonVal2"}]} ... test passed. 
+
+{"differentTypesOfWhiteSpace"	:	"valueString"} ... test passed. 
+
+{
+"differentTypesOfWhiteSpace"
+:
+"valueString"
+} ... test passed. 
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"positiveJsonParsingTest" end time: Dec 09 13:45 AST
+"positiveJsonParsingTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/2 Testing: negativeJsonParsingTest
+2/2 Test: negativeJsonParsingTest
+Command: "/home/carl/workspace_v10/ADCS_Firmware/JTOK/build/tests/negativeJsonParsingTest" "--build-generator" "Unix Makefiles" "--test-command" "/usr/local/bin/ctest"
+Directory: /home/carl/workspace_v10/ADCS_Firmware/JTOK/build/tests
+"negativeJsonParsingTest" start time: Dec 09 13:45 AST
+Output:
+----------------------------------------------------------
+
+Testing jtok parser against invalid jsons
+
+{"" : "value"} ... test passed. status == -21
+
+{"key"} ... test passed. status == -5
+
+{"key" : {} ... test passed. status == -4
+
+{key : 123 } ... test passed. status == -3
+
+key : 123 ... test passed. status == -9
+
+[ ] ... test passed. status == -9
+
+"key" ... test passed. status == -9
+
+123 ... test passed. status == -9
+
+{["123", "456", "abc"]} ... test passed. status == -12
+
+{"key" : ["123" "456" "abc"]} ... test passed. status == -14
+
+{"keyMissingSecondQuote : "stringValue"} ... test passed. status == -3
+
+{keyMissingFirstQuote" : "stringValue"} ... test passed. status == -3
+
+{"key" : valueStringMissingFirstQuote"} ... test passed. status == -3
+
+{"key" : "valueStringMissingSecondQuote} ... test passed. status == -4
+
+{"key" : \uxxxx} ... test passed. status == -3
+
+{"key" : "\uxxxx"}{"key" : }} ... test passed. status == -3
+
+{ "key": [} ... test passed. status == -4
+
+{"key":]} ... test passed. status == -3
+
+{123} ... test passed. status == -5
+
+{{"childKey" : "childValue"}} ... test passed. status == -12
+
+{[]} ... test passed. status == -12
+
+{"key" : {[]}} ... test passed. status == -12
+
+{"hexValueKey" : \uFFFF} ... test passed. status == -3
+
+{"hexValueKey" : \u0000} ... test passed. status == -3
+
+{"hexValueKey" : \uabcd} ... test passed. status == -3
+
+{"hexValueKey" : \uABCD} ... test passed. status == -3
+
+{"key" : 12true} ... test passed. status == -4
+
+{"key" : .123} ... test passed. status == -3
+
+{"key" : e9} ... test passed. status == -3
+
+{"key" : e-9} ... test passed. status == -3
+
+{"key" : e+9} ... test passed. status == -3
+
+{"key" : e.9} ... test passed. status == -3
+
+{"key" : .123} ... test passed. status == -3
+
+{"key" : E9} ... test passed. status == -3
+
+{"key" : E-9} ... test passed. status == -3
+
+{"key" : E+9} ... test passed. status == -3
+
+{"key" : E.9} ... test passed. status == -3
+
+{"key" : 123.} ... test passed. status == -8
+
+{"key" : 123.e9} ... test passed. status == -8
+
+{"key" : 123.e+9} ... test passed. status == -8
+
+{"key" : 123.e-9} ... test passed. status == -8
+
+{"key" : 123.e9.} ... test passed. status == -8
+
+{"key" : 123.e-9.} ... test passed. status == -8
+
+{"key" : 123.e+9.} ... test passed. status == -8
+
+{"key" : 123.e+9.0} ... test passed. status == -8
+
+{"key" : 123.e-9.0} ... test passed. status == -8
+
+{"key" : 123.e9.0} ... test passed. status == -8
+
+{"key" : 123true} ... test passed. status == -4
+
+{"key" : 123false} ... test passed. status == -4
+
+{"key" : 123null} ... test passed. status == -4
+
+{"key" : true123} ... test passed. status == -8
+
+{"key" : false123} ... test passed. status == -8
+
+{"key" : null123} ... test passed. status == -8
+
+{"key" : [,]} ... test passed. status == -15
+
+{"key" : [123 456 789]} ... test passed. status == -15
+
+{"key" : [123, ]} ... test passed. status == -14
+
+{"key" : ["abc", 123, {"childkey" : "childval"}]} ... test passed. status == -13
+
+{"key" : } ... test passed. status == -5
+
+{: "key" } ... test passed. status == -3
+
+{"" : "value"} ... test passed. status == -21
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"negativeJsonParsingTest" end time: Dec 09 13:45 AST
+"negativeJsonParsingTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Dec 09 13:45 AST

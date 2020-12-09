@@ -1,0 +1,1 @@
+/usr/bin/cc -g CMakeFiles/positiveJsonParsingTest.dir/positiveParseTest.c.o -o positiveJsonParsingTest  ../libJTOK.a 
