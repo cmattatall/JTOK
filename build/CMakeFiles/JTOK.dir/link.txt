@@ -1,2 +1,0 @@
-/usr/bin/ar qc libJTOK.a CMakeFiles/JTOK.dir/src/jtok.c.o
-/usr/bin/ranlib libJTOK.a
