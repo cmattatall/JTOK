@@ -104,18 +104,6 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
 static JTOK_PARSE_STATUS_t
 jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens);
 
-
-/**
- * @brief Check if a parsed sequence of json tokens is valid
- *
- * @param parser the parser
- * @param tokens the token pool
- * @return JTOK_PARSE_STATUS_t status
- */
-static JTOK_PARSE_STATUS_t tokenChainIsValid(const jtok_parser_t *parser,
-                                             jtoktok_t *          tokens);
-
-
 static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
                                    size_t num_tokens);
 
@@ -139,6 +127,10 @@ char *jtok_toktypename(jtoktype_t type)
             retval = (char *)jtoktok_type_names[type];
         }
         break;
+        default:
+        {
+        }
+        break;
     }
     return retval;
 }
@@ -147,9 +139,33 @@ char *jtok_toktypename(jtoktype_t type)
 char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err)
 {
     static const char *jtokerr_messages[] = {
-        [0] = "Not enough jtoktok_t tokens were provided",
-        [1] = "Invalid character inside JTOK string",
-        [2] = "The string is not a full JTOK packet, more bytes expected",
+        [JTOK_PARSE_STATUS_PARSE_OK]       = "JTOK_PARSE_STATUS_PARSE_OK",
+        [-JTOK_PARSE_STATUS_UNKNOWN_ERROR] = "JTOK_PARSE_STATUS_UNKNOWN_ERROR",
+        [-JTOK_PARSE_STATUS_NOMEM]         = "JTOK_PARSE_STATUS_NOMEM",
+        [-JTOK_PARSE_STATUS_INVAL]         = "JTOK_PARSE_STATUS_INVAL",
+        [-JTOK_PARSE_STATUS_PARTIAL_TOKEN] = "JTOK_PARSE_STATUS_PARTIAL_TOKEN",
+        [-JTOK_PARSE_STATUS_KEY_NO_VAL]    = "JTOK_PARSE_STATUS_KEY_NO_VAL",
+        [-JTOK_PARSE_STATUS_COMMA_NO_KEY]  = "JTOK_PARSE_STATUS_COMMA_NO_KEY",
+        [-JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT] =
+            "JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT",
+        [-JTOK_PARSE_STATUS_INVALID_PRIMITIVE] =
+            "JTOK_PARSE_STATUS_INVALID_PRIMITIVE",
+        [-JTOK_PARSE_STATUS_NON_OBJECT]    = "JTOK_PARSE_STATUS_NON_OBJECT",
+        [-JTOK_PARSE_STATUS_INVALID_START] = "JTOK_PARSE_STATUS_INVALID_START",
+        [-JTOK_PARSE_STATUS_INVALID_END]   = "JTOK_PARSE_STATUS_INVALID_END",
+        [-JTOK_PARSE_STATUS_OBJ_NOKEY]     = "JTOK_PARSE_STATUS_OBJ_NOKEY",
+        [-JTOK_STATUS_MIXED_ARRAY]         = "JTOK_STATUS_MIXED_ARRAY",
+        [-JTOK_PARSE_STATUS_ARRAY_SEPARATOR] =
+            "JTOK_PARSE_STATUS_ARRAY_SEPARATOR",
+        [-JTOK_PARSE_STATUS_STRAY_COMMA]  = "JTOK_PARSE_STATUS_STRAY_COMMA",
+        [-JTOK_PARSE_STATUS_VAL_NO_COLON] = "JTOK_PARSE_STATUS_VAL_NO_COLON",
+        [-JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL] =
+            "JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL",
+        [-JTOK_PARSE_STATUS_INVALID_PARENT] =
+            "JTOK_PARSE_STATUS_INVALID_PARENT",
+        [-JTOK_PARSE_STATUS_VAL_NO_COMMA] = "JTOK_PARSE_STATUS_VAL_NO_COMMA",
+        [-JTOK_PARSE_STATUS_NON_ARRAY]    = "JTOK_PARSE_STATUS_NON_ARRAY",
+        [-JTOK_PARSE_STATUS_EMPTY_KEY]    = "JTOK_PARSE_STATUS_EMPTY_KEY",
     };
     char *retval = NULL;
     switch (err)
@@ -167,6 +183,10 @@ char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err)
         case JTOK_PARSE_STATUS_PARTIAL_TOKEN:
         {
             retval = (char *)jtokerr_messages[2];
+        }
+        break;
+        default:
+        {
         }
         break;
     }
@@ -301,7 +321,7 @@ bool jtok_tokncmp(const uint8_t *str, const uint8_t *jtok, const jtoktok_t *tok,
     if (str != NULL && jtok != NULL && tok != NULL)
     {
         uint_least16_t least_size = jtok_toklen(tok);
-        uint_least16_t slen       = strlen(str);
+        uint_least16_t slen       = strlen((const char *)str);
         if (least_size < slen)
         {
             least_size = slen;
@@ -323,6 +343,7 @@ bool jtok_tokncmp(const uint8_t *str, const uint8_t *jtok, const jtoktok_t *tok,
             result = false;
         }
     }
+    return result;
 }
 
 
@@ -522,6 +543,14 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
                     {
                         return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
                     }
+
+                    if (exponent)
+                    {
+                        if (!found_exponent_power)
+                        {
+                            found_exponent_power = true;
+                        }
+                    }
                 }
             }
             break;
@@ -597,7 +626,8 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
                         /* previous char has to be a digit eg: 10e9 */
                         if (isdigit(js[parser->pos - 1]))
                         {
-                            exponent = true;
+                            exponent             = true;
+                            found_exponent_power = false;
                             continue;
                         }
                         else /* { "key" : -e9 } is invalid */
@@ -630,15 +660,10 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
 
                 if (exponent)
                 {
-                    switch (last)
+                    if (!found_exponent_power)
                     {
-                        case '+':
-                        case '-':
-                        case '.':
-                        {
-                            parser->pos = start;
-                            return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
-                        }
+                        parser->pos = start;
+                        return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
                     }
                 }
 
@@ -1390,6 +1415,10 @@ jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
                             parser->toksuper = tokens[parser->toksuper].parent;
                         }
                         break;
+                        default:
+                        {
+                        }
+                        break;
                     }
                 }
                 else
@@ -1509,128 +1538,6 @@ static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
     tok->json = parser->json;
 #endif /*#if defined(JTOK_STANDALONE_TOKENS) */
     return tok;
-}
-
-
-static JTOK_PARSE_STATUS_t tokenChainIsValid(const jtok_parser_t *parser,
-                                             jtoktok_t *          tokens)
-{
-    int i;
-    for (i = parser->toknext - 1; i >= 0; i--)
-    {
-        /* Unmatched opened object or array */
-        if (tokens[i].start != JTOK_STRING_INDEX_NONE)
-        {
-            if (tokens[i].end == JTOK_STRING_INDEX_NONE)
-            {
-                return JTOK_PARSE_STATUS_PARTIAL_TOKEN;
-            }
-            else
-            {
-                if (i == 0)
-                {
-                    if (tokens[i].parent != NO_PARENT_IDX)
-                    {
-                        return JTOK_PARSE_STATUS_UNKNOWN_ERROR;
-                    }
-
-                    if (tokens[i].type != JTOK_OBJECT)
-                    {
-                        return JTOK_PARSE_STATUS_NON_OBJECT;
-                    }
-                }
-                else
-                {
-                    switch (tokens[i].type)
-                    {
-                        case JTOK_OBJECT:
-                        {
-                            int parent_idx = tokens[i].parent;
-                            switch (tokens[parent_idx].type)
-                            {
-                                /* normally, objects' parent type must be string
-                                 * (key) */
-                                case JTOK_STRING:
-                                /* but also, objects can be elements of an array
-                                 */
-                                /* ex: { "key" : [ {}, {}, {}]} is valid */
-                                case JTOK_ARRAY:
-                                    break;
-                                default:
-                                    return JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT;
-                            }
-                        }
-                        break;
-                        case JTOK_ARRAY:
-                        {
-                            if (i == 0)
-                            {
-                                /* first token cant be array */
-                                return JTOK_PARSE_STATUS_INVAL;
-                            }
-                            else
-                            {
-                                int parent_idx = tokens[i].parent;
-                                if (tokens[parent_idx].type != JTOK_STRING)
-                                {
-                                    return JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT;
-                                }
-                            }
-                        }
-                        break;
-                        case JTOK_STRING:
-                        {
-                            int parent_idx = tokens[i].parent;
-
-                            /* keys require values */
-                            if (tokens[parent_idx].type == JTOK_OBJECT)
-                            {
-                                if (tokens[i].size == 0)
-                                {
-                                    return JTOK_PARSE_STATUS_KEY_NO_VAL;
-                                }
-                            }
-                        }
-                        break;
-                        case JTOK_PRIMITIVE:
-                        {
-                            if (tokens[i].size == 0)
-                            {
-                                int parent_idx = tokens[i].parent;
-                                if (parent_idx == NO_PARENT_IDX)
-                                {
-                                    return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
-                                }
-                                else
-                                {
-                                    switch (tokens[parent_idx].type)
-                                    {
-                                        /* normally, objects' parent type must
-                                         * be string (key) */
-                                        case JTOK_STRING:
-                                        /* but also, objects can be elements of
-                                         * an array */
-                                        /* ex: { "key" : [ {}, {}, {}]} is valid
-                                         */
-                                        case JTOK_ARRAY:
-                                            break;
-                                        default:
-                                            return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return JTOK_PARSE_STATUS_PARSE_OK;
 }
 
 
