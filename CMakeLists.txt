@@ -16,3 +16,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     add_subdirectory(tests)
     option(PACKAGE_TESTS "Build the tests" ON)
 endif()
+
+
+add_compile_options("-Wall")
