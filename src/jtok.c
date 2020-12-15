@@ -464,7 +464,7 @@ JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens,
 {
     /* Skip leading whitespace */
     char *json = parser->json;
-    while (isspace(json[parser->pos]))
+    while (isspace((int)json[parser->pos]))
     {
         parser->pos++;
     }
@@ -624,7 +624,7 @@ static JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
                     if (primitive_type == NUMBER)
                     {
                         /* previous char has to be a digit eg: 10e9 */
-                        if (isdigit(js[parser->pos - 1]))
+                        if (isdigit((int)js[parser->pos - 1]))
                         {
                             exponent             = true;
                             found_exponent_power = false;
@@ -794,7 +794,7 @@ jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
                                         js[parser->pos] != '\0';
                                  i++)
                             {
-                                if (!isxdigit(js[parser->pos]))
+                                if (!isxdigit((int)js[parser->pos]))
                                 {
                                     /* reset parser position and return error */
                                     parser->pos = start;
