@@ -1421,10 +1421,7 @@ static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
     tok->start = tok->end = INVALID_ARRAY_INDEX;
     tok->size             = 0;
     tok->parent           = NO_PARENT_IDX;
-
-#if defined(JTOK_STANDALONE_TOKENS)
-    tok->json = parser->json;
-#endif /*#if defined(JTOK_STANDALONE_TOKENS) */
+    tok->json             = parser->json;
     return tok;
 }
 
