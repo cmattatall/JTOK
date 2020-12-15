@@ -209,8 +209,6 @@ uint_least16_t jtok_toklen(const jtoktok_t *tok)
 }
 
 
-#if defined(JTOK_STANDALONE_TOKENS)
-
 bool jtok_tokcmp(const char *str, const jtoktok_t *tok)
 {
     bool result = false;
@@ -310,116 +308,6 @@ char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn,
     result = jtok_tokcpy(dst, count, tkn);
     return result;
 }
-
-#else /* JTOK_STANDALONE_TOKENS is not defined */
-
-
-bool jtok_tokncmp(const uint8_t *str, const uint8_t *jtok, const jtoktok_t *tok,
-                  uint_least16_t n)
-{
-    bool result = false;
-    if (str != NULL && jtok != NULL && tok != NULL)
-    {
-        uint_least16_t least_size = jtok_toklen(tok);
-        uint_least16_t slen       = strlen((const char *)str);
-        if (least_size < slen)
-        {
-            least_size = slen;
-        }
-
-        if (least_size < n)
-        {
-            least_size = n;
-        }
-
-        /* actually compare them */
-        if (strncmp((const char *)str, (char *)&jtok[tok->start], least_size) ==
-            0)
-        {
-            result = true;
-        }
-        else
-        {
-            result = false;
-        }
-    }
-    return result;
-}
-
-
-bool jtok_tokcmp(const char *str, const uint8_t *jtok, const jtoktok_t *tok)
-{
-    bool result = false;
-    if (str == NULL)
-    {
-        if (jtok == NULL)
-        {
-            result = true;
-        }
-        /* Fall to end, default return is false */
-    }
-    else if (jtok == NULL)
-    {
-        if (str == NULL)
-        {
-            result = true;
-        }
-        /* Fall to end, default return is false */
-    }
-    else
-    {
-        uint_least16_t least_size = jtok_toklen(tok);
-        uint_least16_t slen       = strlen(str);
-        if (least_size < slen)
-        {
-            least_size = slen;
-        }
-
-        /* actually compare them */
-        if (strncmp((const char *)str, (char *)&jtok[tok->start], least_size) ==
-            0)
-        {
-            result = true;
-        }
-        else
-        {
-            result = false;
-        }
-    }
-    return result;
-}
-
-char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const uint8_t *jtok,
-                  const jtoktok_t *tkn)
-{
-    char *result = NULL;
-    if (dst != NULL && jtok != NULL && tkn != NULL)
-    {
-        uint_least16_t copy_count = jtok_toklen(tkn);
-        if (copy_count > bufsize)
-        {
-            copy_count = bufsize;
-        }
-        result = strncpy(dst, (char *)&jtok[tkn->start], copy_count);
-    }
-    return result;
-}
-
-
-char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const uint8_t *jtok,
-                   const jtoktok_t *tkn, uint_least16_t n)
-{
-    char *         result = NULL;
-    uint_least16_t count  = bufsize;
-    if (bufsize > n)
-    {
-        count = n;
-    }
-    result = jtok_tokcpy(dst, count, jtok, tkn);
-    return result;
-}
-
-#endif /*#if defined(JTOK_STANDALONE_TOKENS) */
 
 
 bool isValidJson(const jtoktok_t *tokens, uint_least8_t tcnt)

@@ -128,10 +128,8 @@ typedef enum
 typedef struct jtoktok_struct jtoktok_t;
 struct jtoktok_struct
 {
-#if defined(JTOK_STANDALONE_TOKENS)
+
     char *     json;   /* pointer to json string              */
-    jtoktok_t *list;   /* pointer to start of token list      */
-#endif                 /* #if defined(JTOK_STANDALONE_TOKENS) */
     jtoktype_t type;   /* the type of token                   */
     int        start;  /* start index of token in json string */
     int        end;    /* end index of token in json string   */
@@ -185,8 +183,6 @@ JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens,
 uint_least16_t jtok_toklen(const jtoktok_t *tok);
 
 
-#if defined(JTOK_STANDALONE_TOKENS)
-
 /**
  * @brief Compare a jtok token with a nul-terminated string
  *
@@ -232,58 +228,6 @@ char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn);
 char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn,
                    uint_least16_t n);
 
-#else /* JTOK_STANDALONE_TOKENS not defined */
-
-/**
- * @brief Compare a token with a nul-terminated string
- *
- * @param str char array
- * @param json the json string
- * @param tok  instance of a jtok token parsed from the json string
- * @return true if equal
- * @return false if not equal
- */
-bool jtok_tokcmp(const char *str, const uint8_t *json, const jtoktok_t *tok);
-
-
-/**
- * @brief Compare no more than n bytes between a string and a jtoktok
- *
- * @param str the string to compare against
- * @param json the json string referenced by token tok
- * @param tok the token to compare against
- * @param n max number of bytes to compare
- * @return true if equal within bytecount
- * @return false if not equal within bytecount
- */
-bool jtok_tokncmp(const uint8_t *str, const uint8_t *json, const jtoktok_t *tok,
-                  uint_least16_t n);
-
-/**
- * @brief Copy a jtoktok_t json token into a buffer
- *
- * @param buf the destination byte buffer
- * @param bufsize size of destination buffer
- * @param json json string
- * @param tkn jtoktok to copy
- * @return char* NULL on error, else, the destination
- */
-char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const uint8_t *json,
-                  const jtoktok_t *tkn);
-
-/**
- * @brief Copy a no more than n bytes from a jtoktok_t json token into a buffer
- *
- * @param buf the destination byte buffer
- * @param bufsize size of destination buffer
- * @param json the json string
- * @param tkn jtoktok to copy
- * @return char* NULL on error, else, the destination
- */
-char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const uint8_t *json,
-                   const jtoktok_t *tkn, uint_least16_t n);
-
-#endif /* #if defined(JTOK_STANDALONE_TOKENS) */
 
 /**
  * @brief Check if a jtoktok array constitutes a valid jtok structure
