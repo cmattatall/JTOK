@@ -1,6 +1,5 @@
 build/*
 .vscode/*
-Testing/*
 
 *.o
 *.d
