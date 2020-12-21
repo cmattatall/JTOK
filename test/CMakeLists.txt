@@ -5,7 +5,7 @@ foreach(src ${test_sources})
     set(test_name "${LIB}_${test_suffix}")
     add_executable(${test_name})
     target_sources(${test_name} PRIVATE ${src})
-    target_link_libraries(${test_name} PRIVATE ${LIB})
+    target_link_libraries(${test_name} PUBLIC ${LIB})
     add_test(
         NAME ${test_name}_TEST
         COMMAND ${test_name}
