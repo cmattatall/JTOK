@@ -111,11 +111,11 @@ static jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
 char *jtok_toktypename(jtoktype_t type)
 {
     static const char *jtoktok_type_names[] = {
-        [JTOK_PRIMITIVE] = "JTOK_PRIMITIVE",
-        [JTOK_OBJECT]    = "JTOK_OBJECT",
-        [JTOK_ARRAY]     = "JTOK_ARRAY",
-        [JTOK_STRING]    = "JTOK_STRING",
-    };
+        [JTOK_PRIMITIVE]        = "JTOK_PRIMITIVE",
+        [JTOK_OBJECT]           = "JTOK_OBJECT",
+        [JTOK_ARRAY]            = "JTOK_ARRAY",
+        [JTOK_STRING]           = "JTOK_STRING",
+        [JTOK_UNASSIGNED_TOKEN] = "JTOK_UNASSIGNED_TOKEN"};
     char *retval = NULL;
     switch (type)
     {
@@ -722,7 +722,7 @@ jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens, size_t num_tokens)
     const char *        json   = parser->json;
 
     bool       element_type_found = false;
-    jtoktype_t element_type;
+    jtoktype_t element_type       = JTOK_UNASSIGNED_TOKEN;
     enum
     {
         ARRAY_START,
