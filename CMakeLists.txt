@@ -15,12 +15,12 @@ target_include_directories(JTOK PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/inc")
 target_sources(JTOK PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/jtok.c")
 
 if(BUILD_TESTING)
+    enable_testing()
     include(CTest)
     add_subdirectory(test)
 else()
-    # If we're working on this project 
-    # we should be doing all the tests anyway
     if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+        enable_testing()
         include(CTest)
         add_subdirectory(test)
     endif()
