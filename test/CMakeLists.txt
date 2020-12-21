@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
+
 file(GLOB test_sources "${CMAKE_CURRENT_SOURCE_DIR}/*.c")
 foreach(src ${test_sources})
     get_filename_component(test_suffix ${src} NAME_WLE)
@@ -11,7 +12,8 @@ foreach(src ${test_sources})
         COMMAND ${test_name}
         --build-generator "${CMAKE_GENERATOR}"
         --test-command "${CMAKE_CTEST_COMMAND}"
-    ) 
+    )
+     
 endforeach(src ${test_sources})
 
 
