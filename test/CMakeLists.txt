@@ -1,26 +1,18 @@
 cmake_minimum_required(VERSION 3.16)
-
-add_executable(positiveJsonParsingTest)
-target_sources(positiveJsonParsingTest PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/positiveParseTest.c")
-target_link_libraries(positiveJsonParsingTest PUBLIC JTOK)
-add_test(
-    NAME ${PROJECT_NAME}_positiveJsonParsingTest 
-    COMMAND positiveJsonParsingTest
-    --build-generator "${CMAKE_GENERATOR}"
-    --test-command "${CMAKE_CTEST_COMMAND}"
-)
-
-add_executable(negativeJsonParsingTest)
-target_sources(negativeJsonParsingTest PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/negativeParseTest.c")
-target_link_libraries(negativeJsonParsingTest PUBLIC JTOK)
-add_test( 
-    NAME ${PROJECT_NAME}_negativeJsonParsingTest
-    COMMAND negativeJsonParsingTest
-    --build-generator "${CMAKE_GENERATOR}"
-    --test-command "${CMAKE_CTEST_COMMAND}"       
-)
-
-
+file(GLOB test_sources "${CMAKE_CURRENT_SOURCE_DIR}/*.c")
+foreach(src ${test_sources})
+    get_filename_component(test_suffix ${src} NAME_WLE)
+    set(test_name "${LIB}_${test_suffix}")
+    add_executable(${test_name})
+    target_sources(${test_name} PRIVATE ${src})
+    target_link_libraries(${test_name} PRIVATE ${LIB})
+    add_test(
+        NAME ${test_name}_TEST
+        COMMAND ${test_name}
+        --build-generator "${CMAKE_GENERATOR}"
+        --test-command "${CMAKE_CTEST_COMMAND}"
+    ) 
+endforeach(src ${test_sources})
 
 
 
