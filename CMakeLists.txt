@@ -23,7 +23,10 @@ list(APPEND SUPPORTED_BUILD_TYPES "Debug")
 list(APPEND SUPPORTED_BUILD_TYPES "Release")
 list(APPEND SUPPORTED_BUILD_TYPES "MinSizeRel")
 list(APPEND SUPPORTED_BUILD_TYPES "RelWithDebInfo")
-set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type chosen by the user at configure time")
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type chosen by the user at configure time" FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${SUPPORTED_BUILD_TYPES})
 
 
@@ -51,6 +54,7 @@ list(REMOVE_DUPLICATES ${LIB}_private_include_directories)
 target_include_directories(${LIB} PRIVATE ${${LIB}_private_include_directories})
 
 
+
 ################################################################################
 # DETECT PUBLIC HEADERS RECURSIVELY FROM inc FOLDER
 ################################################################################
@@ -73,6 +77,7 @@ if(BUILD_TESTING)
     add_subdirectory(test)
 else()
     if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+        target_compile_options(${LIB} PRIVATE "-Wall")
         enable_testing()
         include(CTest)
         add_subdirectory(test)

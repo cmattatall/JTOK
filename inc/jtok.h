@@ -22,85 +22,85 @@ extern "C" {
  */
 typedef enum
 {
-    JTOK_UNASSIGNED_TOKEN = 0,
-    JTOK_PRIMITIVE        = 1,
-    JTOK_OBJECT           = 2,
-    JTOK_ARRAY            = 3,
-    JTOK_STRING           = 4,
-} jtoktype_t;
+    JTOK_UNASSIGNED_TOKEN,
+    JTOK_PRIMITIVE,
+    JTOK_OBJECT,
+    JTOK_ARRAY,
+    JTOK_STRING,
+} JTOK_TYPE_t;
 
 typedef enum
 {
-    JTOK_PARSE_STATUS_PARSE_OK = 0,
+    JTOK_PARSE_STATUS_PARSE_OK,
 
     /* For errors that have not yet been classified in source code */
-    JTOK_PARSE_STATUS_UNKNOWN_ERROR = -1,
+    JTOK_PARSE_STATUS_UNKNOWN_ERROR,
 
     /* Not enough tokens were provided */
-    JTOK_PARSE_STATUS_NOMEM = -2,
+    JTOK_PARSE_STATUS_NOMEM,
 
     /* Invalid character inside JTOK string */
-    JTOK_PARSE_STATUS_INVAL = -3,
+    JTOK_PARSE_STATUS_INVAL,
 
     /* The string is not a full JTOK packet, more bytes expected */
-    JTOK_PARSE_STATUS_PARTIAL_TOKEN = -4,
+    JTOK_PARSE_STATUS_PARTIAL_TOKEN,
 
     /* key is missing value. ex: {"key\"}*/
-    JTOK_PARSE_STATUS_KEY_NO_VAL = -5,
+    JTOK_PARSE_STATUS_KEY_NO_VAL,
 
     /* something like { , "key" : 123, } */
-    JTOK_PARSE_STATUS_COMMA_NO_KEY = -6,
+    JTOK_PARSE_STATUS_COMMA_NO_KEY,
 
     /* Aggregate types must have parent
     types of string (other than top-level object) */
-    JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT = -7,
+    JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT,
 
     /* eg : { key : 123} */
-    JTOK_PARSE_STATUS_INVALID_PRIMITIVE = -8,
+    JTOK_PARSE_STATUS_INVALID_PRIMITIVE,
 
     /* eg: "key" : 123 (literally missing the top-level object braces) */
-    JTOK_PARSE_STATUS_NON_OBJECT = -9,
+    JTOK_PARSE_STATUS_NON_OBJECT,
 
     /* Token had an invalid start index */
-    JTOK_PARSE_STATUS_INVALID_START = -10,
+    JTOK_PARSE_STATUS_INVALID_START,
 
     /* Token had an invalid end index */
-    JTOK_PARSE_STATUS_INVALID_END = -11,
+    JTOK_PARSE_STATUS_INVALID_END,
 
     /* { {...}}  jtok_string must be first token inside object */
-    JTOK_PARSE_STATUS_OBJ_NOKEY = -12,
+    JTOK_PARSE_STATUS_OBJ_NOKEY,
 
     /* eg : { "key" : [123, "123"]} */
-    JTOK_STATUS_MIXED_ARRAY = -13,
+    JTOK_STATUS_MIXED_ARRAY,
 
     /* eg { "key" : [123 123]} */
-    JTOK_PARSE_STATUS_ARRAY_SEPARATOR = -14,
+    JTOK_PARSE_STATUS_ARRAY_SEPARATOR,
 
     /* eg: { "key" : [123,, 123]} */
-    JTOK_PARSE_STATUS_STRAY_COMMA = -15,
+    JTOK_PARSE_STATUS_STRAY_COMMA,
 
     /* eg : { "key" "value "} */
-    JTOK_PARSE_STATUS_VAL_NO_COLON = -16,
+    JTOK_PARSE_STATUS_VAL_NO_COLON,
 
     /* eg { "key" : 123 : 456} */
-    JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL = -17,
+    JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL,
 
     /* eg { [1234] : :123 } */
-    JTOK_PARSE_STATUS_INVALID_PARENT = -18,
+    JTOK_PARSE_STATUS_INVALID_PARENT,
 
     /* eg { "key" : 123 "key2"...} */
-    JTOK_PARSE_STATUS_VAL_NO_COMMA = -19,
+    JTOK_PARSE_STATUS_VAL_NO_COMMA,
 
-    JTOK_PARSE_STATUS_NON_ARRAY = -20,
+    JTOK_PARSE_STATUS_NON_ARRAY,
 
     /* eg {"" : "value"} */
-    JTOK_PARSE_STATUS_EMPTY_KEY = -21,
+    JTOK_PARSE_STATUS_EMPTY_KEY,
 } JTOK_PARSE_STATUS_t;
 
 
 typedef enum
 {
-    JTOK_VALUE_TYPE_unk, /* default value, assume parsing error */
+    JTOK_VALUE_TYPE_not_a_value_tkn,
     JTOK_VALUE_TYPE_uint,
     JTOK_VALUE_TYPE_int,
     JTOK_VALUE_TYPE_real,
@@ -109,13 +109,6 @@ typedef enum
     JTOK_VALUE_TYPE_null,
     JTOK_VALUE_TYPE_str,
 } JTOK_VALUE_TYPE_t;
-
-typedef enum
-{
-    JTOK_VALUE_TYPE_PRIMITIVE_empty,
-    JTOK_VALUE_TYPE_PRIMITIVE_boolean,
-    JTOK_VALUE_TYPE_PRIMITIVE_null
-} JTOK_VALUE_TYPE_PRIMITIVE_t;
 
 
 /**
@@ -129,12 +122,13 @@ typedef struct jtoktok_struct jtoktok_t;
 struct jtoktok_struct
 {
 
-    char *     json;   /* pointer to json string              */
-    jtoktype_t type;   /* the type of token                   */
-    int        start;  /* start index of token in json string */
-    int        end;    /* end index of token in json string   */
-    int        size;   /* number of sub-tokens in the token   */
-    int        parent; /* index of parent in the token array  */
+    char *            json;    /* pointer to json string              */
+    JTOK_TYPE_t       type;    /* the type of token                   */
+    JTOK_VALUE_TYPE_t subtype; /* sub-type ONLY used for primitives */
+    int               start;   /* start index of token in json string */
+    int               end;     /* end index of token in json string   */
+    int               size;    /* number of sub-tokens in the token   */
+    int               parent;  /* index of parent in the token array  */
 };
 
 /**
@@ -230,6 +224,17 @@ char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn,
 
 
 /**
+ * @brief Compare one jtok token with another
+ *
+ * @param tkn1 token 1
+ * @param tkn2 token 2
+ * @return true if tokens are equal
+ * @return false if they are not
+ */
+bool jtok_toktokcmp(const jtoktok_t *tkn1, const jtoktok_t *tkn2);
+
+
+/**
  * @brief Check if a jtoktok array constitutes a valid jtok structure
  *
  * @param tokens token array
@@ -246,7 +251,7 @@ bool isValidJson(const jtoktok_t *tokens, uint_least8_t tcnt);
  * @param type the type to stringify
  * @return char* the type name as a string
  */
-char *jtok_toktypename(jtoktype_t type);
+char *jtok_toktypename(JTOK_TYPE_t type);
 
 
 /**
@@ -281,6 +286,17 @@ bool jtok_tokenIsKey(jtoktok_t token);
  */
 int jtok_token_tostr(char *buf, unsigned int size, const char *json,
                      jtoktok_t token);
+
+
+/**
+ * @brief Compare two jtok tokens for equality
+ *
+ * @param tkn1 first token
+ * @param tkn2 second token
+ * @return true if tokens are equal
+ * @return false if not equal
+ */
+bool jtok_toktokcmp(const jtoktok_t *tkn1, const jtoktok_t *tkn2);
 
 
 #ifdef __cplusplus
