@@ -99,14 +99,14 @@ int              main(void)
         printf("\n%s ... ", validJSON[i]);
         JTOK_PARSE_STATUS_t status =
             jtok_parse(&p, tokens, sizeof(tokens) / sizeof(*tokens));
-        if (status < 0)
+        if (status != JTOK_PARSE_STATUS_PARSE_OK)
         {
-            printf("test failed. (status == %d)", status);
+            printf("failed with status %d.", status);
             return 1;
         }
         else
         {
-            printf("test passed. ");
+            printf("passed.");
         }
         printf("\n");
     }
