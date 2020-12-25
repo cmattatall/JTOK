@@ -13,6 +13,8 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <float.h>
+
 
 #include "jtok_primitive.h"
 #include "jtok_shared.h"
@@ -37,6 +39,7 @@ JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
     bool found_exponent_power = false;
     bool decimal              = false;
     bool found_decimal_places = false;
+
     for (start = parser->pos; parser->pos < len && js[parser->pos] != '\0';
          parser->pos++)
     {
@@ -207,10 +210,16 @@ JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
                     return JTOK_PARSE_STATUS_NOMEM;
                 }
                 jtok_fill_token(token, JTOK_PRIMITIVE, start, parser->pos);
+
                 token->parent = parser->toksuper;
 
-                /* go back 1 spot so when we return from current function, the
-                calling context can look at the current character */
+                /* Go back 1 spot so when we return from current function, the
+                 * calling context can look at the current character
+                 *
+                 * This is because if the token terminates on a '}', it
+                 * may also terminate a superior token as well (such as a
+                 * higher level object in the given example)
+                 */
                 parser->pos--;
                 return JTOK_PARSE_STATUS_PARSE_OK;
             }
@@ -252,21 +261,79 @@ JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
             break;
         }
     }
+
+    /* We didn't reach a terminating character
+     * so the json we recieved was incomplete */
     return JTOK_PARSE_STATUS_PARTIAL_TOKEN;
 }
 
 
 bool jtok_toktokcmp_primitive(const jtoktok_t *tkn1, const jtoktok_t *tkn2)
 {
+    /** @todo really not proud of this function. SUPER inefficient
+     *  But it works for now. Really we should be storing some sort of
+     * "value subtype" as part of the parsing process and checking that here
+     *
+     * Currently we're pretty much re-parsing each token to determine a subtype
+     */
+
     bool           is_equal = false;
-    uint_least16_t len      = jtok_toklen(tkn1);
-
-
+    uint_least16_t len1     = jtok_toklen(tkn1);
+    uint_least16_t len2     = jtok_toklen(tkn2);
+    uint_least16_t min_len  = len1;
+    if (min_len > len2)
     {
-        const char *start1 = &tkn1->json[tkn1->start];
-        const char *start2 = &tkn2->json[tkn2->start];
+        min_len = len2;
     }
 
+
+    const char *start1 = &tkn1->json[tkn1->start];
+    const char *start2 = &tkn2->json[tkn2->start];
+
+    if (0 == strncmp("true", start1, min_len) &&
+        0 == strncmp("true", start2, min_len))
+    {
+        is_equal = true;
+    }
+    else if (0 == strncmp("false", start1, min_len) &&
+             0 == strncmp("false", start2, min_len))
+    {
+        is_equal = true;
+    }
+    else if (0 == strncmp("null", start1, min_len) &&
+             0 == strncmp("null", start2, min_len))
+    {
+        is_equal = true;
+    }
+    else
+    {
+        /* Token isn't 'true', 'false', or 'null', need to parse it as a number
+         *
+         * Again, since we don't store the subtypes, we have to assume
+         * its a real number and do all the operations with ungodly
+         * floating precision arithmetic
+         */
+        const char *end1 = &tkn1->json[tkn1->end];
+        const char *end2 = &tkn2->json[tkn2->end];
+
+        float val1;
+        float val2;
+        char *endptr1 = (char *)start1;
+        char *endptr2 = (char *)start2;
+
+        val1 = strtof(start1, &endptr1);
+        val2 = strtof(start2, &endptr2);
+        if (endptr2 == end2) /* if first tkn was parsed correctly */
+        {
+            if (endptr1 == end1) /* if second tkn was parsed correctly */
+            {
+                if ((val1 - val2) < FLT_EPSILON)
+                {
+                    is_equal = true;
+                }
+            }
+        }
+    }
 
     return is_equal;
 }

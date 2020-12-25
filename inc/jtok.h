@@ -122,13 +122,12 @@ typedef struct jtoktok_struct jtoktok_t;
 struct jtoktok_struct
 {
 
-    char *            json;    /* pointer to json string              */
-    JTOK_TYPE_t       type;    /* the type of token                   */
-    JTOK_VALUE_TYPE_t subtype; /* sub-type ONLY used for primitives */
-    int               start;   /* start index of token in json string */
-    int               end;     /* end index of token in json string   */
-    int               size;    /* number of sub-tokens in the token   */
-    int               parent;  /* index of parent in the token array  */
+    char *      json;   /* pointer to json string              */
+    JTOK_TYPE_t type;   /* the type of token                   */
+    int         start;  /* start index of token in json string */
+    int         end;    /* end index of token in json string   */
+    int         size;   /* number of sub-tokens in the token   */
+    int         parent; /* index of parent in the token array  */
 };
 
 /**
