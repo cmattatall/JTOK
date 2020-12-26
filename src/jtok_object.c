@@ -327,24 +327,8 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                 if (expecting == OBJECT_COMMA)
                 {
                     expecting              = OBJECT_KEY;
-                    jtok_tkn_t *parent_tkn = &tokens[parser->toksuper];
-                    switch (parent_tkn->type)
-                    {
-                        case JTOK_PRIMITIVE:
-                        case JTOK_STRING:
-                        {
-                            /*
-                             * Update the toksuper index to
-                             * the KEY's parent (the current object)
-                             */
-                            parser->toksuper = parent_tkn->parent;
-                        }
-                        break;
-                        default:
-                        {
-                        }
-                        break;
-                    }
+                    jtok_tkn_t *parent_key = &tokens[parser->toksuper];
+                    parser->toksuper       = parent_key->parent;
                 }
                 else
                 {
