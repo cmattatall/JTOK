@@ -23,18 +23,23 @@
     ],
     "compounds": [],
 
+
     "inputs": [
         {
             "id":"test",
             "description": "name of test executable to debug",
             "options": [
+                "JTOK_positive_parse_test",
+                "JTOK_negative_parse_test",
                 "JTOK_array_comparison_test",
                 "JTOK_object_comparison_test",
-                "JTOK_negative_parse_test",
-                "JTOK_positive_parse_test",
-                "JTOK_primitive_comparison_test",
                 "JTOK_string_comparison_test",
+                "JTOK_primitive_comparison_test",
                 "JTOK_size_test1",
+                "JTOK_object_sibling_test",
+                "JTOK_fake_escape_character_in_key_test",
+                "JTOK_empty_array_parse_test",
+                "JTOK_empty_object_parse_test",
             ],
             "type": "pickString",
         }

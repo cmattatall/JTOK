@@ -1,5 +1,5 @@
 /**
- * @file sibling_key_test.c
+ * @file object_sibling_test.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Source module to test the sibling relationship of parsed objects
  * @version 0.1

@@ -14,6 +14,7 @@ extern "C" {
 #define INVALID_ARRAY_INDEX (-1)
 #define NO_PARENT_IDX (INVALID_ARRAY_INDEX)
 #define NO_SIBLING_IDX (INVALID_ARRAY_INDEX)
+#define NO_CHILD_IDX (INVALID_ARRAY_INDEX)
 #define JTOK_STRING_INDEX_NONE (INVALID_ARRAY_INDEX)
 
 /**
@@ -147,6 +148,7 @@ typedef struct
     unsigned int pos;      /* current parsing index in json string */
     unsigned int toknext;  /* index of next token to allocate */
     int          toksuper; /* superior token node, e.g parent object or array */
+    int          last_child; /* index of last sibling parsed */
 } jtok_parser_t;
 
 /**

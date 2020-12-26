@@ -33,11 +33,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
         ARRAY_COMMA
     } expecting = ARRAY_START;
 
-    if (tokens == NULL)
-    {
-        return status;
-    }
-    else if (json[parser->pos] != '[')
+    if (json[parser->pos] != '[')
     {
         return JTOK_PARSE_STATUS_NON_ARRAY;
     }
@@ -99,7 +95,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         status = jtok_parse_object(parser, tokens, num_tokens);
                         if (status == JTOK_PARSE_STATUS_PARSE_OK)
                         {
-                            if (super != NO_PARENT_IDX)
+                            if (parser->toknext != NO_PARENT_IDX)
                             {
                                 tokens[super].size++;
                             }
