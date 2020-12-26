@@ -1,3 +1,15 @@
+/**
+ * @file positive_parse_test.c
+ * @author Carl Mattatall (cmattatall2@gmail.com)
+ * @brief Source module to test various human-conceived jsons that
+ * should be parsed as valid jsons
+ * @version 0.1
+ * @date 2020-12-26
+ *
+ * @copyright Copyright (c) 2020 Carl Mattatall
+ *
+ * @note
+ */
 #include <stdio.h>
 #include <string.h>
 
