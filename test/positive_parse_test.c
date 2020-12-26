@@ -4,12 +4,6 @@
 #include "jtok.h"
 
 static const char *validJSON[] = {
-    "{\"key\":{}}",
-    "{\"key\":{ }}",
-    "{\"key\":{}}",
-    "{\"key\":{ }}",
-
-
     "{\"key1\":[],\"key2\":[]}",
 
     /* empty array */

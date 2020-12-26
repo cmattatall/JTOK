@@ -1,0 +1,37 @@
+/* THIS IS A TEMPLATE FILE FOR CREATING NEW TESTS */
+
+#include <stdio.h>
+
+#include "jtok.h"
+
+#define TOKEN_MAX (200u)
+
+static const char *valid_jsons[] = { 
+
+    /* PUT JSON STRINGS THAT SHOULD BE PARSED SUCCESSFULLY HERE */
+
+}; 
+
+static jtok_parser_t p;
+static jtok_tkn_t    tokens[TOKEN_MAX];
+int main(void)
+{
+    unsigned int i;
+    unsigned int max_i = sizeof(valid_jsons) / sizeof(*valid_jsons);
+    for (unsigned int i = 0; i < max_i; i++)
+    {
+        p = jtok_new_parser(valid_jsons[i]);
+        printf("\n%s ... ", valid_jsons[i]);
+        JTOK_PARSE_STATUS_t status = jtok_parse(&p, tokens, TOKEN_MAX);
+        if (status != JTOK_PARSE_STATUS_PARSE_OK)
+        {
+            printf("failed with status %d.\n", status);
+            return 1;
+        }
+        else
+        {
+            printf("passed.\n");
+            continue;
+        }
+    }
+}

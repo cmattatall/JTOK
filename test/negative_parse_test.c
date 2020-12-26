@@ -1,7 +1,20 @@
+/**
+ * @file negative_parse_test.c
+ * @author Carl Mattatall (cmattatall2@gmail.com)
+ * @brief Source module to test rejection of invalid jsons
+ * @version 0.1
+ * @date 2020-12-26
+ *
+ * @copyright Copyright (c) 2020 Carl Mattatall
+ *
+ */
+
 #include <stdio.h>
 #include <string.h>
 
 #include "jtok.h"
+
+#define TOKEN_MAX (200u)
 
 static const char *invalidJSON[] = {
     "{\"\" : \"value\"}",
@@ -82,7 +95,7 @@ static const char *invalidJSON[] = {
     "{\"\" : \"value\"}",
 };
 
-static jtok_tkn_t tokens[200];
+static jtok_tkn_t tokens[TOKEN_MAX];
 int               main(void)
 {
     printf("\nTesting jtok parser against invalid jsons\n");
@@ -91,8 +104,7 @@ int               main(void)
     {
         jtok_parser_t p = jtok_new_parser(invalidJSON[i]);
         printf("\n%s ... ", invalidJSON[i]);
-        JTOK_PARSE_STATUS_t status =
-            jtok_parse(&p, tokens, sizeof(tokens) / sizeof(*tokens));
+        JTOK_PARSE_STATUS_t status = jtok_parse(&p, tokens, TOKEN_MAX);
         if (status == JTOK_PARSE_STATUS_PARSE_OK)
         {
             printf("failed.\n");

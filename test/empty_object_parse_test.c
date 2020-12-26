@@ -12,6 +12,8 @@
 
 #include "jtok.h"
 
+#define TOKEN_MAX (200u)
+
 /* These are the various permutations of
  * whitespace for an empty object */
 static const char *valid_jsons[] = {
@@ -949,7 +951,7 @@ static const char *valid_jsons[] = {
 
 
 static jtok_parser_t p;
-static jtok_tkn_t    tokens[200];
+static jtok_tkn_t    tokens[TOKEN_MAX];
 
 int main(void)
 {
@@ -960,8 +962,7 @@ int main(void)
     {
         p = jtok_new_parser(valid_jsons[i]);
         printf("\n%s ... ", valid_jsons[i]);
-        JTOK_PARSE_STATUS_t status =
-            jtok_parse(&p, tokens, sizeof(tokens) / sizeof(*tokens));
+        JTOK_PARSE_STATUS_t status = jtok_parse(&p, tokens, TOKEN_MAX);
         if (status != JTOK_PARSE_STATUS_PARSE_OK)
         {
             printf("failed with status %d.\n", status);
