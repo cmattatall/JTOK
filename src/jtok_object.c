@@ -68,7 +68,6 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
     /* go inside the object */
     parser->pos++;
 
-
     for (; parser->pos < len && json[parser->pos] != '\0' &&
            status == JTOK_PARSE_STATUS_PARSE_OK;
          parser->pos++)

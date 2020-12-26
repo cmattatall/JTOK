@@ -41,7 +41,7 @@ static jtok_parser_t p1;
 static jtok_parser_t p2;
 
 int main(void)
-{
+{   
     int i;
     int max_i = sizeof(true_cmp_table) / sizeof(*true_cmp_table);
 
