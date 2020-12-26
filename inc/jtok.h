@@ -113,22 +113,25 @@ typedef enum
 
 /**
  * JTOK token description.
+ * @param       json    json string into which the data structure inserts
  * @param       type    type (object, array, string etc.)
  * @param       start   start position in JTOK data string
  * @param       end     end position in JTOK data string
+ * @param       size    number of sub-tokens that have this token as a parent
+ * @param       parent  index of parent token in the token array
+ * @param       sibling index of next sibling token in the token array.
  */
-
-typedef struct jtoktok_struct jtoktok_t;
-struct jtoktok_struct
+typedef struct
 {
 
-    char *      json;   /* pointer to json string              */
-    JTOK_TYPE_t type;   /* the type of token                   */
-    int         start;  /* start index of token in json string */
-    int         end;    /* end index of token in json string   */
-    int         size;   /* number of sub-tokens in the token   */
-    int         parent; /* index of parent in the token array  */
-};
+    char *      json;
+    JTOK_TYPE_t type;
+    int         start;
+    int         end;
+    int         size;
+    int         parent;
+    int         sibling;
+} jtok_tkn_t;
 
 /**
  * JTOK parser. Contains an array of token blocks available. Also stores
@@ -163,17 +166,17 @@ jtok_parser_t jtok_new_parser(const char *nul_terminated_json);
  * @param final_idx pointer that is updated to the total number of tokens parsed
  * from the json on success
  */
-JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens,
+JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                unsigned int num_tokens);
 
 
 /**
- * @brief get the token length of a jtoktok_t;
+ * @brief get the token length of a jtok_tkn_t;
  *
  * @param tok
  * @return uint32_t the length of the token
  */
-uint_least16_t jtok_toklen(const jtoktok_t *tok);
+uint_least16_t jtok_toklen(const jtok_tkn_t *tok);
 
 
 /**
@@ -184,7 +187,7 @@ uint_least16_t jtok_toklen(const jtoktok_t *tok);
  * @return true if equal
  * @return false if not equal
  */
-bool jtok_tokcmp(const char *str, const jtoktok_t *tok);
+bool jtok_tokcmp(const char *str, const jtok_tkn_t *tok);
 
 
 /**
@@ -196,29 +199,29 @@ bool jtok_tokcmp(const char *str, const jtoktok_t *tok);
  * @return true if equal within bytecount
  * @return false if not equal within bytecount
  */
-bool jtok_tokncmp(const char *str, const jtoktok_t *tok, uint_least16_t n);
+bool jtok_tokncmp(const char *str, const jtok_tkn_t *tok, uint_least16_t n);
 
 
 /**
- * @brief Copy a jtoktok_t into a buffer
+ * @brief Copy a jtok_tkn_t into a buffer
  *
  * @param dst the destination byte buffer
  * @param bufsize size of desintation buffer
  * @param tkn jtok token to copy
  * @return char* NULL on error, otherwise, address of destination
  */
-char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn);
+char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn);
 
 
 /**
- * @brief Copy a jtoktok_t into a buffer
+ * @brief Copy a jtok_tkn_t into a buffer
  *
  * @param dst the destination byte buffer
  * @param bufsize size of desintation buffer
  * @param tkn jtok token to copy
  * @return char* NULL on error, otherwise, address of destination
  */
-char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn,
+char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn,
                    uint_least16_t n);
 
 
@@ -230,7 +233,7 @@ char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn,
  * @return true if tokens are equal
  * @return false if they are not
  */
-bool jtok_toktokcmp(const jtoktok_t *tkn1, const jtoktok_t *tkn2);
+bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
 
 
 /**
@@ -241,7 +244,7 @@ bool jtok_toktokcmp(const jtoktok_t *tkn1, const jtoktok_t *tkn2);
  * @return true valid
  * @return false invalid
  */
-bool isValidJson(const jtoktok_t *tokens, uint_least8_t tcnt);
+bool isValidJson(const jtok_tkn_t *tokens, uint_least8_t tcnt);
 
 
 /**
@@ -270,11 +273,11 @@ char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err);
  * @return true if the token is a json key
  * @return false otherwise
  */
-bool jtok_tokenIsKey(jtoktok_t token);
+bool jtok_tokenIsKey(jtok_tkn_t token);
 
 
 /**
- * @brief Load a buffer with the fields of a jtoktok_t token so it can be
+ * @brief Load a buffer with the fields of a jtok_tkn_t token so it can be
  * printed
  *
  * @param buf the buffer to load
@@ -284,7 +287,7 @@ bool jtok_tokenIsKey(jtoktok_t token);
  * @return int number of bytes written to buffer, else -1
  */
 int jtok_token_tostr(char *buf, unsigned int size, const char *json,
-                     jtoktok_t token);
+                     jtok_tkn_t token);
 
 
 /**
@@ -295,7 +298,7 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
  * @return true if tokens are equal
  * @return false if not equal
  */
-bool jtok_toktokcmp(const jtoktok_t *tkn1, const jtoktok_t *tkn2);
+bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
 
 
 #ifdef __cplusplus

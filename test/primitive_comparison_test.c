@@ -84,8 +84,8 @@ static struct
 };
 
 
-static jtoktok_t     tokens1[TOKEN_MAX];
-static jtoktok_t     tokens2[TOKEN_MAX];
+static jtok_tkn_t    tokens1[TOKEN_MAX];
+static jtok_tkn_t    tokens2[TOKEN_MAX];
 static jtok_parser_t p1;
 static jtok_parser_t p2;
 

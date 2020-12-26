@@ -17,7 +17,7 @@
 #include "jtok_primitive.h"
 
 
-JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens,
+JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                      size_t num_tokens)
 {
     JTOK_PARSE_STATUS_t status = JTOK_PARSE_STATUS_PARSE_OK;
@@ -42,7 +42,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens,
         return JTOK_PARSE_STATUS_NON_ARRAY;
     }
 
-    jtoktok_t *token = jtok_alloc_token(parser, tokens, num_tokens);
+    jtok_tkn_t *token = jtok_alloc_token(parser, tokens, num_tokens);
     if (token == NULL)
     {
         /*
@@ -293,7 +293,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtoktok_t *tokens,
 }
 
 
-bool jtok_toktokcmp_array(const jtoktok_t *tkn1, const jtoktok_t *tkn2)
+bool jtok_toktokcmp_array(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2)
 {
     bool is_equal = false;
 

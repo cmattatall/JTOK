@@ -27,7 +27,7 @@
 
 char *jtok_toktypename(JTOK_TYPE_t type)
 {
-    static const char *jtoktok_type_names[] = {
+    static const char *jtok_tkn_type_names[] = {
         [JTOK_PRIMITIVE]        = "JTOK_PRIMITIVE",
         [JTOK_OBJECT]           = "JTOK_OBJECT",
         [JTOK_ARRAY]            = "JTOK_ARRAY",
@@ -41,7 +41,7 @@ char *jtok_toktypename(JTOK_TYPE_t type)
         case JTOK_ARRAY:
         case JTOK_STRING:
         {
-            retval = (char *)jtoktok_type_names[type];
+            retval = (char *)jtok_tkn_type_names[type];
         }
         break;
         default:
@@ -121,7 +121,7 @@ char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err)
     return retval;
 }
 
-uint_least16_t jtok_toklen(const jtoktok_t *tok)
+uint_least16_t jtok_toklen(const jtok_tkn_t *tok)
 {
     uint_least16_t len = 0;
     if (tok != NULL)
@@ -137,7 +137,7 @@ uint_least16_t jtok_toklen(const jtoktok_t *tok)
 }
 
 
-bool jtok_tokcmp(const char *str, const jtoktok_t *tok)
+bool jtok_tokcmp(const char *str, const jtok_tkn_t *tok)
 {
     bool result = false;
     if (str == NULL)
@@ -177,7 +177,7 @@ bool jtok_tokcmp(const char *str, const jtoktok_t *tok)
     return result;
 }
 
-bool jtok_tokncmp(const char *str, const jtoktok_t *tok, uint_least16_t n)
+bool jtok_tokncmp(const char *str, const jtok_tkn_t *tok, uint_least16_t n)
 {
     bool result = false;
     if (str != NULL && tok != NULL && tok->json != NULL)
@@ -209,7 +209,7 @@ bool jtok_tokncmp(const char *str, const jtoktok_t *tok, uint_least16_t n)
 }
 
 
-char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn)
+char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn)
 {
     char *result = NULL;
     if (dst != NULL && tkn != NULL && tkn->json != NULL)
@@ -224,7 +224,7 @@ char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn)
     return result;
 }
 
-char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn,
+char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn,
                    uint_least16_t n)
 {
     char *         result = NULL;
@@ -238,7 +238,7 @@ char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtoktok_t *tkn,
 }
 
 
-bool isValidJson(const jtoktok_t *tokens, uint_least8_t tcnt)
+bool isValidJson(const jtok_tkn_t *tokens, uint_least8_t tcnt)
 {
     bool isValid = false;
     if (tokens != NULL)
@@ -275,7 +275,7 @@ bool isValidJson(const jtoktok_t *tokens, uint_least8_t tcnt)
 }
 
 
-JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtoktok_t *tokens,
+JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                unsigned int num_tokens)
 {
     /* Skip leading whitespace */
@@ -300,7 +300,7 @@ jtok_parser_t jtok_new_parser(const char *nul_terminated_json)
 }
 
 
-bool jtok_tokenIsKey(jtoktok_t token)
+bool jtok_tokenIsKey(jtok_tkn_t token)
 {
     if (token.type == JTOK_STRING)
     {
@@ -314,7 +314,7 @@ bool jtok_tokenIsKey(jtoktok_t token)
 
 
 int jtok_token_tostr(char *buf, unsigned int size, const char *json,
-                     jtoktok_t token)
+                     jtok_tkn_t token)
 {
     if (buf != NULL)
     {
@@ -342,7 +342,7 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
 }
 
 
-bool jtok_toktokcmp(const jtoktok_t *tkn1, const jtoktok_t *tkn2)
+bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2)
 {
     bool is_equal = false;
     if (tkn1->type == tkn2->type)

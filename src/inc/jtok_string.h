@@ -17,7 +17,7 @@ extern "C"
  * @param num_tokens max number of tokens to parse
  * @return JTOK_PARSE_STATUS_t parse status
  */
-JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens,
+JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                       size_t num_tokens);
 
 
@@ -29,7 +29,7 @@ JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens,
  * @return true if equal
  * @return false if not equal
  */
-bool jtok_toktokcmp_string(const jtoktok_t *tkn1, const jtoktok_t *tkn2);
+bool jtok_toktokcmp_string(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
 
 
 #ifdef __cplusplus

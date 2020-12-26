@@ -17,10 +17,10 @@
 #include "jtok_shared.h"
 
 
-JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens,
+JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                       size_t num_tokens)
 {
-    jtoktok_t *  token;
+    jtok_tkn_t * token;
     int          start;
     char *       js  = parser->json;
     unsigned int len = parser->json_len;
@@ -114,7 +114,7 @@ JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtoktok_t *tokens,
 }
 
 
-bool jtok_toktokcmp_string(const jtoktok_t *tkn1, const jtoktok_t *tkn2)
+bool jtok_toktokcmp_string(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2)
 {
     bool           is_equal = false;
     uint_least16_t len      = jtok_toklen(tkn1);

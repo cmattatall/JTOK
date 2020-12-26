@@ -17,7 +17,7 @@
 #include "jtok_shared.h"
 
 
-JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens,
+JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                       size_t num_tokens)
 {
     JTOK_PARSE_STATUS_t status = JTOK_PARSE_STATUS_PARSE_OK;
@@ -42,7 +42,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens,
         return JTOK_PARSE_STATUS_NON_OBJECT;
     }
 
-    jtoktok_t *token = jtok_alloc_token(parser, tokens, num_tokens);
+    jtok_tkn_t *token = jtok_alloc_token(parser, tokens, num_tokens);
     if (token == NULL)
     {
         /*
@@ -174,7 +174,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens,
                      */
                     case OBJECT_KEY:
                     {
-                        jtoktok_t *parent = &tokens[object_token_index];
+                        jtok_tkn_t *parent = &tokens[object_token_index];
                         if (parent->type != JTOK_OBJECT || parser->toknext == 0)
                         {
                             parser->pos = start;
@@ -192,7 +192,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens,
                     /* instead of a comma, we can find end of object '}' */
                     case OBJECT_COMMA:
                     {
-                        jtoktok_t *parent = &tokens[object_token_index];
+                        jtok_tkn_t *parent = &tokens[object_token_index];
                         if (parent->type != JTOK_OBJECT || parser->toknext == 0)
                         {
                             parser->pos = start;
@@ -226,7 +226,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens,
             break;
             case '\"':
             {
-                jtoktok_t *parent = &tokens[parser->toksuper];
+                jtok_tkn_t *parent = &tokens[parser->toksuper];
                 switch (expecting)
                 {
                     case OBJECT_KEY:
@@ -316,8 +316,8 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens,
             {
                 if (expecting == OBJECT_COMMA)
                 {
-                    expecting         = OBJECT_KEY;
-                    jtoktok_t *parent = &tokens[parser->toksuper];
+                    expecting          = OBJECT_KEY;
+                    jtok_tkn_t *parent = &tokens[parser->toksuper];
                     switch (parent->type)
                     {
                         case JTOK_PRIMITIVE:
@@ -363,7 +363,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens,
                 {
                     /* We're at the start of a primitive so validate parent type
                      */
-                    jtoktok_t *parent = &tokens[parser->toksuper];
+                    jtok_tkn_t *parent = &tokens[parser->toksuper];
                     switch (parent->type)
                     {
                         case JTOK_OBJECT:
@@ -436,7 +436,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtoktok_t *tokens,
 }
 
 
-bool jtok_toktokcmp_object(const jtoktok_t *obj1, const jtoktok_t *obj2)
+bool jtok_toktokcmp_object(const jtok_tkn_t *obj1, const jtok_tkn_t *obj2)
 {
     bool is_equal = false;
 

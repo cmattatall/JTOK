@@ -82,8 +82,8 @@ static const char *invalidJSON[] = {
     "{\"\" : \"value\"}",
 };
 
-static jtoktok_t tokens[200];
-int              main(void)
+static jtok_tkn_t tokens[200];
+int               main(void)
 {
     printf("\nTesting jtok parser against invalid jsons\n");
     for (unsigned int i = 0; i < sizeof(invalidJSON) / sizeof(*invalidJSON);

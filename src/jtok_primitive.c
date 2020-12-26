@@ -21,9 +21,9 @@
 
 
 JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
-                                         jtoktok_t *tokens, size_t num_tokens)
+                                         jtok_tkn_t *tokens, size_t num_tokens)
 {
-    jtoktok_t *  token;
+    jtok_tkn_t * token;
     int          start = parser->pos;
     const char * js    = (const char *)parser->json;
     unsigned int len   = parser->json_len;
@@ -268,7 +268,7 @@ JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
 }
 
 
-bool jtok_toktokcmp_primitive(const jtoktok_t *tkn1, const jtoktok_t *tkn2)
+bool jtok_toktokcmp_primitive(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2)
 {
     /** @todo really not proud of this function. SUPER inefficient
      *  But it works for now. Really we should be storing some sort of

@@ -19,7 +19,7 @@
 #include "jtok_shared.h"
 
 
-int jtok_fill_token(jtoktok_t *token, JTOK_TYPE_t type, int start, int end)
+int jtok_fill_token(jtok_tkn_t *token, JTOK_TYPE_t type, int start, int end)
 {
     if (token != NULL)
     {
@@ -36,10 +36,10 @@ int jtok_fill_token(jtoktok_t *token, JTOK_TYPE_t type, int start, int end)
 }
 
 
-jtoktok_t *jtok_alloc_token(jtok_parser_t *parser, jtoktok_t *tokens,
-                            size_t num_tokens)
+jtok_tkn_t *jtok_alloc_token(jtok_parser_t *parser, jtok_tkn_t *tokens,
+                             size_t num_tokens)
 {
-    jtoktok_t *tok;
+    jtok_tkn_t *tok;
     if (parser->toknext >= num_tokens)
     {
         return NULL;
