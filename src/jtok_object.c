@@ -72,6 +72,9 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
     /* go inside the object */
     parser->pos++;
 
+    /* all objects start with no children */
+    parser->last_child = NO_CHILD_IDX;
+
     for (; parser->pos < len && json[parser->pos] != '\0' &&
            status == JTOK_PARSE_STATUS_PARSE_OK;
          parser->pos++)
@@ -96,6 +99,8 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                     {
                         /* Index of the key that owns this object */
                         int key_idx = parser->toksuper;
+
+
                         status = jtok_parse_object(parser, tokens, num_tokens);
                         if (status == JTOK_PARSE_STATUS_PARSE_OK)
                         {
@@ -103,8 +108,9 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                             {
                                 tokens[key_idx].size++;
                             }
-                            parser->toksuper = key_idx;
-                            expecting        = OBJECT_COMMA;
+                            parser->toksuper   = key_idx;
+                            expecting          = OBJECT_COMMA;
+                            parser->last_child = key_idx;
                         }
                     }
                     break;

@@ -65,6 +65,9 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
     /* go inside the object */
     parser->pos++;
 
+    /* all objects start with no children */
+    parser->last_child = NO_CHILD_IDX;
+
     for (; parser->pos < parser->json_len && json[parser->pos] != '\0' &&
            status == JTOK_PARSE_STATUS_PARSE_OK;
          parser->pos++)

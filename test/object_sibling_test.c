@@ -24,6 +24,10 @@ static const struct
     char         json[JSON_STRLEN];
     unsigned int sibling_tree[SIBLING_TREE_SIZE];
 } table[] = {
+
+    {.json         = "{\"a\":{\"a1\":1,\"a2\":2},\"b\":3}",
+     .sibling_tree = {NO_SIBLING_IDX, 7, NO_SIBLING_IDX}},
+
     {.json         = "{\"a\":[1,2,3,4,5,6],\"b\":3}",
      .sibling_tree = {NO_SIBLING_IDX, 9, NO_SIBLING_IDX}},
 
@@ -37,9 +41,6 @@ static const struct
 
     {.json         = "{\"a\":1,\"b\":2,\"c\":[], \"d\":{}}}",
      .sibling_tree = {NO_SIBLING_IDX, 3, 5, 7, NO_SIBLING_IDX}},
-
-    {.json         = "{\"a\":{\"a1\":1,\"a2\":2},\"b\":3}",
-     .sibling_tree = {NO_SIBLING_IDX, 7, NO_SIBLING_IDX}},
 
 
 };
