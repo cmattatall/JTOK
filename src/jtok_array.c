@@ -65,7 +65,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
     /* go inside the object */
     parser->pos++;
 
-    /* all objects start with no children */
+    /* all arrays start with no children (since they can be empty) */
     parser->last_child = NO_CHILD_IDX;
 
     for (; parser->pos < parser->json_len && json[parser->pos] != '\0' &&
@@ -94,16 +94,25 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                             element_type       = JTOK_OBJECT;
                         }
 
-                        int super = parser->toksuper;
+                        int parent_array_idx = parser->toksuper;
                         status = jtok_parse_object(parser, tokens, num_tokens);
                         if (status == JTOK_PARSE_STATUS_PARSE_OK)
                         {
-                            if (parser->toknext != NO_PARENT_IDX)
+                            if (parser->last_child != NO_CHILD_IDX)
                             {
-                                tokens[super].size++;
+                                /* Link previous child to current child */
+                                tokens[parser->last_child].sibling =
+                                    parser->toknext - 1;
                             }
-                            expecting        = ARRAY_COMMA;
-                            parser->toksuper = super;
+
+                            /* Update last child and increase parent size */
+                            parser->last_child = parser->toknext - 1;
+                            tokens[parent_array_idx].size++;
+
+                            expecting = ARRAY_COMMA;
+
+                            /* Restore superior token node */
+                            parser->toksuper = parent_array_idx;
                         }
                     }
                     break;
@@ -184,6 +193,15 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         status = jtok_parse_string(parser, tokens, num_tokens);
                         if (status == JTOK_PARSE_STATUS_PARSE_OK)
                         {
+                            if (parser->last_child != NO_CHILD_IDX)
+                            {
+                                /* Link previous child to current child */
+                                tokens[parser->last_child].sibling =
+                                    parser->toknext - 1;
+                            }
+
+                            /* Update last child and increase parent size */
+                            parser->last_child = parser->toknext - 1;
                             if (super != NO_PARENT_IDX)
                             {
                                 tokens[super].size++;
@@ -275,6 +293,15 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                                           num_tokens);
                             if (status == JTOK_PARSE_STATUS_PARSE_OK)
                             {
+                                if (parser->last_child != NO_CHILD_IDX)
+                                {
+                                    /* Link previous child to current child */
+                                    tokens[parser->last_child].sibling =
+                                        parser->toknext - 1;
+                                }
+
+                                /* Update last child and increase parent size */
+                                parser->last_child = parser->toknext - 1;
                                 if (super != NO_PARENT_IDX)
                                 {
                                     tokens[super].size++;

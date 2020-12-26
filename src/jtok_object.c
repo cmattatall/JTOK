@@ -72,7 +72,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
     /* go inside the object */
     parser->pos++;
 
-    /* all objects start with no children */
+    /* all objects start with no children (since they can be empty) */
     parser->last_child = NO_CHILD_IDX;
 
     for (; parser->pos < len && json[parser->pos] != '\0' &&
@@ -154,6 +154,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                 /* Keys must have a parent token */
                                 status = JTOK_PARSE_STATUS_INVALID_PARENT;
                             }
+                            parser->last_child = key_idx;
 
                             expecting = OBJECT_COMMA;
                         }
