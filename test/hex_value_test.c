@@ -40386,8 +40386,7 @@ static const char *valid_jsons[] = {
     "{\"k\":\"\\ufffa\"}", "{\"k\":\"\\uFFFA\"}", "{\"k\":\"\\ufffb\"}",
     "{\"k\":\"\\uFFFB\"}", "{\"k\":\"\\ufffc\"}", "{\"k\":\"\\uFFFC\"}",
     "{\"k\":\"\\ufffd\"}", "{\"k\":\"\\uFFFD\"}", "{\"k\":\"\\ufffe\"}",
-    "{\"k\":\"\\uFFFE\"}", "{\"k\":\"\\uffff\"}", "{\"k\":\"\\uFFFF\"}"
-}; 
+    "{\"k\":\"\\uFFFE\"}", "{\"k\":\"\\uffff\"}", "{\"k\":\"\\uFFFF\"}"};
 
 static jtok_parser_t p;
 static jtok_tkn_t    tokens[TOKEN_MAX];
