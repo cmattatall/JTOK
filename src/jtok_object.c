@@ -290,14 +290,10 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                     /* Link previous child to current child */
                                     tokens[parser->last_child].sibling =
                                         parser->toknext - 1;
+                                }
 
-                                    /* Update last child */
-                                    parser->last_child = parser->toknext - 1;
-                                }
-                                else
-                                {
-                                    parser->last_child = parser->toknext - 1;
-                                }
+                                /* Update last child and increase parent size */
+                                parser->last_child = parser->toknext - 1;
                                 parent_obj->size++;
                             }
                             expecting = OBJECT_COLON;
