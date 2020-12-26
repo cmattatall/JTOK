@@ -177,16 +177,17 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                      */
                     case OBJECT_KEY:
                     {
-                        jtok_tkn_t *parent = &tokens[object_token_index];
-                        if (parent->type != JTOK_OBJECT || parser->toknext == 0)
+                        jtok_tkn_t *parent_tkn = &tokens[object_token_index];
+                        if (parent_tkn->type != JTOK_OBJECT ||
+                            parser->toknext == 0)
                         {
                             parser->pos = start;
                             status      = JTOK_PARSE_STATUS_INVAL;
                         }
                         else
                         {
-                            parent->end      = parser->pos + 1;
-                            parser->toksuper = parent->parent;
+                            parent_tkn->end  = parser->pos + 1;
+                            parser->toksuper = parent_tkn->parent;
                         }
                         return status;
                     }
@@ -229,19 +230,18 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
             break;
             case '\"':
             {
-                jtok_tkn_t *parent = &tokens[parser->toksuper];
+                jtok_tkn_t *parent_tkn = &tokens[parser->toksuper];
                 switch (expecting)
                 {
                     case OBJECT_KEY:
                     {
-                        if (parent->type == JTOK_OBJECT)
+                        if (parent_tkn->type == JTOK_OBJECT)
                         {
-                            int super = parser->toksuper;
                             status =
                                 jtok_parse_string(parser, tokens, num_tokens);
                             if (status == JTOK_PARSE_STATUS_PARSE_OK)
                             {
-                                tokens[super].size++;
+                                parent_tkn->size++;
                             }
                             expecting = OBJECT_COLON;
                         }
@@ -253,21 +253,20 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                     break;
                     case OBJECT_VALUE:
                     {
-                        if (parent->type == JTOK_STRING)
+                        if (parent_tkn->type == JTOK_STRING)
                         {
-                            if (parent->size != 0)
+                            if (parent_tkn->size != 0)
                             {
                                 /* an object key can only have 1 value */
                                 status = JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL;
                             }
                             else
                             {
-                                int super = parser->toksuper;
-                                status    = jtok_parse_string(parser, tokens,
+                                status = jtok_parse_string(parser, tokens,
                                                            num_tokens);
                                 if (status == JTOK_PARSE_STATUS_PARSE_OK)
                                 {
-                                    tokens[super].size++;
+                                    parent_tkn->size++;
                                 }
                                 expecting = OBJECT_COMMA;
                             }
@@ -319,9 +318,9 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
             {
                 if (expecting == OBJECT_COMMA)
                 {
-                    expecting          = OBJECT_KEY;
-                    jtok_tkn_t *parent = &tokens[parser->toksuper];
-                    switch (parent->type)
+                    expecting              = OBJECT_KEY;
+                    jtok_tkn_t *parent_tkn = &tokens[parser->toksuper];
+                    switch (parent_tkn->type)
                     {
                         case JTOK_PRIMITIVE:
                         case JTOK_STRING:
@@ -330,7 +329,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                              * Update the toksuper index to
                              * the KEY's parent (the current object)
                              */
-                            parser->toksuper = tokens[parser->toksuper].parent;
+                            parser->toksuper = parent_tkn->parent;
                         }
                         break;
                         default:
