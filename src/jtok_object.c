@@ -10,6 +10,10 @@
  * @note
  */
 
+#include <stdio.h>
+#include <assert.h>
+#include <limits.h>
+
 #include "jtok_object.h"
 #include "jtok_array.h"
 #include "jtok_primitive.h"
@@ -520,10 +524,12 @@ bool jtok_toktokcmp_object(const jtok_tkn_t *pool1, const jtok_tkn_t *obj1,
 
             /* When object not empty, its first child is token after object */
             jtok_tkn_t *child1 = (jtok_tkn_t *)&obj1[1];
-            jtok_tkn_t *child2 = (jtok_tkn_t *)&obj2[1];
-
+            assert(child1->type == JTOK_STRING);
             for (i = 0; i < obj1->size && is_equal; i++)
             {
+                jtok_tkn_t *child2 = (jtok_tkn_t *)&obj2[1];
+                assert(child2->type == JTOK_STRING);
+
                 /* Try to find matching key in second object */
                 for (j = 0; j < obj2->size && is_equal; j++)
                 {
