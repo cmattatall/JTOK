@@ -101,14 +101,14 @@ int               main(void)
             jtok_parse(&p, tokens, sizeof(tokens) / sizeof(*tokens));
         if (status != JTOK_PARSE_STATUS_PARSE_OK)
         {
-            printf("failed with status %d.", status);
+            printf("failed with status %d.\n", status);
             return 1;
         }
         else
         {
-            printf("passed.");
+            printf("passed.\n");
+            continue;
         }
-        printf("\n");
     }
     return 0;
 }

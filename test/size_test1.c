@@ -84,7 +84,12 @@ int main(void)
         {
             if (tokens[0].size != true_table[i].size)
             {
+                printf("failed. parsed size was %u\n", tokens[0].size);
                 return -1;
+            }
+            else
+            {
+                printf("passed.\n");
             }
         }
     }

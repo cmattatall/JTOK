@@ -42,7 +42,7 @@ static jtok_parser_t p1;
 static jtok_parser_t p2;
 
 int main(void)
-{   
+{
     int i;
     int max_i = sizeof(true_cmp_table) / sizeof(*true_cmp_table);
 
@@ -82,15 +82,14 @@ int main(void)
 
         if (passed)
         {
-            printf("passed.");
+            printf("passed.\n");
             continue;
         }
         else
         {
-            printf("failed.");
+            printf("failed.\n");
             return status;
         }
-        printf("\n");
     }
     return 0;
 }

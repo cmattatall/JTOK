@@ -78,15 +78,14 @@ int main(void)
 
         if (passed)
         {
-            printf("passed.");
+            printf("passed.\n");
             continue;
         }
         else
         {
-            printf("failed.");
+            printf("failed.\n");
             return status;
         }
-        printf("\n");
     }
     return 0;
 }
