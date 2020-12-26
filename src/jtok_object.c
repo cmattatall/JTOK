@@ -10,7 +10,6 @@
  * @note
  */
 
-#include <stdio.h>
 #include <assert.h>
 #include <limits.h>
 
@@ -486,6 +485,9 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
 bool jtok_toktokcmp_object(const jtok_tkn_t *pool1, const jtok_tkn_t *obj1,
                            const jtok_tkn_t *pool2, const jtok_tkn_t *obj2)
 {
+    assert(pool1->type == JTOK_OBJECT);
+    assert(pool2->type == JTOK_OBJECT);
+
     bool is_equal = true;
     if (obj1->type != JTOK_OBJECT || obj2->type != JTOK_OBJECT)
     {
