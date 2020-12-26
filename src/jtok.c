@@ -291,11 +291,12 @@ JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtok_tkn_t *tokens,
 jtok_parser_t jtok_new_parser(const char *nul_terminated_json)
 {
     jtok_parser_t parser;
-    parser.pos      = 0;
-    parser.toknext  = 0;
-    parser.toksuper = NO_PARENT_IDX;
-    parser.json     = (char *)nul_terminated_json;
-    parser.json_len = strlen(nul_terminated_json);
+    parser.pos        = 0;
+    parser.toknext    = 0;
+    parser.toksuper   = NO_PARENT_IDX;
+    parser.json       = (char *)nul_terminated_json;
+    parser.json_len   = strlen(nul_terminated_json);
+    parser.last_child = NO_CHILD_IDX;
     return parser;
 }
 

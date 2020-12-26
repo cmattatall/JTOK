@@ -181,13 +181,7 @@ JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
             case ']':
             case '}':
             {
-                if (tokens == NULL) /* caller provided no tokens at all */
-                {
-                    parser->pos--;
-                    return JTOK_PARSE_STATUS_PARSE_OK;
-                }
                 char last = js[parser->pos - 1];
-
                 if (exponent)
                 {
                     if (!found_exponent_power)

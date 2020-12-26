@@ -33,7 +33,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
         OBJECT_COMMA,
     } expecting = OBJECT_KEY;
 
-    if (tokens == NULL)
+    if (tokens == NULL) /* Check for caller API error */
     {
         return status;
     }
@@ -72,6 +72,9 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
     /* go inside the object */
     parser->pos++;
 
+    /* all objects start with no children (since they can be empty) */
+    parser->last_child = NO_CHILD_IDX;
+
     for (; parser->pos < len && json[parser->pos] != '\0' &&
            status == JTOK_PARSE_STATUS_PARSE_OK;
          parser->pos++)
@@ -92,10 +95,12 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         status = JTOK_PARSE_STATUS_VAL_NO_COLON;
                     }
                     break;
-                    case OBJECT_VALUE:
+                    case OBJECT_VALUE: /* Enter and parse the sub-object */
                     {
                         /* Index of the key that owns this object */
                         int key_idx = parser->toksuper;
+
+
                         status = jtok_parse_object(parser, tokens, num_tokens);
                         if (status == JTOK_PARSE_STATUS_PARSE_OK)
                         {
@@ -103,8 +108,9 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                             {
                                 tokens[key_idx].size++;
                             }
-                            parser->toksuper = key_idx;
-                            expecting        = OBJECT_COMMA;
+                            parser->toksuper   = key_idx;
+                            expecting          = OBJECT_COMMA;
+                            parser->last_child = key_idx;
                         }
                     }
                     break;
@@ -148,6 +154,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                 /* Keys must have a parent token */
                                 status = JTOK_PARSE_STATUS_INVALID_PARENT;
                             }
+                            parser->last_child = key_idx;
 
                             expecting = OBJECT_COMMA;
                         }
@@ -181,6 +188,15 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                      * if we find '}' then it means we have a trailing
                      * comma inside the object
                      */
+
+                    /********************************
+                     * Case where we find end of    *
+                     * object instead of key        *
+                     * (aka: empty object)          *
+                     *                              *
+                     * eg: {     }                  *
+                     *           ^ Right here       *
+                     *******************************/
                     case OBJECT_KEY:
                     {
                         jtok_tkn_t *parent_obj = &tokens[object_token_index];
@@ -194,12 +210,21 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         {
                             parent_obj->end  = parser->pos + 1;
                             parser->toksuper = parent_obj->parent;
+
+                            /* Don't have to update children->sibling link
+                             * because there are no children in the object */
                         }
                         return status;
                     }
                     break;
 
-                    /* instead of a comma, we can find end of object '}' */
+                    /****************************************************
+                     * Case wherein, instead of comma,                  *
+                     * we find end of object '}'                        *
+                     * eg : {\"key\":true, \"blah\":false   }           *
+                     *                                      ^           *
+                     *                                      Right here  *
+                     ***************************************************/
                     case OBJECT_COMMA:
                     {
                         jtok_tkn_t *parent_obj = &tokens[object_token_index];
@@ -211,8 +236,21 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         }
                         else
                         {
-                            parent_obj->end  = parser->pos + 1;
+                            parent_obj->end = parser->pos + 1;
+
+                            /* Update superior token to the key that owns
+                             * the current object */
                             parser->toksuper = parent_obj->parent;
+
+                            /* Final item in object has no sibling key */
+                            if (parser->last_child != NO_CHILD_IDX)
+                            {
+                                tokens[parser->last_child].sibling =
+                                    NO_SIBLING_IDX;
+                            }
+
+                            /* Update last child */
+                            parser->last_child = NO_CHILD_IDX;
                         }
                         return status;
                     }
@@ -248,6 +286,15 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                 jtok_parse_string(parser, tokens, num_tokens);
                             if (status == JTOK_PARSE_STATUS_PARSE_OK)
                             {
+                                if (parser->last_child != NO_CHILD_IDX)
+                                {
+                                    /* Link previous child to current child */
+                                    tokens[parser->last_child].sibling =
+                                        parser->toknext - 1;
+                                }
+
+                                /* Update last child and increase parent size */
+                                parser->last_child = parser->toknext - 1;
                                 parent_obj->size++;
                             }
                             expecting = OBJECT_COLON;
