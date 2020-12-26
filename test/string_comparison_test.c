@@ -33,9 +33,8 @@ static jtok_parser_t p2;
 
 int main(void)
 {
-    int i;
-    int max_i = sizeof(true_cmp_table) / sizeof(*true_cmp_table);
-
+    unsigned long long i;
+    unsigned long long max_i = sizeof(true_cmp_table) / sizeof(*true_cmp_table);
     JTOK_PARSE_STATUS_t status;
     for (i = 0; i < max_i; i++)
     {

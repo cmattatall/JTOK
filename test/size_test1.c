@@ -94,8 +94,8 @@ static jtok_parser_t p;
 
 int main(void)
 {
-    unsigned int        i;
-    unsigned int        max_i = sizeof(true_table) / sizeof(*true_table);
+    unsigned long long  i;
+    unsigned long long  max_i = sizeof(true_table) / sizeof(*true_table);
     JTOK_PARSE_STATUS_t status;
     for (i = 0; i < max_i; i++)
     {

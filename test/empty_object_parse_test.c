@@ -956,9 +956,9 @@ static jtok_tkn_t    tokens[TOKEN_MAX];
 int main(void)
 {
     printf("\nTesting jtok parser against permutations of empty sub-objects\n");
-    unsigned int i;
-    unsigned int max_i = sizeof(valid_jsons) / sizeof(*valid_jsons);
-    for (unsigned int i = 0; i < max_i; i++)
+    unsigned long long i;
+    unsigned long long max_i = sizeof(valid_jsons) / sizeof(*valid_jsons);
+    for (i = 0; i < max_i; i++)
     {
         p = jtok_new_parser(valid_jsons[i]);
         printf("\n%s ... ", valid_jsons[i]);

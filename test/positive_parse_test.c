@@ -111,8 +111,10 @@ static const char *validJSON[] = {
 static jtok_tkn_t tokens[200];
 int               main(void)
 {
+    unsigned long long i;
+    unsigned long long max_i = sizeof(validJSON) / sizeof(*validJSON);
     printf("\nTesting jtok parser against valid jsons\n");
-    for (unsigned int i = 0; i < sizeof(validJSON) / sizeof(*validJSON); i++)
+    for (i = 0; i < max_i; i++)
     {
         jtok_parser_t p = jtok_new_parser(validJSON[i]);
         printf("\n%s ... ", validJSON[i]);
