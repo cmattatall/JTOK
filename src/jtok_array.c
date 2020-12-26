@@ -56,6 +56,13 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
     token->parent    = parser->toksuper;
     parser->toksuper = parser->toknext - 1;
 
+    /* Index of current top level token is the current superior token */
+    /* We need to preserve the index of top level token in the currenet
+     * stack frame because parsing a sub-object changes the value of
+     * parser->toksuper
+     */
+    int array_token_index = parser->toksuper;
+
     /* end of token will be populated when we find the closing brace */
     jtok_fill_token(token, JTOK_ARRAY, parser->pos, INVALID_ARRAY_INDEX);
 
@@ -129,7 +136,20 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                     case ARRAY_COMMA:
                     case ARRAY_START:
                     {
-                        /* Do nothing */
+                        jtok_tkn_t *parent_arr = &tokens[array_token_index];
+                        if (parent_arr->type != JTOK_ARRAY ||
+                            parser->toknext == 0)
+                        {
+                            parser->pos = start;
+                            status      = JTOK_PARSE_STATUS_INVAL;
+                        }
+                        else
+                        {
+                            parent_arr->end  = parser->pos + 1;
+                            parser->toksuper = parent_arr->parent;
+                        }
+
+                        return status;
                     }
                     break;
                     default:

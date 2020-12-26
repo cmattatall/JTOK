@@ -312,7 +312,9 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
             {
                 if (expecting == OBJECT_COLON)
                 {
-                    expecting        = OBJECT_VALUE;
+                    expecting = OBJECT_VALUE;
+
+                    /* Superior token becomes the key we just processed */
                     parser->toksuper = parser->toknext - 1;
                 }
                 else
