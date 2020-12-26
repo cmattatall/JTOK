@@ -24,12 +24,15 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
 /**
  * @brief Compare two jtok tokens with type JTOK_ARRAY for equality
  *
+ * @param pool1 pool of allocated tokens that contains tkn1
  * @param tkn1 first token
+ * @param pool2 pool of allocated tokens that contains tkn2
  * @param tkn2 second token
  * @return true if equal
  * @return false if not equal
  */
-bool jtok_toktokcmp_array(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
+bool jtok_toktokcmp_array(const jtok_tkn_t *pool1, const jtok_tkn_t *tkn1,
+                          const jtok_tkn_t *pool2, const jtok_tkn_t *tkn2);
 
 
 #ifdef __cplusplus

@@ -10,6 +10,8 @@
  * @note
  */
 
+#include <assert.h>
+
 #include "jtok_array.h"
 #include "jtok_object.h"
 #include "jtok_shared.h"
@@ -339,32 +341,61 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
 }
 
 
-bool jtok_toktokcmp_array(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2)
+bool jtok_toktokcmp_array(const jtok_tkn_t *pool1, const jtok_tkn_t *arr1,
+                          const jtok_tkn_t *pool2, const jtok_tkn_t *arr2)
 {
     bool is_equal = true;
+    assert(pool1->type == JTOK_OBJECT);
+    assert(pool2->type == JTOK_OBJECT);
+    if (arr1->type != JTOK_ARRAY || arr2->type != JTOK_ARRAY)
+    {
+        is_equal = false;
+    }
+    else
+    {
+        if (arr1->size != arr2->size)
+        {
+            is_equal = false;
+        }
+        else if (arr1->size > 0)
+        {
+            /* Arrays have equal size but they aren't empty,
+             * so we'll have to compare their elements */
+            jtok_tkn_t * child1 = (jtok_tkn_t *)&arr1[1];
+            jtok_tkn_t * child2 = (jtok_tkn_t *)&arr2[1];
+            unsigned int i;
+            for (i = 0; i < arr1->size && is_equal; i++)
+            {
+                /* Check that the Ith element of
+                 * first array is equal to Ith
+                 * eleemnt of second array */
+                if (!jtok_toktokcmp(pool1, child1, pool2, child2))
+                {
+                    is_equal = false;
+                }
 
-    /** @todo THIS IS GOING TO BE DIFFICULT... */
+                if (child1->sibling == NO_SIBLING_IDX)
+                {
+                    /* If this assertion fails there is a logic error
+                     * in the actual parser itself */
+                    assert(child2->sibling == NO_SIBLING_IDX);
+                    break;
+                }
+                else
+                {
+                    /* Go to next array element */
+                    child1 = (jtok_tkn_t *)&pool1[child1->sibling];
+                    child2 = (jtok_tkn_t *)&pool2[child2->sibling];
+                }
+            }
 
-    /** How do we even conceptualize equality semantics for objects */
+            if (i == arr1->size)
+            {
+                is_equal = false;
+            }
+        }
+    }
 
-    /** For example, what if tkn1 has all the fields of tkn2 in ADDITION
-     * to extra fields...
-     * should tkn1 == tkn2 evaluate to true?
-     *
-     * Or should it be some sort of setwise comparison, where
-     *      tkn1 "equal as subset" tkn2 evaluates to true,
-     *      but
-     *      tkn2 "equal as subset" tkn1 evaluates to false?
-     *
-     * What if the objects have all the same keys, but the values are
-     * different?
-     *
-     * What if objects contain arrays that individually contain all the
-     * same values, but are ordered differently.
-     *      In that case, for an array of strings, it may not matter,
-     *      but for an array of numbers, or even SUBOBJECTS, the
-     *      ordering may matter greatly...
-     */
 
     return is_equal;
 }

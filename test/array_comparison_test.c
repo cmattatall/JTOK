@@ -61,7 +61,9 @@ int main(void)
             return status;
         }
 
-        if (jtok_toktokcmp(&tokens1[2], &tokens2[2]))
+        jtok_tkn_t *arr1 = (jtok_tkn_t *)&tokens1[0];
+        jtok_tkn_t *arr2 = (jtok_tkn_t *)&tokens2[0];
+        if (jtok_toktokcmp(arr1, tokens1, arr2, tokens2))
         {
             printf("passed.\n");
             continue;

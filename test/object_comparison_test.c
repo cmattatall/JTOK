@@ -70,7 +70,9 @@ int main(void)
             return status;
         }
 
-        if (jtok_toktokcmp(tokens1, tokens2))
+        jtok_tkn_t *obj1 = (jtok_tkn_t *)&tokens1[0];
+        jtok_tkn_t *obj2 = (jtok_tkn_t *)&tokens2[0];
+        if (jtok_toktokcmp(tokens1, obj1, tokens2, obj2))
         {
             printf("passed.\n");
             continue;

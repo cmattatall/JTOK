@@ -10,6 +10,9 @@
  * @note
  */
 
+#include <assert.h>
+#include <limits.h>
+
 #include "jtok_object.h"
 #include "jtok_array.h"
 #include "jtok_primitive.h"
@@ -479,48 +482,120 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
 }
 
 
-bool jtok_toktokcmp_object(const jtok_tkn_t *obj1, const jtok_tkn_t *obj2)
+bool jtok_toktokcmp_object(const jtok_tkn_t *pool1, const jtok_tkn_t *obj1,
+                           const jtok_tkn_t *pool2, const jtok_tkn_t *obj2)
 {
+    assert(pool1->type == JTOK_OBJECT);
+    assert(pool2->type == JTOK_OBJECT);
+
     bool is_equal = true;
+    if (obj1->type != JTOK_OBJECT || obj2->type != JTOK_OBJECT)
+    {
+        is_equal = false;
+    }
+    else
+    {
+        /* Easy preliminary check */
+        if (obj1->size != obj2->size)
+        {
+            is_equal = false;
+        }
+        else if (obj1->size > 0)
+        {
+            int index_offset1 = 0;
+            int index_offset2 = 0;
+            if (obj1->parent != NO_PARENT_IDX)
+            {
+                index_offset1 = obj1 - pool1;
+                index_offset1 = index_offset1 / sizeof(jtok_tkn_t);
+            }
 
-    /** @todo THIS IS GOING TO BE DIFFICULT... */
+            if (obj2->parent != NO_PARENT_IDX)
+            {
+                index_offset2 = obj2 - pool2;
+                index_offset2 = index_offset2 / sizeof(jtok_tkn_t);
+            }
 
-    /** How do we even conceptualize equality semantics for objects */
+            /*
+             * 2 empty objects are trivally equal
+             * so only perform child comparison if the objects actaully
+             * have children
+             */
+            int i;
+            int j;
 
-    /** For example, what if tkn1 has all the fields of tkn2 in ADDITION
-     * to extra fields...
-     * should tkn1 == tkn2 evaluate to true?
-     *
-     * Or should it be some sort of setwise comparison, where
-     *      tkn1 "equal as subset" tkn2 evaluates to true,
-     *      but
-     *      tkn2 "equal as subset" tkn1 evaluates to false?
-     *
-     * What if the objects have all the same keys, but the values are
-     * different?
-     *
-     * What if objects contain arrays that individually contain all the
-     * same values, but are ordered differently.
-     *      In that case, for an array of strings, it may not matter,
-     *      but for an array of numbers, or even SUBOBJECTS, the
-     *      ordering may matter greatly...
-     */
+            /* When object not empty, its first child is token after object */
+            jtok_tkn_t *child1 = (jtok_tkn_t *)&obj1[1];
+            assert(child1->type == JTOK_STRING);
+            for (i = 0; i < obj1->size && is_equal; i++)
+            {
+                jtok_tkn_t *child2 = (jtok_tkn_t *)&obj2[1];
+                assert(child2->type == JTOK_STRING);
 
+                /* Try to find matching key in second object */
+                for (j = 0; j < obj2->size && is_equal; j++)
+                {
+                    if (jtok_toktokcmp(pool1, child1, pool2, child2))
+                    {
+                        /* If key matches, compare values */
+                        jtok_tkn_t *val1 = &child1[1];
+                        jtok_tkn_t *val2 = &child2[1];
+                        if (!jtok_toktokcmp(pool1, val1, pool2, val2))
+                        {
+                            /*
+                             * Since there cannot be duplicate keys
+                             * in a json object, if we find the key in obj2
+                             * but it's value isn't equal to the value of the
+                             * SAME key in obj1, then the objects cannot be
+                             * equal.
+                             */
+                            is_equal = false;
+                        }
+                        else
+                        {
+                            /* value of key in obj1 matches value of key in obj2
+                             * exit search loop for key in obj2 */
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        /* Curerent key in obj2 doesnt match current key in
+                         * obj1, but the objects may have keys ordered
+                         * differently. So we check if we can explore other
+                         * child keys and if yes, we repeat the process until
+                         * all of obj2's child keys are exhausted */
 
-    /** Right now, we aren't even able to easily compare objects because
-     * they do not contain meta-information regarding the number of
-     * jtok tokens INSIDE them
-     *
-     * The ownership tree is constructed from the leaves -> root in the
-     * form of child -> parent.
-     *
-     * So if you're at a given node, you can always walk to the top level
-     * node, but you cannot descend to child nodes (either with BFS or DFS)
-     *
-     * The meta-information simply is not contained in the current
-     * conceptualization of the data structure
-     *
-     * @todo This function will require some deep thought...
-     */
+                        if (child2->sibling == NO_SIBLING_IDX)
+                        {
+                            /* We've ran out of children in obj2 to check
+                             * against current key in obj1 */
+                            is_equal = false;
+                            break;
+                        }
+                        else
+                        {
+                            /* Go to next key */
+                            child2 = (jtok_tkn_t *)&pool2[child2->sibling];
+                        }
+                    }
+                } /* END J LOOP */
+
+                if (j == obj2->size)
+                {
+                    /* Did not find key in obj2 matching current key in obj1
+                     */
+                    is_equal = false;
+                }
+                else
+                {
+                    /* We matched current key in obj1,  */
+                    /* so go to next key to match.      */
+                    child1 = (jtok_tkn_t *)&pool1[child1->sibling];
+                }
+
+            } /* END I LOOP */
+        }
+    }
     return is_equal;
 }

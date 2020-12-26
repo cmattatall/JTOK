@@ -119,11 +119,12 @@ int main(void)
                 passed = false;
             }
 
-
+            jtok_tkn_t *val1 = (jtok_tkn_t *)&tokens1[2];
+            jtok_tkn_t *val2 = (jtok_tkn_t *)&tokens2[2];
             if (passed)
             {
                 /* Compare "value" with "value" */
-                if (!jtok_toktokcmp(&tokens1[2], &tokens2[2]))
+                if (!jtok_toktokcmp(tokens1, val1, tokens2, val2))
                 {
                     passed = false;
                 }
