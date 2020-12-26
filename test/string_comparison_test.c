@@ -9,6 +9,7 @@
  *
  * @note
  */
+#include <stdio.h>
 
 #include "jtok.h"
 

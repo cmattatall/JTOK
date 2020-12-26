@@ -16,6 +16,7 @@
  *
  * This means that although A may be a subset of B, A is not equal to B
  */
+#include <stdio.h>
 
 #include "jtok.h"
 
