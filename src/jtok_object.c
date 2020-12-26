@@ -54,8 +54,12 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
     }
 
     /* If the object has a parent key, increase that key's size */
-    token->parent          = parser->toksuper;
-    parser->toksuper       = parser->toknext - 1;
+    token->parent = parser->toksuper;
+
+    /* new superior token becomes the one we JUST processed */
+    parser->toksuper = parser->toknext - 1;
+
+    /* Index of current top level token is the current superior token */
     int object_token_index = parser->toksuper;
 
     /* end of token will be populated when we find the closing brace */

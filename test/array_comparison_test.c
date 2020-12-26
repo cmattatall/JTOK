@@ -1,9 +1,9 @@
 /**
- * @file string_comparison_test.c
+ * @file object_comparison_test.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief Source module to test comparison json tokens
+ * @brief Source module to test comparison semantics on jtok arrays
  * @version 0.1
- * @date 2020-12-25
+ * @date 2020-12-26
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
@@ -14,16 +14,17 @@
 
 #define TOKEN_MAX 200
 
+/* clang-format off */
 static struct
 {
     char json1[250];
     char json2[250];
 } true_cmp_table[] = {
-    {.json1 = "{\"key\" : \"value\"}", .json2 = "{\"key\":\"value\"}"},
-    {.json1 = "{ \"key\" : \"value\"}", .json2 = "{\"key\" :\"value\"}"},
-    {.json1 = "{\"key\" : \"value\"}", .json2 = "{  \"key\" :\"value\"  }"},
-};
 
+    /* Arrays are equal only if they have the same elements AND order */
+    {.json1 = "{\"arr\":[1,2,3]}", .json2 = "{\"arr\":[1,2,3]}"},
+};
+/* clang-format on */
 
 static jtok_tkn_t    tokens1[TOKEN_MAX];
 static jtok_tkn_t    tokens2[TOKEN_MAX];
@@ -61,19 +62,13 @@ int main(void)
 
             if (passed)
             {
-                /* Compare "key" with "key" */
-                if (!jtok_toktokcmp(&tokens1[1], &tokens2[1]))
-                {
-                    passed = false;
-                }
-
-                /* Compare "value" with "value" */
-                if (!jtok_toktokcmp(&tokens1[2], &tokens2[2]))
+                if (!jtok_toktokcmp(tokens1, tokens2))
                 {
                     passed = false;
                 }
             }
         }
+
 
         if (passed)
         {

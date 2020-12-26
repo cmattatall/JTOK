@@ -49,5 +49,6 @@ jtok_tkn_t *jtok_alloc_token(jtok_parser_t *parser, jtok_tkn_t *tokens,
     tok->size             = 0;
     tok->parent           = NO_PARENT_IDX;
     tok->json             = parser->json;
+    tok->sibling          = NO_SIBLING_IDX;
     return tok;
 }

@@ -20,7 +20,7 @@ static struct
 {
     char json1[250];
     char json2[250];
-} json_table[] = {
+} true_cmp_table[] = {
     {.json1 = "{\"key\"  : 1 }", .json2 = "{\"key\":1}"},
     {.json1 = "{\"key\"  : 1 }", .json2 = "{\"key\":1 }"},
     {.json1 = "{\"key\"  : 1 }", .json2 = "{\"key\" : 1 }"},
@@ -92,15 +92,15 @@ static jtok_parser_t p2;
 int main(void)
 {
     int i;
-    int max_i = sizeof(json_table) / sizeof(*json_table);
+    int max_i = sizeof(true_cmp_table) / sizeof(*true_cmp_table);
 
     JTOK_PARSE_STATUS_t status;
     for (i = 0; i < max_i; i++)
     {
         bool passed = true;
-        p1          = jtok_new_parser(json_table[i].json1);
-        printf("\ncomparing %s and %s... ", json_table[i].json2,
-               json_table[i].json1);
+        p1          = jtok_new_parser(true_cmp_table[i].json1);
+        printf("\ncomparing %s and %s... ", true_cmp_table[i].json2,
+               true_cmp_table[i].json1);
 
         status = jtok_parse(&p1, tokens1, TOKEN_MAX);
         if (status != JTOK_PARSE_STATUS_PARSE_OK)
@@ -108,7 +108,7 @@ int main(void)
             passed = false;
         }
 
-        p2 = jtok_new_parser(json_table[i].json1);
+        p2 = jtok_new_parser(true_cmp_table[i].json1);
         if (passed)
         {
             status = jtok_parse(&p2, tokens2, TOKEN_MAX);
