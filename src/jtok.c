@@ -343,7 +343,8 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
 }
 
 
-bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2)
+bool jtok_toktokcmp(const jtok_tkn_t *pool1, const jtok_tkn_t *tkn1,
+                    const jtok_tkn_t *pool2, const jtok_tkn_t *tkn2)
 {
     bool is_equal = false;
     if (tkn1->type == tkn2->type)
@@ -362,7 +363,7 @@ bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2)
             break;
             case JTOK_OBJECT:
             {
-                is_equal = jtok_toktokcmp_object(tkn1, tkn2);
+                is_equal = jtok_toktokcmp_object(pool1, tkn1, pool2, tkn2);
             }
             break;
             case JTOK_PRIMITIVE:

@@ -231,17 +231,6 @@ char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn,
 
 
 /**
- * @brief Compare one jtok token with another
- *
- * @param tkn1 token 1
- * @param tkn2 token 2
- * @return true if tokens are equal
- * @return false if they are not
- */
-bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
-
-
-/**
  * @brief Check if a jtoktok array constitutes a valid jtok structure
  *
  * @param tokens token array
@@ -298,12 +287,15 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
 /**
  * @brief Compare two jtok tokens for equality
  *
+ * @param pool1 pool of allocated tokens that contains tkn1
  * @param tkn1 first token
+ * @param pool2 pool of allocated tokens that contains tkn2
  * @param tkn2 second token
  * @return true if tokens are equal
  * @return false if not equal
  */
-bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
+bool jtok_toktokcmp(const jtok_tkn_t *pool1, const jtok_tkn_t *tkn1,
+                    const jtok_tkn_t *pool2, const jtok_tkn_t *tkn2);
 
 
 #ifdef __cplusplus

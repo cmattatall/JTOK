@@ -63,13 +63,18 @@ int main(void)
             if (passed)
             {
                 /* Compare "key" with "key" */
-                if (!jtok_toktokcmp(&tokens1[1], &tokens2[1]))
+
+                jtok_tkn_t *key1 = &tokens1[1];
+                jtok_tkn_t *key2 = &tokens2[1];
+                jtok_tkn_t *val1 = &key1[1];
+                jtok_tkn_t *val2 = &key2[1];
+                if (!jtok_toktokcmp(tokens1, key1, tokens2, key2))
                 {
                     passed = false;
                 }
 
                 /* Compare "value" with "value" */
-                if (!jtok_toktokcmp(&tokens1[2], &tokens2[2]))
+                if (!jtok_toktokcmp(tokens1, val1, tokens2, val2))
                 {
                     passed = false;
                 }
