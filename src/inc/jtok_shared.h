@@ -14,10 +14,7 @@ extern "C"
 #define JTOK_ASCII_CHAR_LOWEST_VALUE 32   /* ' ' space */
 #define JTOK_ASCII_CHAR_HIGHEST_VALUE 127 /* DEL */
 
-#define INVALID_ARRAY_INDEX (-1)
-#define NO_PARENT_IDX (INVALID_ARRAY_INDEX)
-#define NO_SIBLING_IDX (INVALID_ARRAY_INDEX)
-#define JTOK_STRING_INDEX_NONE (INVALID_ARRAY_INDEX)
+
 
 #define HEXCHAR_ESCAPE_SEQ_COUNT 4 /* can escape 4 hex chars such as \uffea */
 

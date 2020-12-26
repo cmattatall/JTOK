@@ -11,7 +11,10 @@ extern "C" {
 #include <stdbool.h>
 #include <limits.h>
 
-#define MAX_JTOK_STRLEN 255
+#define INVALID_ARRAY_INDEX (-1)
+#define NO_PARENT_IDX (INVALID_ARRAY_INDEX)
+#define NO_SIBLING_IDX (INVALID_ARRAY_INDEX)
+#define JTOK_STRING_INDEX_NONE (INVALID_ARRAY_INDEX)
 
 /**
  * JTOK type identifier. Basic types are:
