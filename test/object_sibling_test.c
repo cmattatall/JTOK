@@ -24,6 +24,9 @@ static const struct
     char         json[JSON_STRLEN];
     unsigned int sibling_tree[SIBLING_TREE_SIZE];
 } table[] = {
+    {.json         = "{\"a\":[1,2,3,4,5,6],\"b\":3}",
+     .sibling_tree = {NO_SIBLING_IDX, 9, NO_SIBLING_IDX}},
+
     {.json = "{\"a\":1}", .sibling_tree = {NO_SIBLING_IDX, NO_SIBLING_IDX}},
 
     {.json         = "{\"a\":1,\"b\":2}}",
@@ -38,8 +41,7 @@ static const struct
     {.json         = "{\"a\":{\"a1\":1,\"a2\":2},\"b\":3}",
      .sibling_tree = {NO_SIBLING_IDX, 7, NO_SIBLING_IDX}},
 
-    {.json         = "{\"a\":[1,2,3,4,5,6],\"b\":3}",
-     .sibling_tree = {NO_SIBLING_IDX, 9, NO_SIBLING_IDX}},
+
 };
 
 
@@ -74,6 +76,11 @@ int main(void)
                         printf("Failed.\n");
                         return -1;
                     }
+
+                    if (current_tkn->size > 0)
+                    {
+                        current_tkn = &tokens[1];
+                    }
                 }
                 else
                 {
@@ -86,6 +93,11 @@ int main(void)
                     {
                         /* Walk to next sibling */
                         current_tkn = &tokens[current_tkn->sibling];
+
+                        if (current_tkn->sibling == NO_SIBLING_IDX)
+                        {
+                            break;
+                        }
                     }
                 }
             }

@@ -279,8 +279,6 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                 jtok_parse_string(parser, tokens, num_tokens);
                             if (status == JTOK_PARSE_STATUS_PARSE_OK)
                             {
-                                parent_obj->size++;
-
                                 if (parser->last_child != NO_CHILD_IDX)
                                 {
                                     /* Link previous child to current child */
@@ -290,6 +288,11 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                     /* Update last child */
                                     parser->last_child = parser->toknext - 1;
                                 }
+                                else
+                                {
+                                    parser->last_child = parser->toknext - 1;
+                                }
+                                parent_obj->size++;
                             }
                             expecting = OBJECT_COLON;
                         }
