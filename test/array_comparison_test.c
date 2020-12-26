@@ -40,38 +40,28 @@ int main(void)
     JTOK_PARSE_STATUS_t status;
     for (i = 0; i < max_i; i++)
     {
-        bool passed = true;
-        p1          = jtok_new_parser(true_cmp_table[i].json1);
+        p1 = jtok_new_parser(true_cmp_table[i].json1);
+        p2 = jtok_new_parser(true_cmp_table[i].json2);
         printf("\ncomparing %s and %s... ", true_cmp_table[i].json2,
                true_cmp_table[i].json1);
 
         status = jtok_parse(&p1, tokens1, TOKEN_MAX);
         if (status != JTOK_PARSE_STATUS_PARSE_OK)
         {
-            passed = false;
+            printf("parse of %s failed with status %d\n",
+                   true_cmp_table[i].json1, status);
+            return status;
         }
 
-        p2 = jtok_new_parser(true_cmp_table[i].json1);
-        if (passed)
+        status = jtok_parse(&p2, tokens2, TOKEN_MAX);
+        if (status != JTOK_PARSE_STATUS_PARSE_OK)
         {
-            status = jtok_parse(&p2, tokens2, TOKEN_MAX);
-            if (status != JTOK_PARSE_STATUS_PARSE_OK)
-            {
-                passed = false;
-            }
-
-
-            if (passed)
-            {
-                if (!jtok_toktokcmp(tokens1, tokens2))
-                {
-                    passed = false;
-                }
-            }
+            printf("parse of %s failed with status %d\n",
+                   true_cmp_table[i].json2, status);
+            return status;
         }
 
-
-        if (passed)
+        if (jtok_toktokcmp(&tokens1[2], &tokens2[2]))
         {
             printf("passed.\n");
             continue;
@@ -79,7 +69,8 @@ int main(void)
         else
         {
             printf("failed.\n");
-            return status;
+
+            return -1;
         }
     }
     return 0;

@@ -432,7 +432,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
 
 bool jtok_toktokcmp_object(const jtok_tkn_t *obj1, const jtok_tkn_t *obj2)
 {
-    bool is_equal = false;
+    bool is_equal = true;
 
     /** @todo THIS IS GOING TO BE DIFFICULT... */
 

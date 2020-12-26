@@ -295,7 +295,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
 
 bool jtok_toktokcmp_array(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2)
 {
-    bool is_equal = false;
+    bool is_equal = true;
 
     /** @todo THIS IS GOING TO BE DIFFICULT... */
 

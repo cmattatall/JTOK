@@ -1,0 +1,42 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test/${input:test}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ],
+    "compounds": [],
+
+    "inputs": [
+        {
+            "id":"test",
+            "description": "name of test executable to debug",
+            "options": [
+                "JTOK_array_comparison_test",
+                "JTOK_object_comparison_test",
+                "JTOK_negative_parse_test",
+                "JTOK_positive_parse_test",
+                "JTOK_primitive_comparison_test",
+                "JTOK_string_comparison_test",
+                "JTOK_size_test1",
+            ],
+            "type": "pickString",
+        }
+    ]
+}

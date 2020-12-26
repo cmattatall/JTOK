@@ -4,7 +4,11 @@
 #include "jtok.h"
 
 static const char *validJSON[] = {
-    "{\"key\" : []}", /* empty array */
+
+    "{\"key1\":[],\"key2\":[]}",
+
+    /* empty array */
+    "{\"key\" : []}",
 
     /* primitive */
     "{\"key\" : true}",
@@ -86,6 +90,7 @@ static const char *validJSON[] = {
     /* Misc */
     "{\"differentTypesOfWhiteSpace\"\t:\t\"valueString\"}",
     "{\n\"differentTypesOfWhiteSpace\"\n:\n\"valueString\"\n}",
+
 
 };
 

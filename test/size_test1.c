@@ -21,11 +21,6 @@ static const struct
     unsigned int size;
 } true_table[] = {
     {
-        .json = "{\"key1\":5,\"key2\":{\"childkey1\":1}, \"arrkey\":[1,2,3]}",
-        .size = 3,
-    },
-
-    {
         .json = "{}",
         .size = 0,
     },
@@ -59,6 +54,38 @@ static const struct
         .json = "{\"key\":null}",
         .size = 1,
     },
+
+    {
+        .json = "{\"key1\":1, \"key2\":2}",
+        .size = 2,
+    },
+
+    {
+        .json = "{\"key1\":\"1\", \"key2\":\"2\"}",
+        .size = 2,
+    },
+
+    {
+        .json = "{\"key1\":true, \"key2\":false }",
+        .size = 2,
+    },
+
+    {
+        .json = "{\"key1\":[], \"key2\":[]}",
+        .size = 2,
+    },
+
+
+    {
+        .json = "{\"key1\":{}, \"key2\":{}}",
+        .size = 2,
+    },
+
+    {
+        .json = "{\"key1\":5,\"key2\":{\"childkey1\":1}, \"arrkey\":[1,2,3]}",
+        .size = 3,
+    },
+
 };
 
 
@@ -78,6 +105,7 @@ int main(void)
         status = jtok_parse(&p, tokens, TOKEN_MAX);
         if (status != JTOK_PARSE_STATUS_PARSE_OK)
         {
+            printf("parse failed with status %d\n", status);
             return status;
         }
         else
@@ -90,6 +118,7 @@ int main(void)
             else
             {
                 printf("passed.\n");
+                continue;
             }
         }
     }
