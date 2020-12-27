@@ -6,6 +6,9 @@
 
 #define TOKEN_MAX (200u)
 
+static void setup(void);
+static void teardown(void);
+
 static const char *valid_jsons[] = { 
 
     /* PUT JSON STRINGS THAT SHOULD BE PARSED SUCCESSFULLY HERE */
@@ -16,6 +19,7 @@ static jtok_parser_t p;
 static jtok_tkn_t    tokens[TOKEN_MAX];
 int main(void)
 {
+    setup();
     unsigned long long i;
     unsigned long long max_i = sizeof(valid_jsons) / sizeof(*valid_jsons);
     for (i = 0; i < max_i; i++)
@@ -34,4 +38,26 @@ int main(void)
             continue;
         }
     }
+
+    teardown();
+    return 0;
 }
+
+
+static void setup(void)
+{
+
+
+
+
+}
+
+
+static void teardown(void)
+{
+
+
+
+
+}
+
