@@ -502,20 +502,6 @@ bool jtok_toktokcmp_object(const jtok_tkn_t *pool1, const jtok_tkn_t *obj1,
         }
         else if (obj1->size > 0)
         {
-            int index_offset1 = 0;
-            int index_offset2 = 0;
-            if (obj1->parent != NO_PARENT_IDX)
-            {
-                index_offset1 = obj1 - pool1;
-                index_offset1 = index_offset1 / sizeof(jtok_tkn_t);
-            }
-
-            if (obj2->parent != NO_PARENT_IDX)
-            {
-                index_offset2 = obj2 - pool2;
-                index_offset2 = index_offset2 / sizeof(jtok_tkn_t);
-            }
-
             /*
              * 2 empty objects are trivally equal
              * so only perform child comparison if the objects actaully
