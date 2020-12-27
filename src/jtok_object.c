@@ -526,7 +526,13 @@ bool jtok_toktokcmp_object(const jtok_tkn_t *pool1, const jtok_tkn_t *obj1,
                         /* If key matches, compare values */
                         jtok_tkn_t *val1 = &child1[1];
                         jtok_tkn_t *val2 = &child2[1];
-                        if (!jtok_toktokcmp(pool1, val1, pool2, val2))
+                        if (jtok_toktokcmp(pool1, val1, pool2, val2))
+                        {
+                            /* value of key in obj1 matches value of key in obj2
+                             * exit search loop for key in obj2 */
+                            break;
+                        }
+                        else
                         {
                             /*
                              * Since there cannot be duplicate keys
@@ -536,12 +542,6 @@ bool jtok_toktokcmp_object(const jtok_tkn_t *pool1, const jtok_tkn_t *obj1,
                              * equal.
                              */
                             is_equal = false;
-                        }
-                        else
-                        {
-                            /* value of key in obj1 matches value of key in obj2
-                             * exit search loop for key in obj2 */
-                            break;
                         }
                     }
                     else
