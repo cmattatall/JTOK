@@ -361,9 +361,9 @@ bool jtok_toktokcmp_array(const jtok_tkn_t *pool1, const jtok_tkn_t *arr1,
         {
             /* Arrays have equal size but they aren't empty,
              * so we'll have to compare their elements */
-            jtok_tkn_t * child1 = (jtok_tkn_t *)&arr1[1];
-            jtok_tkn_t * child2 = (jtok_tkn_t *)&arr2[1];
-            unsigned int i;
+            jtok_tkn_t *child1 = (jtok_tkn_t *)&arr1[1];
+            jtok_tkn_t *child2 = (jtok_tkn_t *)&arr2[1];
+            int         i;
             for (i = 0; i < arr1->size && is_equal; i++)
             {
                 /* Check that the Ith element of

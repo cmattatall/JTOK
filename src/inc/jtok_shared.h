@@ -15,7 +15,6 @@ extern "C"
 #define JTOK_ASCII_CHAR_HIGHEST_VALUE 127 /* DEL */
 
 
-
 #define HEXCHAR_ESCAPE_SEQ_COUNT 4 /* can escape 4 hex chars such as \uffea */
 
 /**
@@ -27,7 +26,7 @@ extern "C"
  * @return jtok_tkn_t*
  */
 jtok_tkn_t *jtok_alloc_token(jtok_parser_t *parser, jtok_tkn_t *tokens,
-                             size_t num_tokens);
+                             int num_tokens);
 
 /**
  * @brief Fill jtok_token type and boundaries
@@ -40,10 +39,6 @@ jtok_tkn_t *jtok_alloc_token(jtok_parser_t *parser, jtok_tkn_t *tokens,
  * @return 0 on success, 1 on failure
  */
 int jtok_fill_token(jtok_tkn_t *token, JTOK_TYPE_t type, int start, int end);
-
-
-jtok_tkn_t *jtok_alloc_token(jtok_parser_t *parser, jtok_tkn_t *tokens,
-                             size_t num_tokens);
 
 
 #ifdef __cplusplus

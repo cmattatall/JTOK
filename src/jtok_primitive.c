@@ -23,10 +23,10 @@
 JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
                                          jtok_tkn_t *tokens, size_t num_tokens)
 {
-    jtok_tkn_t * token;
-    int          start = parser->pos;
-    const char * js    = (const char *)parser->json;
-    unsigned int len   = parser->json_len;
+    jtok_tkn_t *token;
+    int         start = parser->pos;
+    const char *js    = (const char *)parser->json;
+    int         len   = parser->json_len;
 
     enum
     {
