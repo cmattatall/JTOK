@@ -3,8 +3,6 @@ import shutil
 import argparse
 import multiprocessing
 
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", action="store_true", dest="verbose",default=False, help="Option to run tests with verbose output sent to stdout")

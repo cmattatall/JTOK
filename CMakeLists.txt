@@ -1,12 +1,9 @@
-
-
 cmake_minimum_required(VERSION 3.16)
 
 ################################################################################
 #  OPTIONS GO HERE
 ################################################################################
 option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
-option(CMAKE_CROSSCOMPILING "[ON/OFF] choose to cross compile or not" OFF)
 
 project(
     JTOK
@@ -87,6 +84,6 @@ endif()
 
 
 ################################################################################
-# LINK AGAINST THE NECESSARY LIBRARIES BELOW (USER CAN START ADDING STUFF NOW)
+# LINK AGAINST THE NECESSARY LIBRARIES
 ################################################################################
 
