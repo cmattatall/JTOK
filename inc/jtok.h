@@ -143,12 +143,12 @@ typedef struct
  */
 typedef struct
 {
-    char *       json;     /* ptr to start of json string */
-    unsigned int json_len; /* max length of json string   */
-    unsigned int pos;      /* current parsing index in json string */
-    unsigned int toknext;  /* index of next token to allocate */
-    int          toksuper; /* superior token node, e.g parent object or array */
-    int          last_child; /* index of last sibling parsed */
+    char *json;       /* ptr to start of json string */
+    int   json_len;   /* max length of json string   */
+    int   pos;        /* current parsing index in json string */
+    int   toknext;    /* index of next token to allocate */
+    int   toksuper;   /* superior token node, e.g parent object or array */
+    int   last_child; /* index of last sibling parsed */
 } jtok_parser_t;
 
 /**

@@ -321,8 +321,9 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
     if (buf != NULL)
     {
         int blen = 0;
+        int k;
         blen += snprintf(buf + blen, size - blen, "token : ");
-        for (unsigned int k = token.start; k < token.end; k++)
+        for (k = token.start; k < token.end; k++)
         {
             blen += snprintf(buf + blen, size - blen, "%c", json[k]);
         }

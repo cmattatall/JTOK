@@ -25,9 +25,9 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
 {
     JTOK_PARSE_STATUS_t status = JTOK_PARSE_STATUS_PARSE_OK;
 
-    unsigned int start = parser->pos;
-    const char * json  = parser->json;
-    unsigned int len   = parser->json_len;
+    int         start = parser->pos;
+    const char *json  = parser->json;
+    int         len   = parser->json_len;
     enum
     {
         OBJECT_KEY,
@@ -420,14 +420,17 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                             parser->pos = start;
                             status      = JTOK_PARSE_STATUS_INVAL;
                         }
+                        break;
                         case JTOK_STRING:
+                        {
                             if (parent->size != 0)
                             {
                                 /* an object key can only have 1 value */
                                 parser->pos = start;
                                 status      = JTOK_PARSE_STATUS_INVAL;
                             }
-                            break;
+                        }
+                        break;
                         default:
                         {
                             /*

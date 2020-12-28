@@ -20,10 +20,10 @@
 JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtok_tkn_t *tokens,
                                       size_t num_tokens)
 {
-    jtok_tkn_t * token;
-    int          start;
-    char *       js  = parser->json;
-    unsigned int len = parser->json_len;
+    jtok_tkn_t *token;
+    int         start;
+    char *      js  = parser->json;
+    int         len = parser->json_len;
     if (js[parser->pos] == '\"')
     {
         parser->pos++; /* advance to inside of quotes */
@@ -55,7 +55,7 @@ JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtok_tkn_t *tokens,
 
             if (js[parser->pos] == '\\')
             {
-                if (parser->pos + sizeof((char)'\"') < len)
+                if (parser->pos + sizeof((char)'\"') < (size_t)len)
                 {
                     parser->pos++;
                     switch (js[parser->pos])
@@ -76,8 +76,8 @@ JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         {
                             parser->pos++; /* move to first escaped hex
                                               character */
-                            unsigned int       i;
-                            const unsigned int max_i = HEXCHAR_ESCAPE_SEQ_COUNT;
+                            int i;
+                            int max_i = HEXCHAR_ESCAPE_SEQ_COUNT;
                             for (i = 0; i < max_i && parser->pos < len &&
                                         js[parser->pos] != '\0';
                                  i++)

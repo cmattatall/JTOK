@@ -37,10 +37,10 @@ int jtok_fill_token(jtok_tkn_t *token, JTOK_TYPE_t type, int start, int end)
 
 
 jtok_tkn_t *jtok_alloc_token(jtok_parser_t *parser, jtok_tkn_t *tokens,
-                             size_t num_tokens)
+                             int num_tokens)
 {
     jtok_tkn_t *tok;
-    if (parser->toknext >= num_tokens)
+    if (parser->toknext >= (int)num_tokens)
     {
         return NULL;
     }
