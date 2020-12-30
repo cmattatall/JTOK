@@ -105,4 +105,5 @@ int main(void)
             printf("Passed.\n");
         }
     }
+    return 0;
 }
