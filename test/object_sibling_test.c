@@ -51,6 +51,7 @@ static jtok_tkn_t    tokens[TOKEN_MAX];
 
 int main(void)
 {
+
     unsigned long long i;
     unsigned long long max_i = sizeof(table) / sizeof(*table);
     for (i = 0; i < max_i; i++)
@@ -67,7 +68,7 @@ int main(void)
         {
             unsigned int s;
             jtok_tkn_t * current_tkn = tokens;
-            for (s = 0; s < SIBLING_TREE_SIZE; s++)
+            for (s = 0; s < SIBLING_TREE_SIZE && s < tokens[0].size; s++)
             {
                 if (s == 0)
                 {
