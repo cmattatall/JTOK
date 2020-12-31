@@ -131,14 +131,61 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                 }
             }
             break;
-
-#ifdef SUBARRAYS
-#error SUBARRAYS ARE CURRENTLY NOT IMPLEMENTED
             case '[':
             {
+                switch (expecting)
+                {
+                    case ARRAY_START:
+                    case ARRAY_VALUE:
+                    {
+                        if (element_type_found)
+                        {
+                            if (element_type != JTOK_ARRAY)
+                            {
+                                status = JTOK_STATUS_MIXED_ARRAY;
+                            }
+                        }
+                        else
+                        {
+                            element_type_found = true;
+                            element_type       = JTOK_ARRAY;
+                        }
+
+                        int parent_array_idx = parser->toksuper;
+                        status = jtok_parse_array(parser, tokens, num_tokens);
+                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                        {
+                            if (parser->last_child != NO_CHILD_IDX)
+                            {
+                                /* Link previous child to current child */
+                                tokens[parser->last_child].sibling =
+                                    parser->toknext - 1;
+                            }
+
+                            /* Update last child and increase parent size */
+                            parser->last_child = parser->toknext - 1;
+                            tokens[parent_array_idx].size++;
+
+                            expecting = ARRAY_COMMA;
+
+                            /* Restore superior token node */
+                            parser->toksuper = parent_array_idx;
+                        }
+                    }
+                    break;
+                    case ARRAY_COMMA:
+                    {
+                        status = JTOK_PARSE_STATUS_ARRAY_SEPARATOR;
+                    }
+                    break;
+                    default:
+                    {
+                        status = JTOK_PARSE_STATUS_INVAL;
+                    }
+                    break;
+                }
             }
             break;
-#endif
             case ']':
             {
                 switch (expecting)
@@ -297,12 +344,14 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                             {
                                 if (parser->last_child != NO_CHILD_IDX)
                                 {
-                                    /* Link previous child to current child */
+                                    /* Link previous child to current child
+                                     */
                                     tokens[parser->last_child].sibling =
                                         parser->toknext - 1;
                                 }
 
-                                /* Update last child and increase parent size */
+                                /* Update last child and increase parent
+                                 * size */
                                 parser->last_child = parser->toknext - 1;
                                 if (super != NO_PARENT_IDX)
                                 {

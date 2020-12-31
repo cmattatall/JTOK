@@ -40,6 +40,8 @@
                 "JTOK_fake_escape_character_in_key_test",
                 "JTOK_empty_array_parse_test",
                 "JTOK_empty_object_parse_test",
+                "JTOK_sibling_parent_test",
+                "JTOK_array_parse_test",
             ],
             "type": "pickString",
         }
