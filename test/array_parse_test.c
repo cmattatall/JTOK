@@ -17,8 +17,6 @@
 
 static const char *valid_jsons[] = {
 
-    "{\"a\":[[]]}", /* DELETE ME AFTER */
-
     "{\"a\":[]}",
 
     "{\"a\":[[]]}",
