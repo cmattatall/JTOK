@@ -8,7 +8,6 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @todo
  */
 #include <stdio.h>
 
