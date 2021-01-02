@@ -274,7 +274,9 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
  * @param tkn1 first token
  * @param tkn2 second token
  * @return true if tokens are equal
- * @return false if not equal
+ * @return false if not equal.
+ *
+ * @note Tokens with different types are never equal
  */
 bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
 

@@ -391,8 +391,8 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser)
 bool jtok_toktokcmp_array(const jtok_tkn_t *arr1, const jtok_tkn_t *arr2)
 {
     bool              is_equal = true;
-    const jtok_tkn_t *pool1    = arr1->pool;
-    const jtok_tkn_t *pool2    = arr2->pool;
+    const jtok_tkn_t * const pool1    = arr1->pool;
+    const jtok_tkn_t * const pool2    = arr2->pool;
     assert(pool1->type == JTOK_OBJECT);
     assert(pool2->type == JTOK_OBJECT);
     if (arr1->type != JTOK_ARRAY || arr2->type != JTOK_ARRAY)

@@ -57,37 +57,42 @@ char *jtok_toktypename(JTOK_TYPE_t type)
     return retval;
 }
 
+static const bool (*tokcmp_funcs[])(const jtok_tkn_t *, const jtok_tkn_t *) = {
+    [JTOK_PRIMITIVE] = jtok_toktokcmp_primitive,
+    [JTOK_OBJECT]    = jtok_toktokcmp_object,
+    [JTOK_ARRAY]     = jtok_toktokcmp_array,
+    [JTOK_STRING]    = jtok_toktokcmp_string,
+};
+
+static const char *jtokerr_messages[] = {
+    [JTOK_PARSE_STATUS_OK]            = "JTOK_PARSE_STATUS_OK",
+    [JTOK_PARSE_STATUS_UNKNOWN_ERROR] = "JTOK_PARSE_STATUS_UNKNOWN_ERROR",
+    [JTOK_PARSE_STATUS_NOMEM]         = "JTOK_PARSE_STATUS_NOMEM",
+    [JTOK_PARSE_STATUS_INVAL]         = "JTOK_PARSE_STATUS_INVAL",
+    [JTOK_PARSE_STATUS_PARTIAL_TOKEN] = "JTOK_PARSE_STATUS_PARTIAL_TOKEN",
+    [JTOK_PARSE_STATUS_KEY_NO_VAL]    = "JTOK_PARSE_STATUS_KEY_NO_VAL",
+    [JTOK_PARSE_STATUS_COMMA_NO_KEY]  = "JTOK_PARSE_STATUS_COMMA_NO_KEY",
+    [JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT] =
+        "JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT",
+    [JTOK_PARSE_STATUS_INVALID_PRIMITIVE] =
+        "JTOK_PARSE_STATUS_INVALID_PRIMITIVE",
+    [JTOK_PARSE_STATUS_NON_OBJECT]       = "JTOK_PARSE_STATUS_NON_OBJECT",
+    [JTOK_PARSE_STATUS_INVALID_START]    = "JTOK_PARSE_STATUS_INVALID_START",
+    [JTOK_PARSE_STATUS_INVALID_END]      = "JTOK_PARSE_STATUS_INVALID_END",
+    [JTOK_PARSE_STATUS_OBJ_NOKEY]        = "JTOK_PARSE_STATUS_OBJ_NOKEY",
+    [JTOK_STATUS_MIXED_ARRAY]            = "JTOK_STATUS_MIXED_ARRAY",
+    [JTOK_PARSE_STATUS_ARRAY_SEPARATOR]  = "JTOK_PARSE_STATUS_ARRAY_SEPARATOR",
+    [JTOK_PARSE_STATUS_STRAY_COMMA]      = "JTOK_PARSE_STATUS_STRAY_COMMA",
+    [JTOK_PARSE_STATUS_VAL_NO_COLON]     = "JTOK_PARSE_STATUS_VAL_NO_COLON",
+    [JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL] = "JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL",
+    [JTOK_PARSE_STATUS_INVALID_PARENT]   = "JTOK_PARSE_STATUS_INVALID_PARENT",
+    [JTOK_PARSE_STATUS_VAL_NO_COMMA]     = "JTOK_PARSE_STATUS_VAL_NO_COMMA",
+    [JTOK_PARSE_STATUS_NON_ARRAY]        = "JTOK_PARSE_STATUS_NON_ARRAY",
+    [JTOK_PARSE_STATUS_EMPTY_KEY]        = "JTOK_PARSE_STATUS_EMPTY_KEY",
+};
 
 char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err)
 {
-    static const char *jtokerr_messages[] = {
-        [JTOK_PARSE_STATUS_OK]            = "JTOK_PARSE_STATUS_OK",
-        [JTOK_PARSE_STATUS_UNKNOWN_ERROR] = "JTOK_PARSE_STATUS_UNKNOWN_ERROR",
-        [JTOK_PARSE_STATUS_NOMEM]         = "JTOK_PARSE_STATUS_NOMEM",
-        [JTOK_PARSE_STATUS_INVAL]         = "JTOK_PARSE_STATUS_INVAL",
-        [JTOK_PARSE_STATUS_PARTIAL_TOKEN] = "JTOK_PARSE_STATUS_PARTIAL_TOKEN",
-        [JTOK_PARSE_STATUS_KEY_NO_VAL]    = "JTOK_PARSE_STATUS_KEY_NO_VAL",
-        [JTOK_PARSE_STATUS_COMMA_NO_KEY]  = "JTOK_PARSE_STATUS_COMMA_NO_KEY",
-        [JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT] =
-            "JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT",
-        [JTOK_PARSE_STATUS_INVALID_PRIMITIVE] =
-            "JTOK_PARSE_STATUS_INVALID_PRIMITIVE",
-        [JTOK_PARSE_STATUS_NON_OBJECT]    = "JTOK_PARSE_STATUS_NON_OBJECT",
-        [JTOK_PARSE_STATUS_INVALID_START] = "JTOK_PARSE_STATUS_INVALID_START",
-        [JTOK_PARSE_STATUS_INVALID_END]   = "JTOK_PARSE_STATUS_INVALID_END",
-        [JTOK_PARSE_STATUS_OBJ_NOKEY]     = "JTOK_PARSE_STATUS_OBJ_NOKEY",
-        [JTOK_STATUS_MIXED_ARRAY]         = "JTOK_STATUS_MIXED_ARRAY",
-        [JTOK_PARSE_STATUS_ARRAY_SEPARATOR] =
-            "JTOK_PARSE_STATUS_ARRAY_SEPARATOR",
-        [JTOK_PARSE_STATUS_STRAY_COMMA]  = "JTOK_PARSE_STATUS_STRAY_COMMA",
-        [JTOK_PARSE_STATUS_VAL_NO_COLON] = "JTOK_PARSE_STATUS_VAL_NO_COLON",
-        [JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL] =
-            "JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL",
-        [JTOK_PARSE_STATUS_INVALID_PARENT] = "JTOK_PARSE_STATUS_INVALID_PARENT",
-        [JTOK_PARSE_STATUS_VAL_NO_COMMA]   = "JTOK_PARSE_STATUS_VAL_NO_COMMA",
-        [JTOK_PARSE_STATUS_NON_ARRAY]      = "JTOK_PARSE_STATUS_NON_ARRAY",
-        [JTOK_PARSE_STATUS_EMPTY_KEY]      = "JTOK_PARSE_STATUS_EMPTY_KEY",
-    };
     char *retval;
     switch (err)
     {
@@ -341,34 +346,7 @@ bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2)
     bool is_equal = false;
     if (tkn1->type == tkn2->type)
     {
-        switch (tkn1->type)
-        {
-            case JTOK_ARRAY:
-            {
-                is_equal = jtok_toktokcmp_array(tkn1, tkn2);
-            }
-            break;
-            case JTOK_STRING:
-            {
-                is_equal = jtok_toktokcmp_string(tkn1, tkn2);
-            }
-            break;
-            case JTOK_OBJECT:
-            {
-                is_equal = jtok_toktokcmp_object(tkn1, tkn2);
-            }
-            break;
-            case JTOK_PRIMITIVE:
-            {
-                is_equal = jtok_toktokcmp_primitive(tkn1, tkn2);
-            }
-            break;
-            default:
-            {
-                /* do nothing, we've already initialized the result as false */
-            }
-            break;
-        }
+        return tokcmp_funcs[tkn1->type];
     }
     return is_equal;
 }

@@ -21,9 +21,12 @@ static struct
     char json1[250];
     char json2[250];
 } true_cmp_table[] = {
+    {.json1 = "{\"arr\":[{}, {}, {\"keyInObjectInArray\": \"valueInObjectInArray\"}}]}", .json2 = "{\"arr\":[{}, {}, {\"keyInObjectInArray\": \"valueInObjectInArray\"}]}"},
+
+    
     {.json1 = "{\"arr\":[1,2,3]}", .json2 = "{\"arr\":[1,2,3]}"},
     {.json1 = "{\"arr\":[true, false, true, null]}", .json2 = "{\"arr\":[true, false, true, null]}"},
-    {.json1 = "{\"arr\":[{}, {}, {\"keyInObjectInArray\": \"valueInObjectInArray\"}}]}", .json2 = "{\"arr\":[{}, {}, {\"keyInObjectInArray\": \"valueInObjectInArray\"}]}"},
+    
 };
 /* clang-format on */
 
