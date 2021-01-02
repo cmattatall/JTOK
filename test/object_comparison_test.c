@@ -7,8 +7,7 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @note
- * Object comparison semantics should behave as follows:
+ * @note Object comparison semantics should behave as follows:
  *
  * Objects are equal ONLY if:
  *  - they have the same child keys (in any order)

@@ -7,8 +7,6 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @note Wow..., this test actually passed the very first time (hence no passing
- * commit)
  */
 #include <stdio.h>
 

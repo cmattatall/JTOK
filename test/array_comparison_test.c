@@ -7,7 +7,7 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @note
+ *
  */
 #include <stdio.h>
 
@@ -23,7 +23,7 @@ static struct
 } true_cmp_table[] = {
     {.json1 = "{\"arr\":[{}, {}, {\"keyInObjectInArray\": \"valueInObjectInArray\"}}]}", .json2 = "{\"arr\":[{}, {}, {\"keyInObjectInArray\": \"valueInObjectInArray\"}]}"},
 
-    
+
     {.json1 = "{\"arr\":[1,2,3]}", .json2 = "{\"arr\":[1,2,3]}"},
     {.json1 = "{\"arr\":[true, false, true, null]}", .json2 = "{\"arr\":[true, false, true, null]}"},
     

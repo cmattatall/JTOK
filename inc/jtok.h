@@ -129,11 +129,6 @@ struct jtok_tkn_struct
     int         sibling; /* index of next token that shares the same parent */
 };
 
-
-/**
- * JTOK parser. Contains an array of token blocks available. Also stores
- * the string being parsed now and current position in that string
- */
 typedef struct
 {
     char *       json;      /* ptr to start of json string */
@@ -150,13 +145,13 @@ typedef struct
 /**
  * @brief Parse a json string into its JTOK token representation
  *
- * @param json the json string to parse
- * @param tokens the caller provided token pool
- * @param tkn_pool_size number of tokens in the provided token pool
- * @return JTOK_PARSE_STATUS_t the parse status. SUCCESS = JTOK_PARSE_STATUS_OK
+ * @param json json string (nul-terminated) to parse
+ * @param tkns caller-provided pool of tokens
+ * @param size number of tokens in the token pool (max number of tokens that can
+ * be parsed)
+ * @return JTOK_PARSE_STATUS_t parse status. JTOK_PARSE_STATUS_OK == success
  */
-JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tokens,
-                               unsigned int tkn_pool_size);
+JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tkns, size_t size);
 
 
 /**
@@ -279,6 +274,34 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
  * @note Tokens with different types are never equal
  */
 bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
+
+
+#if 0
+typedef struct
+{
+    jtok_tkn_t *key;
+    jtok_tkn_t *value;
+} jtok_keyval_pair_t;
+
+
+typedef struct
+{
+    jtok_keyval_pair_t *next;
+    jtok_keyval_pair_t this;
+} jtok_keyval_pair_node_t;
+
+jtok_keyval_pair_node_t *jtok_get_children(const jtok_tkn_t *obj);
+#endif
+
+
+/**
+ * @brief Get the
+ *
+ * @param obj
+ * @param key
+ * @return int
+ */
+int jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str);
 
 
 #ifdef __cplusplus

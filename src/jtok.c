@@ -7,8 +7,6 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @note
- *
  */
 
 #include <assert.h>
@@ -28,6 +26,7 @@
 
 static jtok_parser_t jtok_new_parser(const char *json_str, jtok_tkn_t *tokens,
                                      unsigned int poolsize);
+static bool          jtok_is_type_aggregate(const jtok_tkn_t *const tkn);
 
 
 char *jtok_toktypename(JTOK_TYPE_t type)
@@ -285,11 +284,11 @@ bool isValidJson(const jtok_tkn_t *tokens, uint_least8_t tcnt)
 }
 
 
-JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tokens,
-                               unsigned int num_tokens)
+JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tkns, size_t size)
 {
+    jtok_parser_t parser = jtok_new_parser(json, tkns, size);
+
     /* Skip leading whitespace */
-    jtok_parser_t parser = jtok_new_parser(json, tokens, num_tokens);
     while (isspace((int)json[parser.pos]))
     {
         parser.pos++;
@@ -352,6 +351,44 @@ bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2)
 }
 
 
+int jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str)
+{
+    int key_idx = INVALID_ARRAY_INDEX;
+    if (obj->type == JTOK_OBJECT)
+    {
+        size_t      i;
+        jtok_tkn_t *tkns = obj->pool;
+        jtok_tkn_t *key_tkn;
+        if (obj->size > 0)
+        {
+            key_tkn = obj + 1;
+        }
+        for (i = 0; i < obj->size; i++)
+        {
+            /* If size is nonzero, first key of object will be RIGHT AFTER */
+            if (jtok_tokcmp(key_str, key_tkn))
+            {
+                key_idx = key_tkn - tkns;
+                key_idx = key_idx / sizeof(*key_tkn);
+                break;
+            }
+            else
+            {
+                if (key_tkn->sibling != NO_SIBLING_IDX)
+                {
+                    key_tkn = &tkns[key_tkn->sibling];
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+    return key_idx;
+}
+
+
 static jtok_parser_t jtok_new_parser(const char *json_str, jtok_tkn_t *tokens,
                                      unsigned int poolsize)
 {
@@ -365,4 +402,11 @@ static jtok_parser_t jtok_new_parser(const char *json_str, jtok_tkn_t *tokens,
     parser.tkn_pool   = tokens;
     parser.pool_size  = poolsize;
     return parser;
+}
+
+
+static bool jtok_is_type_aggregate(const jtok_tkn_t *const tkn)
+{
+    assert(NULL != tkn);
+    return tkn->type == JTOK_OBJECT || tkn->type == JTOK_ARRAY;
 }
