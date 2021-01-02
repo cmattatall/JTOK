@@ -36,15 +36,15 @@ int jtok_fill_token(jtok_tkn_t *token, JTOK_TYPE_t type, int start, int end)
 }
 
 
-jtok_tkn_t *jtok_alloc_token(jtok_parser_t *parser, jtok_tkn_t *tokens,
-                             int num_tokens)
+jtok_tkn_t *jtok_alloc_token(jtok_parser_t *parser)
 {
     jtok_tkn_t *tok;
-    if (parser->toknext >= (int)num_tokens)
+    if (parser->toknext >= (int)parser->pool_size)
     {
         return NULL;
     }
-    tok        = &tokens[parser->toknext++];
+    tok        = &parser->tkn_pool[parser->toknext++];
+    tok->pool  = parser->tkn_pool;
     tok->start = tok->end = INVALID_ARRAY_INDEX;
     tok->size             = 0;
     tok->parent           = NO_PARENT_IDX;

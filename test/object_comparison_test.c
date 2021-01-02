@@ -36,10 +36,8 @@ static struct
 };
 /* clang-format on */
 
-static jtok_tkn_t    tokens1[TOKEN_MAX];
-static jtok_tkn_t    tokens2[TOKEN_MAX];
-static jtok_parser_t p1;
-static jtok_parser_t p2;
+static jtok_tkn_t tokens1[TOKEN_MAX];
+static jtok_tkn_t tokens2[TOKEN_MAX];
 
 int main(void)
 {
@@ -49,30 +47,26 @@ int main(void)
     JTOK_PARSE_STATUS_t status;
     for (i = 0; i < max_i; i++)
     {
-        p1 = jtok_new_parser(true_cmp_table[i].json1);
-        p2 = jtok_new_parser(true_cmp_table[i].json2);
-        printf("\ncomparing %s and %s... ", true_cmp_table[i].json2,
-               true_cmp_table[i].json1);
+        const char *json1 = true_cmp_table[i].json1;
+        const char *json2 = true_cmp_table[i].json2;
 
-        status = jtok_parse(&p1, tokens1, TOKEN_MAX);
-        if (status != JTOK_PARSE_STATUS_PARSE_OK)
+        printf("\ncomparing %s and %s... ", json2, json1);
+
+        status = jtok_parse(json1, tokens1, TOKEN_MAX);
+        if (status != JTOK_PARSE_STATUS_OK)
         {
-            printf("parse of %s failed with status %d\n",
-                   true_cmp_table[i].json1, status);
+            printf("parse of %s failed with status %d\n", json1, status);
             return status;
         }
 
-        status = jtok_parse(&p2, tokens2, TOKEN_MAX);
-        if (status != JTOK_PARSE_STATUS_PARSE_OK)
+        status = jtok_parse(json2, tokens2, TOKEN_MAX);
+        if (status != JTOK_PARSE_STATUS_OK)
         {
-            printf("parse of %s failed with status %d\n",
-                   true_cmp_table[i].json2, status);
+            printf("parse of %s failed with status %d\n", json2, status);
             return status;
         }
 
-        jtok_tkn_t *obj1 = (jtok_tkn_t *)&tokens1[0];
-        jtok_tkn_t *obj2 = (jtok_tkn_t *)&tokens2[0];
-        if (jtok_toktokcmp(tokens1, obj1, tokens2, obj2))
+        if (jtok_toktokcmp(tokens1, tokens2))
         {
             printf("passed.\n");
             continue;

@@ -39,7 +39,6 @@ static const struct
     {.json = "{\"a\":1, \"b\":2}", .parent = {-1, 0, 1, 0, 3}},
 };
 
-static jtok_parser_t p;
 static jtok_tkn_t    tokens[TOKEN_MAX];
 int                  main(void)
 {
@@ -48,9 +47,10 @@ int                  main(void)
     unsigned long long max_i = sizeof(table) / sizeof(*table);
 
     for (i = 0; i < max_i; i++)
-    {
-        p = jtok_new_parser(table[i].json);
-        if (JTOK_PARSE_STATUS_PARSE_OK != jtok_parse(&p, tokens, TOKEN_MAX))
+    {   
+        JTOK_PARSE_STATUS_t status;
+        status = jtok_parse(table[i].json, tokens, TOKEN_MAX);
+        if (JTOK_PARSE_STATUS_OK != status)
         {
             printf("%s Failed json parsing!\n", table[i].json);
             return -1;

@@ -46,8 +46,7 @@ static const struct
 };
 
 
-static jtok_parser_t p;
-static jtok_tkn_t    tokens[TOKEN_MAX];
+static jtok_tkn_t tokens[TOKEN_MAX];
 
 int main(void)
 {
@@ -56,10 +55,10 @@ int main(void)
     unsigned long long max_i = sizeof(table) / sizeof(*table);
     for (i = 0; i < max_i; i++)
     {
-        p = jtok_new_parser(table[i].json);
         printf("\nChecking sibling tree status of %s ... ", table[i].json);
-        JTOK_PARSE_STATUS_t status = jtok_parse(&p, tokens, TOKEN_MAX);
-        if (status != JTOK_PARSE_STATUS_PARSE_OK)
+        JTOK_PARSE_STATUS_t status;
+        status = jtok_parse(table[i].json, tokens, TOKEN_MAX);
+        if (status != JTOK_PARSE_STATUS_OK)
         {
             printf("parse failed with status %d.\n", status);
             return 1;

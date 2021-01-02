@@ -35,7 +35,7 @@ typedef enum
 
 typedef enum
 {
-    JTOK_PARSE_STATUS_PARSE_OK,
+    JTOK_PARSE_STATUS_OK, /* Parsed successfully! */
 
     /* For errors that have not yet been classified in source code */
     JTOK_PARSE_STATUS_UNKNOWN_ERROR,
@@ -115,27 +115,20 @@ typedef enum
 } JTOK_VALUE_TYPE_t;
 
 
-/**
- * JTOK token description.
- * @param       json    json string into which the data structure inserts
- * @param       type    type (object, array, string etc.)
- * @param       start   start position in JTOK data string
- * @param       end     end position in JTOK data string
- * @param       size    number of sub-tokens that have this token as a parent
- * @param       parent  index of parent token in the token array
- * @param       sibling index of next sibling token in the token array.
- */
-typedef struct
+typedef struct jtok_tkn_struct jtok_tkn_t;
+struct jtok_tkn_struct
 {
 
-    char *      json;
-    JTOK_TYPE_t type;
-    int         start;
-    int         end;
-    int         size;
-    int         parent;
-    int         sibling;
-} jtok_tkn_t;
+    char *      json;    /* json string into which the data structure inserts */
+    jtok_tkn_t *pool;    /* Token pool */
+    JTOK_TYPE_t type;    /* type (object, array, string etc.) */
+    int         start;   /* start position in JTOK data string */
+    int         end;     /* end position in JTOK data string */
+    int         size;    /* number of child tokens */
+    int         parent;  /* index of parent token in the token pool */
+    int         sibling; /* index of next token that shares the same parent */
+};
+
 
 /**
  * JTOK parser. Contains an array of token blocks available. Also stores
@@ -143,36 +136,27 @@ typedef struct
  */
 typedef struct
 {
-    char *json;       /* ptr to start of json string */
-    int   json_len;   /* max length of json string   */
-    int   pos;        /* current parsing index in json string */
-    int   toknext;    /* index of next token to allocate */
-    int   toksuper;   /* superior token node, e.g parent object or array */
-    int   last_child; /* index of last sibling parsed */
+    char *       json;      /* ptr to start of json string */
+    jtok_tkn_t * tkn_pool;  /* token pool */
+    unsigned int pool_size; /* pool size */
+    int          json_len;  /* max length of json string   */
+    int          pos;       /* current parsing index in json string */
+    int          toknext;   /* index of next token to allocate */
+    int          toksuper; /* superior token node, e.g parent object or array */
+    int          last_child; /* index of last sibling parsed */
 } jtok_parser_t;
 
-/**
- * @brief construct jtok parser over and array of tokens
- *
- * @param json the json string that will be parsed
- * @return the constructed jtok parser
- *
- * @note json string must be nul-terminated!!
- */
-jtok_parser_t jtok_new_parser(const char *nul_terminated_json);
-
 
 /**
- * @brief Parse a jtok
+ * @brief Parse a json string into its JTOK token representation
  *
- * @param parser jtok parser
- * @param tokens array of jtoktok (provided by caller)
- * @param num_tokens max number of tokens to parse
- * @param final_idx pointer that is updated to the total number of tokens parsed
- * from the json on success
+ * @param json the json string to parse
+ * @param tokens the caller provided token pool
+ * @param tkn_pool_size number of tokens in the provided token pool
+ * @return JTOK_PARSE_STATUS_t the parse status. SUCCESS = JTOK_PARSE_STATUS_OK
  */
-JTOK_PARSE_STATUS_t jtok_parse(jtok_parser_t *parser, jtok_tkn_t *tokens,
-                               unsigned int num_tokens);
+JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tokens,
+                               unsigned int tkn_pool_size);
 
 
 /**
@@ -287,15 +271,12 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
 /**
  * @brief Compare two jtok tokens for equality
  *
- * @param pool1 pool of allocated tokens that contains tkn1
  * @param tkn1 first token
- * @param pool2 pool of allocated tokens that contains tkn2
  * @param tkn2 second token
  * @return true if tokens are equal
  * @return false if not equal
  */
-bool jtok_toktokcmp(const jtok_tkn_t *pool1, const jtok_tkn_t *tkn1,
-                    const jtok_tkn_t *pool2, const jtok_tkn_t *tkn2);
+bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
 
 
 #ifdef __cplusplus

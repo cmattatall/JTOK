@@ -89,8 +89,7 @@ static const struct
 };
 
 
-static jtok_tkn_t    tokens[TOKEN_MAX];
-static jtok_parser_t p;
+static jtok_tkn_t tokens[TOKEN_MAX];
 
 int main(void)
 {
@@ -99,11 +98,10 @@ int main(void)
     JTOK_PARSE_STATUS_t status;
     for (i = 0; i < max_i; i++)
     {
-        p = jtok_new_parser(true_table[i].json);
         printf("\nConfirming that %s has size %u... ", true_table[i].json,
                true_table[i].size);
-        status = jtok_parse(&p, tokens, TOKEN_MAX);
-        if (status != JTOK_PARSE_STATUS_PARSE_OK)
+        status = jtok_parse(true_table[i].json, tokens, TOKEN_MAX);
+        if (status != JTOK_PARSE_STATUS_OK)
         {
             printf("parse failed with status %d\n", status);
             return status;

@@ -95,9 +95,8 @@ static const char *invalidJSON[] = {
     "{\"\" : \"value\"}",
 };
 
-static jtok_parser_t p;
-static jtok_tkn_t    tokens[TOKEN_MAX];
-int                  main(void)
+static jtok_tkn_t tokens[TOKEN_MAX];
+int               main(void)
 {
     printf("\nTesting jtok parser against invalid jsons\n");
 
@@ -105,10 +104,10 @@ int                  main(void)
     unsigned int max_i = sizeof(invalidJSON) / sizeof(*invalidJSON);
     for (i = 0; i < max_i; i++)
     {
-        p = jtok_new_parser(invalidJSON[i]);
         printf("\n%s ... ", invalidJSON[i]);
-        JTOK_PARSE_STATUS_t status = jtok_parse(&p, tokens, TOKEN_MAX);
-        if (status == JTOK_PARSE_STATUS_PARSE_OK)
+        JTOK_PARSE_STATUS_t status;
+        status = jtok_parse(invalidJSON[i], tokens, TOKEN_MAX);
+        if (status == JTOK_PARSE_STATUS_OK)
         {
             printf("failed.\n");
             return 1;
