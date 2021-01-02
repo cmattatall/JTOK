@@ -7,7 +7,6 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @note
  */
 
 #include <assert.h>
@@ -20,14 +19,14 @@
 #include "jtok_shared.h"
 
 
-JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
-                                      size_t num_tokens)
+JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser)
 {
-    JTOK_PARSE_STATUS_t status = JTOK_PARSE_STATUS_PARSE_OK;
+    JTOK_PARSE_STATUS_t status = JTOK_PARSE_STATUS_OK;
 
-    int         start = parser->pos;
-    const char *json  = parser->json;
-    int         len   = parser->json_len;
+    int         start  = parser->pos;
+    const char *json   = parser->json;
+    int         len    = parser->json_len;
+    jtok_tkn_t *tokens = parser->tkn_pool;
     enum
     {
         OBJECT_KEY,
@@ -45,7 +44,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
         return JTOK_PARSE_STATUS_NON_OBJECT;
     }
 
-    jtok_tkn_t *token = jtok_alloc_token(parser, tokens, num_tokens);
+    jtok_tkn_t *token = jtok_alloc_token(parser);
     if (token == NULL)
     {
         /*
@@ -79,7 +78,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
     parser->last_child = NO_CHILD_IDX;
 
     for (; parser->pos < len && json[parser->pos] != '\0' &&
-           status == JTOK_PARSE_STATUS_PARSE_OK;
+           status == JTOK_PARSE_STATUS_OK;
          parser->pos++)
     {
         switch (json[parser->pos])
@@ -104,8 +103,8 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         int key_idx = parser->toksuper;
 
 
-                        status = jtok_parse_object(parser, tokens, num_tokens);
-                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                        status = jtok_parse_object(parser);
+                        if (status == JTOK_PARSE_STATUS_OK)
                         {
                             if (key_idx != NO_PARENT_IDX)
                             {
@@ -144,9 +143,9 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                     {
                         /* Index of key that "owns" the array */
                         int key_idx = parser->toksuper;
-                        status = jtok_parse_array(parser, tokens, num_tokens);
+                        status      = jtok_parse_array(parser);
 
-                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                        if (status == JTOK_PARSE_STATUS_OK)
                         {
                             if (key_idx != NO_PARENT_IDX)
                             {
@@ -285,9 +284,8 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         jtok_tkn_t *parent_obj = &tokens[parser->toksuper];
                         if (parent_obj->type == JTOK_OBJECT)
                         {
-                            status =
-                                jtok_parse_string(parser, tokens, num_tokens);
-                            if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                            status = jtok_parse_string(parser);
+                            if (status == JTOK_PARSE_STATUS_OK)
                             {
                                 if (parser->last_child != NO_CHILD_IDX)
                                 {
@@ -320,9 +318,8 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                             }
                             else
                             {
-                                status = jtok_parse_string(parser, tokens,
-                                                           num_tokens);
-                                if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                                status = jtok_parse_string(parser);
+                                if (status == JTOK_PARSE_STATUS_OK)
                                 {
                                     key_tkn->size++;
                                 }
@@ -442,11 +439,10 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         break;
                     }
 
-                    if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                    if (status == JTOK_PARSE_STATUS_OK)
                     {
-                        status =
-                            jtok_parse_primitive(parser, tokens, num_tokens);
-                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                        status = jtok_parse_primitive(parser);
+                        if (status == JTOK_PARSE_STATUS_OK)
                         {
                             if (parser->toksuper != NO_PARENT_IDX)
                             {
@@ -473,7 +469,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
         } /* end of character switch statement */
     }
 
-    if (status == JTOK_PARSE_STATUS_PARSE_OK)
+    if (status == JTOK_PARSE_STATUS_OK)
     {
         /* If we didnt find the } to close current object, we have partial JSON
          */
@@ -485,11 +481,30 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
 }
 
 
-bool jtok_toktokcmp_object(const jtok_tkn_t *pool1, const jtok_tkn_t *obj1,
-                           const jtok_tkn_t *pool2, const jtok_tkn_t *obj2)
+bool jtok_toktokcmp_object(const jtok_tkn_t *obj1, const jtok_tkn_t *obj2)
 {
+    const jtok_tkn_t *const pool1 = obj1->pool;
+    assert(pool1 != NULL);
     assert(pool1->type == JTOK_OBJECT);
+    assert(pool1->json == obj1->json);
+    if (pool1 != obj1)
+    {
+        /* Greater than 1 because if it's non-empty, it must AT LEAST
+         * have a key inside it as well as the value for that key */
+        assert(pool1->size > 1);
+    }
+
+    const jtok_tkn_t *const pool2 = obj2->pool;
+    assert(pool2 != NULL);
     assert(pool2->type == JTOK_OBJECT);
+    assert(pool2->json == obj2->json);
+    if (pool2 != obj2)
+    {
+        /* Greater than 1 because if it's non-empty, it must AT LEAST
+         * have a key inside it as well as the value for that key */
+        assert(pool2->size > 1);
+    }
+
 
     bool is_equal = true;
     if (obj1->type != JTOK_OBJECT || obj2->type != JTOK_OBJECT)
@@ -524,12 +539,12 @@ bool jtok_toktokcmp_object(const jtok_tkn_t *pool1, const jtok_tkn_t *obj1,
                 /* Try to find matching key in second object */
                 for (j = 0; j < obj2->size && is_equal; j++)
                 {
-                    if (jtok_toktokcmp(pool1, child1, pool2, child2))
+                    if (jtok_toktokcmp(child1, child2))
                     {
                         /* If key matches, compare values */
                         jtok_tkn_t *val1 = &child1[1];
                         jtok_tkn_t *val2 = &child2[1];
-                        if (jtok_toktokcmp(pool1, val1, pool2, val2))
+                        if (jtok_toktokcmp(val1, val2))
                         {
                             /* value of key in obj1 matches value of key in obj2
                              * exit search loop for key in obj2 */

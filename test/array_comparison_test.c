@@ -7,7 +7,7 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @note
+ *
  */
 #include <stdio.h>
 
@@ -21,16 +21,17 @@ static struct
     char json1[250];
     char json2[250];
 } true_cmp_table[] = {
+    {.json1 = "{\"arr\":[{}, {}, {\"keyInObjectInArray\": \"valueInObjectInArray\"}}]}", .json2 = "{\"arr\":[{}, {}, {\"keyInObjectInArray\": \"valueInObjectInArray\"}]}"},
+
+
     {.json1 = "{\"arr\":[1,2,3]}", .json2 = "{\"arr\":[1,2,3]}"},
     {.json1 = "{\"arr\":[true, false, true, null]}", .json2 = "{\"arr\":[true, false, true, null]}"},
-    {.json1 = "{\"arr\":[{}, {}, {\"keyInObjectInArray\": \"valueInObjectInArray\"}}]}", .json2 = "{\"arr\":[{}, {}, {\"keyInObjectInArray\": \"valueInObjectInArray\"}]}"},
+    
 };
 /* clang-format on */
 
-static jtok_tkn_t    tokens1[TOKEN_MAX];
-static jtok_tkn_t    tokens2[TOKEN_MAX];
-static jtok_parser_t p1;
-static jtok_parser_t p2;
+static jtok_tkn_t tokens1[TOKEN_MAX];
+static jtok_tkn_t tokens2[TOKEN_MAX];
 
 int main(void)
 {
@@ -40,21 +41,19 @@ int main(void)
     JTOK_PARSE_STATUS_t status;
     for (i = 0; i < max_i; i++)
     {
-        p1 = jtok_new_parser(true_cmp_table[i].json1);
-        p2 = jtok_new_parser(true_cmp_table[i].json2);
         printf("\ncomparing %s and %s... ", true_cmp_table[i].json2,
                true_cmp_table[i].json1);
 
-        status = jtok_parse(&p1, tokens1, TOKEN_MAX);
-        if (status != JTOK_PARSE_STATUS_PARSE_OK)
+        status = jtok_parse(true_cmp_table[i].json1, tokens1, TOKEN_MAX);
+        if (status != JTOK_PARSE_STATUS_OK)
         {
             printf("parse of %s failed with status %d\n",
                    true_cmp_table[i].json1, status);
             return status;
         }
 
-        status = jtok_parse(&p2, tokens2, TOKEN_MAX);
-        if (status != JTOK_PARSE_STATUS_PARSE_OK)
+        status = jtok_parse(true_cmp_table[i].json2, tokens2, TOKEN_MAX);
+        if (status != JTOK_PARSE_STATUS_OK)
         {
             printf("parse of %s failed with status %d\n",
                    true_cmp_table[i].json2, status);
@@ -63,7 +62,7 @@ int main(void)
 
         jtok_tkn_t *arr1 = (jtok_tkn_t *)&tokens1[0];
         jtok_tkn_t *arr2 = (jtok_tkn_t *)&tokens2[0];
-        if (jtok_toktokcmp(arr1, tokens1, arr2, tokens2))
+        if (jtok_toktokcmp(arr1, arr2))
         {
             printf("passed.\n");
             continue;

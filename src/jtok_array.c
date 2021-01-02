@@ -7,7 +7,6 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @note
  */
 
 #include <assert.h>
@@ -19,15 +18,14 @@
 #include "jtok_primitive.h"
 
 
-JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
-                                     size_t num_tokens)
+JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser)
 {
-    JTOK_PARSE_STATUS_t status = JTOK_PARSE_STATUS_PARSE_OK;
-    unsigned int        start  = parser->pos;
-    const char *        json   = parser->json;
-
-    bool        element_type_found = false;
-    JTOK_TYPE_t element_type       = JTOK_UNASSIGNED_TOKEN;
+    JTOK_PARSE_STATUS_t status             = JTOK_PARSE_STATUS_OK;
+    jtok_tkn_t *        tokens             = parser->tkn_pool;
+    unsigned int        start              = parser->pos;
+    const char *        json               = parser->json;
+    bool                element_type_found = false;
+    JTOK_TYPE_t         element_type       = JTOK_UNASSIGNED_TOKEN;
     enum
     {
         ARRAY_START,
@@ -40,7 +38,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
         return JTOK_PARSE_STATUS_NON_ARRAY;
     }
 
-    jtok_tkn_t *token = jtok_alloc_token(parser, tokens, num_tokens);
+    jtok_tkn_t *token = jtok_alloc_token(parser);
     if (token == NULL)
     {
         /*
@@ -71,7 +69,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
     parser->last_child = NO_CHILD_IDX;
 
     for (; parser->pos < parser->json_len && json[parser->pos] != '\0' &&
-           status == JTOK_PARSE_STATUS_PARSE_OK;
+           status == JTOK_PARSE_STATUS_OK;
          parser->pos++)
     {
         switch (json[parser->pos])
@@ -97,8 +95,8 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         }
 
                         int parent_array_idx = parser->toksuper;
-                        status = jtok_parse_object(parser, tokens, num_tokens);
-                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                        status               = jtok_parse_object(parser);
+                        if (status == JTOK_PARSE_STATUS_OK)
                         {
                             if (parser->last_child != NO_CHILD_IDX)
                             {
@@ -152,8 +150,8 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         }
 
                         int parent_array_idx = parser->toksuper;
-                        status = jtok_parse_array(parser, tokens, num_tokens);
-                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                        status               = jtok_parse_array(parser);
+                        if (status == JTOK_PARSE_STATUS_OK)
                         {
                             if (parser->last_child != NO_CHILD_IDX)
                             {
@@ -239,8 +237,8 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         }
 
                         int super = parser->toksuper;
-                        status = jtok_parse_string(parser, tokens, num_tokens);
-                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                        status    = jtok_parse_string(parser);
+                        if (status == JTOK_PARSE_STATUS_OK)
                         {
                             if (parser->last_child != NO_CHILD_IDX)
                             {
@@ -335,12 +333,11 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
                             element_type       = JTOK_PRIMITIVE;
                         }
 
-                        if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                        if (status == JTOK_PARSE_STATUS_OK)
                         {
                             int super = parser->toksuper;
-                            status    = jtok_parse_primitive(parser, tokens,
-                                                          num_tokens);
-                            if (status == JTOK_PARSE_STATUS_PARSE_OK)
+                            status    = jtok_parse_primitive(parser);
+                            if (status == JTOK_PARSE_STATUS_OK)
                             {
                                 if (parser->last_child != NO_CHILD_IDX)
                                 {
@@ -380,7 +377,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
         }
     }
 
-    if (status == JTOK_PARSE_STATUS_PARSE_OK)
+    if (status == JTOK_PARSE_STATUS_OK)
     {
         parser->pos = start;
         status      = JTOK_PARSE_STATUS_PARTIAL_TOKEN;
@@ -390,10 +387,11 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, jtok_tkn_t *tokens,
 }
 
 
-bool jtok_toktokcmp_array(const jtok_tkn_t *pool1, const jtok_tkn_t *arr1,
-                          const jtok_tkn_t *pool2, const jtok_tkn_t *arr2)
+bool jtok_toktokcmp_array(const jtok_tkn_t *arr1, const jtok_tkn_t *arr2)
 {
-    bool is_equal = true;
+    bool              is_equal = true;
+    const jtok_tkn_t * const pool1    = arr1->pool;
+    const jtok_tkn_t * const pool2    = arr2->pool;
     assert(pool1->type == JTOK_OBJECT);
     assert(pool2->type == JTOK_OBJECT);
     if (arr1->type != JTOK_ARRAY || arr2->type != JTOK_ARRAY)
@@ -418,7 +416,7 @@ bool jtok_toktokcmp_array(const jtok_tkn_t *pool1, const jtok_tkn_t *arr1,
                 /* Check that the Ith element of
                  * first array is equal to Ith
                  * eleemnt of second array */
-                if (!jtok_toktokcmp(pool1, child1, pool2, child2))
+                if (!jtok_toktokcmp(child1, child2))
                 {
                     is_equal = false;
                 }

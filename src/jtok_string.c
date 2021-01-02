@@ -7,7 +7,7 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @note
+ *
  */
 
 #include <ctype.h>
@@ -17,18 +17,17 @@
 #include "jtok_shared.h"
 
 
-JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtok_tkn_t *tokens,
-                                      size_t num_tokens)
+JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser)
 {
     jtok_tkn_t *token;
+    jtok_tkn_t *tokens = parser->tkn_pool;
     int         start;
     char *      js  = parser->json;
     int         len = parser->json_len;
     if (js[parser->pos] == '\"')
     {
-        parser->pos++; /* advance to inside of quotes */
-        start =
-            parser->pos; /* token start is first character after the quote */
+        parser->pos++;       /* advance to inside of quotes */
+        start = parser->pos; /* first character after the quote */
         for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
         {
             /* Quote: end of string */
@@ -42,7 +41,7 @@ JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtok_tkn_t *tokens,
                         return JTOK_PARSE_STATUS_EMPTY_KEY;
                     }
                 }
-                token = jtok_alloc_token(parser, tokens, num_tokens);
+                token = jtok_alloc_token(parser);
                 if (token == NULL)
                 {
                     parser->pos = start;
@@ -50,7 +49,7 @@ JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtok_tkn_t *tokens,
                 }
                 jtok_fill_token(token, JTOK_STRING, start, parser->pos);
                 token->parent = parser->toksuper;
-                return JTOK_PARSE_STATUS_PARSE_OK;
+                return JTOK_PARSE_STATUS_OK;
             }
 
             if (js[parser->pos] == '\\')

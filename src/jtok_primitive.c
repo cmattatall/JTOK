@@ -7,7 +7,6 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @note
  */
 
 #include <ctype.h>
@@ -20,8 +19,7 @@
 #include "jtok_shared.h"
 
 
-JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
-                                         jtok_tkn_t *tokens, size_t num_tokens)
+JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser)
 {
     jtok_tkn_t *token;
     int         start = parser->pos;
@@ -197,7 +195,7 @@ JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
                     return JTOK_PARSE_STATUS_INVALID_PRIMITIVE;
                 }
 
-                token = jtok_alloc_token(parser, tokens, num_tokens);
+                token = jtok_alloc_token(parser);
                 if (token == NULL) /* not enough tokens provided by caller */
                 {
                     parser->pos = start;
@@ -215,7 +213,7 @@ JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
                  * higher level object in the given example)
                  */
                 parser->pos--;
-                return JTOK_PARSE_STATUS_PARSE_OK;
+                return JTOK_PARSE_STATUS_OK;
             }
             break;
             default:

@@ -74,13 +74,21 @@ if(BUILD_TESTING)
     add_subdirectory(test)
 else()
     if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-        target_compile_options(${LIB} PRIVATE "-Wall")
-        target_compile_options(${LIB} PRIVATE "-Wextra")
+
         enable_testing()
         include(CTest)
         add_subdirectory(test)
     endif()
 endif()
+
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    target_compile_options(${LIB} PRIVATE "-Wall")
+    target_compile_options(${LIB} PRIVATE "-Wextra")
+    target_compile_options(${LIB} PRIVATE "-Wshadow")
+else()
+    target_compile_options(${LIB} PRIVATE "-Wno-unused-function")
+endif(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 
 ################################################################################

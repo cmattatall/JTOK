@@ -25,8 +25,7 @@ extern "C"
  * @param num_tokens
  * @return jtok_tkn_t*
  */
-jtok_tkn_t *jtok_alloc_token(jtok_parser_t *parser, jtok_tkn_t *tokens,
-                             int num_tokens);
+jtok_tkn_t *jtok_alloc_token(jtok_parser_t *parser);
 
 /**
  * @brief Fill jtok_token type and boundaries

@@ -16,22 +16,15 @@ extern "C"
  * recursing into sub-objects
  *
  * @param parser the json parser
- * @param tokens token array (caller provided)
- * @param num_tokens max number of tokens to parser
  * @return JTOK_PARSE_STATUS_t parser status
- *
-
  */
-JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
-                                      size_t num_tokens);
+JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser);
 
 
 /**
  * @brief Compare token objects for equality
  *
- * @param pool1 pool of allocated tokens (must contain obj1)
  * @param tkn1 first object
- * @param pool2 pool of allocated tokens (must contain obj2)
  * @param tkn2 second object
  * @return true if equal
  * @return false if ont equal
@@ -39,8 +32,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, jtok_tkn_t *tokens,
  * @note Objects are equal if all of their children are equal.
  *       This does not mean the children are ordered the same.
  */
-bool jtok_toktokcmp_object(const jtok_tkn_t *pool1, const jtok_tkn_t *obj1,
-                           const jtok_tkn_t *pool2, const jtok_tkn_t *obj2);
+bool jtok_toktokcmp_object(const jtok_tkn_t *obj1, const jtok_tkn_t *obj2);
 
 
 #ifdef __cplusplus

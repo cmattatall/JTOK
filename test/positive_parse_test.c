@@ -8,12 +8,14 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @note
+ *
  */
 #include <stdio.h>
 #include <string.h>
 
 #include "jtok.h"
+
+#define TKN_CNT 200
 
 static const char *validJSON[] = {
 
@@ -108,7 +110,7 @@ static const char *validJSON[] = {
 
 };
 
-static jtok_tkn_t tokens[200];
+static jtok_tkn_t tokens[TKN_CNT];
 int               main(void)
 {
     unsigned long long i;
@@ -116,11 +118,10 @@ int               main(void)
     printf("\nTesting jtok parser against valid jsons\n");
     for (i = 0; i < max_i; i++)
     {
-        jtok_parser_t p = jtok_new_parser(validJSON[i]);
         printf("\n%s ... ", validJSON[i]);
-        JTOK_PARSE_STATUS_t status =
-            jtok_parse(&p, tokens, sizeof(tokens) / sizeof(*tokens));
-        if (status != JTOK_PARSE_STATUS_PARSE_OK)
+        JTOK_PARSE_STATUS_t status;
+        status = jtok_parse(validJSON[i], tokens, TKN_CNT);
+        if (status != JTOK_PARSE_STATUS_OK)
         {
             printf("failed with status %d.\n", status);
             return 1;

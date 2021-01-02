@@ -15,12 +15,9 @@ extern "C"
  * @brief Parse and fill next available jtok token as a jtok primitive
  *
  * @param parser the json parser
- * @param tokens token array (caller provided)
- * @param num_tokens max number of tokens to parse
  * @return JTOK_PARSE_STATUS_t parse status
  */
-JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser,
-                                         jtok_tkn_t *tokens, size_t num_tokens);
+JTOK_PARSE_STATUS_t jtok_parse_primitive(jtok_parser_t *parser);
 
 /**
  * @brief Compare two jtok tokens with type JTOK_PRIMITIVE for equality

@@ -13,12 +13,9 @@ extern "C"
  * @brief Parse and fill next available jtok token as a jtok string
  *
  * @param parser the jtok parser
- * @param tokens token array (caller provided)
- * @param num_tokens max number of tokens to parse
  * @return JTOK_PARSE_STATUS_t parse status
  */
-JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser, jtok_tkn_t *tokens,
-                                      size_t num_tokens);
+JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser);
 
 
 /**

@@ -8,7 +8,7 @@
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
- * @note
+ *
  */
 #include <stdio.h>
 
@@ -44,18 +44,17 @@ static const char *valid_jsons[] = {
     "{\"key\\n\\n\\b\":\n[\n]\n}",
 };
 
-static jtok_parser_t p;
-static jtok_tkn_t    tokens[TOKEN_MAX];
-int                  main(void)
+static jtok_tkn_t tokens[TOKEN_MAX];
+int               main(void)
 {
     unsigned long long i;
     unsigned long long max_i = sizeof(valid_jsons) / sizeof(*valid_jsons);
     for (i = 0; i < max_i; i++)
     {
-        p = jtok_new_parser(valid_jsons[i]);
         printf("\n%s ... ", valid_jsons[i]);
-        JTOK_PARSE_STATUS_t status = jtok_parse(&p, tokens, TOKEN_MAX);
-        if (status != JTOK_PARSE_STATUS_PARSE_OK)
+        JTOK_PARSE_STATUS_t status;
+        status = jtok_parse(valid_jsons[i], tokens, TOKEN_MAX);
+        if (status != JTOK_PARSE_STATUS_OK)
         {
             printf("failed with status %d.\n", status);
             return 1;
