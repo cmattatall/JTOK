@@ -23,6 +23,8 @@
 #include "jtok_string.h"
 #include "jtok_shared.h"
 
+typedef bool (*tkn_comparison_func)(const jtok_tkn_t *const,
+                                    const jtok_tkn_t *const);
 
 static jtok_parser_t jtok_new_parser(const char *json_str, jtok_tkn_t *tokens,
                                      unsigned int poolsize);
@@ -56,7 +58,7 @@ char *jtok_toktypename(JTOK_TYPE_t type)
     return retval;
 }
 
-static const bool (*tokcmp_funcs[])(const jtok_tkn_t *, const jtok_tkn_t *) = {
+static const tkn_comparison_func tokcmp_funcs[] = {
     [JTOK_PRIMITIVE] = jtok_toktokcmp_primitive,
     [JTOK_OBJECT]    = jtok_toktokcmp_object,
     [JTOK_ARRAY]     = jtok_toktokcmp_array,
@@ -361,26 +363,27 @@ int jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str)
         jtok_tkn_t *key_tkn;
         if (obj->size > 0)
         {
-            key_tkn = obj + 1;
-        }
-        for (i = 0; i < obj->size; i++)
-        {
-            /* If size is nonzero, first key of object will be RIGHT AFTER */
-            if (jtok_tokcmp(key_str, key_tkn))
+            key_tkn = (jtok_tkn_t *)(obj + 1);
+            for (i = 0; i < (size_t)obj->size; i++)
             {
-                key_idx = key_tkn - tkns;
-                key_idx = key_idx / sizeof(*key_tkn);
-                break;
-            }
-            else
-            {
-                if (key_tkn->sibling != NO_SIBLING_IDX)
+                /* If size is nonzero, first key of object will be RIGHT AFTER
+                 */
+                if (jtok_tokcmp(key_str, key_tkn))
                 {
-                    key_tkn = &tkns[key_tkn->sibling];
+                    key_idx = key_tkn - tkns;
+                    key_idx = key_idx / sizeof(*key_tkn);
+                    break;
                 }
                 else
                 {
-                    break;
+                    if (key_tkn->sibling != NO_SIBLING_IDX)
+                    {
+                        key_tkn = &tkns[key_tkn->sibling];
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
         }
