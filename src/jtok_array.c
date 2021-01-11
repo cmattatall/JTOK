@@ -17,8 +17,7 @@
 #include "jtok_string.h"
 #include "jtok_primitive.h"
 
-
-JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser)
+JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, int depth)
 {
     JTOK_PARSE_STATUS_t status             = JTOK_PARSE_STATUS_OK;
     jtok_tkn_t *        tokens             = parser->tkn_pool;
@@ -32,6 +31,12 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser)
         ARRAY_VALUE,
         ARRAY_COMMA
     } expecting = ARRAY_START;
+
+    if (depth > JTOK_MAX_RECURSE_DEPTH)
+    {
+        status = JTOK_PARSE_STATUS_NEST_DEPTH_EXCEEDED;
+        return status;
+    }
 
     if (json[parser->pos] != '[')
     {
@@ -95,7 +100,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser)
                         }
 
                         int parent_array_idx = parser->toksuper;
-                        status               = jtok_parse_object(parser);
+                        status = jtok_parse_object(parser, depth + 1);
                         if (status == JTOK_PARSE_STATUS_OK)
                         {
                             if (parser->last_child != NO_CHILD_IDX)
@@ -150,7 +155,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser)
                         }
 
                         int parent_array_idx = parser->toksuper;
-                        status               = jtok_parse_array(parser);
+                        status = jtok_parse_array(parser, depth + 1);
                         if (status == JTOK_PARSE_STATUS_OK)
                         {
                             if (parser->last_child != NO_CHILD_IDX)
@@ -389,9 +394,9 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser)
 
 bool jtok_toktokcmp_array(const jtok_tkn_t *arr1, const jtok_tkn_t *arr2)
 {
-    bool              is_equal = true;
-    const jtok_tkn_t * const pool1    = arr1->pool;
-    const jtok_tkn_t * const pool2    = arr2->pool;
+    bool                    is_equal = true;
+    const jtok_tkn_t *const pool1    = arr1->pool;
+    const jtok_tkn_t *const pool2    = arr2->pool;
     assert(pool1->type == JTOK_OBJECT);
     assert(pool2->type == JTOK_OBJECT);
     if (arr1->type != JTOK_ARRAY || arr2->type != JTOK_ARRAY)

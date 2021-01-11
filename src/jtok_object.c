@@ -19,7 +19,7 @@
 #include "jtok_shared.h"
 
 
-JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser)
+JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, int depth)
 {
     JTOK_PARSE_STATUS_t status = JTOK_PARSE_STATUS_OK;
 
@@ -27,6 +27,13 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser)
     const char *json   = parser->json;
     int         len    = parser->json_len;
     jtok_tkn_t *tokens = parser->tkn_pool;
+
+    if (depth > JTOK_MAX_RECURSE_DEPTH)
+    {
+        status = JTOK_PARSE_STATUS_NEST_DEPTH_EXCEEDED;
+        return status;
+    }
+
     enum
     {
         OBJECT_KEY,
@@ -103,7 +110,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser)
                         int key_idx = parser->toksuper;
 
 
-                        status = jtok_parse_object(parser);
+                        status = jtok_parse_object(parser, depth + 1);
                         if (status == JTOK_PARSE_STATUS_OK)
                         {
                             if (key_idx != NO_PARENT_IDX)
@@ -143,7 +150,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser)
                     {
                         /* Index of key that "owns" the array */
                         int key_idx = parser->toksuper;
-                        status      = jtok_parse_array(parser);
+                        status      = jtok_parse_array(parser, depth + 1);
 
                         if (status == JTOK_PARSE_STATUS_OK)
                         {

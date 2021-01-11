@@ -17,6 +17,8 @@ extern "C" {
 #define NO_CHILD_IDX (INVALID_ARRAY_INDEX)
 #define JTOK_STRING_INDEX_NONE (INVALID_ARRAY_INDEX)
 
+#define JTOK_MAX_RECURSE_DEPTH 25
+
 /**
  * JTOK type identifier. Basic types are:
  *  - Object
@@ -99,6 +101,9 @@ typedef enum
 
     /* eg {"" : "value"} */
     JTOK_PARSE_STATUS_EMPTY_KEY,
+
+    JTOK_PARSE_STATUS_NEST_DEPTH_EXCEEDED,
+
 } JTOK_PARSE_STATUS_t;
 
 

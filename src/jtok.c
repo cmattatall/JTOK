@@ -295,7 +295,7 @@ JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tkns, size_t size)
     {
         parser.pos++;
     }
-    return jtok_parse_object(&parser);
+    return jtok_parse_object(&parser, 0);
 }
 
 

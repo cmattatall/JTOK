@@ -14,9 +14,10 @@ extern "C"
  * recursing into sub-objects
  *
  * @param parser the json parser
+ * @param depth the parse nesting depth
  * @return JTOK_PARSE_STATUS_t parser status
  */
-JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser);
+JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, int depth);
 
 /**
  * @brief Compare two jtok tokens with type JTOK_ARRAY for equality
