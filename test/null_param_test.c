@@ -17,7 +17,7 @@ static jtok_tkn_t tokens[TOKEN_COUNT];
 
 int main(void)
 {
-    if (jtok_parse(NULL, tokens, TOKEN_COUNT) == JTOK_PARSE_STATUS_OK)
+    if (jtok_parse(NULL, tokens, TOKEN_COUNT) != JTOK_PARSE_STATUS_NULL_PARAM)
     {
         return 1;
     }

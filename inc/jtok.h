@@ -37,13 +37,17 @@ typedef enum
 
 typedef enum
 {
-    JTOK_PARSE_STATUS_OK, /* Parsed successfully! */
+    /* Parsed successfully! */
+    JTOK_PARSE_STATUS_OK,
 
     /* For errors that have not yet been classified in source code */
     JTOK_PARSE_STATUS_UNKNOWN_ERROR,
 
     /* Not enough tokens were provided */
     JTOK_PARSE_STATUS_NOMEM,
+
+    /* Caller passed null parameter */
+    JTOK_PARSE_STATUS_NULL_PARAM,
 
     /* Invalid character inside JTOK string */
     JTOK_PARSE_STATUS_INVAL,
