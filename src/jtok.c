@@ -293,6 +293,14 @@ JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tkns, size_t size)
     {
         status = JTOK_PARSE_STATUS_NULL_PARAM;
     }
+    else if (tkns == NULL)
+    {
+        status = JTOK_PARSE_STATUS_NULL_PARAM;
+    }
+    else if (size < 1)
+    {
+        status = JTOK_PARSE_STATUS_NOMEM;
+    }
     else
     {
         jtok_parser_t parser = jtok_new_parser(json, tkns, size);

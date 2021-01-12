@@ -21,5 +21,10 @@ int main(void)
     {
         return 1;
     }
+
+    if (jtok_parse("{\"key\" 1}", NULL, TOKEN_COUNT) != JTOK_PARSE_STATUS_NULL_PARAM)
+    {
+        return 1;
+    }
     return 0;
 }
