@@ -44,18 +44,8 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, int depth)
     }
 
     jtok_tkn_t *token = jtok_alloc_token(parser);
-    if (token == NULL)
-    {
-        /*
-         * Do not reset parser->pos because we want
-         * caller to see which token maxed out the
-         * pool
-         */
-        status = JTOK_PARSE_STATUS_NOMEM;
-    }
-
-    token->parent    = parser->toksuper;
-    parser->toksuper = parser->toknext - 1;
+    token->parent     = parser->toksuper;
+    parser->toksuper  = parser->toknext - 1;
 
     /* Index of current top level token is the current superior token */
     /* We need to preserve the index of top level token in the currenet
