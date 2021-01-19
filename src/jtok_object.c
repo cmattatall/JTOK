@@ -60,6 +60,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, int depth)
          * pool
          */
         status = JTOK_PARSE_STATUS_NOMEM;
+        return status;
     }
 
     /* If the object has a parent key, increase that key's size */
