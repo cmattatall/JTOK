@@ -346,8 +346,8 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
                          jtok_toktypename(token.type));
 
 #ifdef DEBUG
-        blen += snprintf(buf + blen, size - blen, "start : %u\n", token.start);
-        blen += snprintf(buf + blen, size - blen, "end : %u\n", token.end);
+        blen += snprintf(buf + blen, size - blen, "start : %d\n", token.start);
+        blen += snprintf(buf + blen, size - blen, "end : %d\n", token.end);
 #endif /* ifdef DEBUG */
 
         return blen;
