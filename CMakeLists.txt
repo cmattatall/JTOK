@@ -11,6 +11,7 @@ project(
     DESCRIPTION "STATIC JSON LIBRARY FOR EMBEDDED SYSTEMS. BASED ON JSMN"
     LANGUAGES C
 )
+set(CURRENT_TARGET ${PROJECT_NAME})
 
 ################################################################################
 # BUILD TYPE STUFF
@@ -30,39 +31,39 @@ set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${SUPPORTED_BUILD_TYPES})
 ################################################################################
 # DETECT SOURCES RECURSIVELY FROM src FOLDER AND ADD TO BUILD TARGET
 ################################################################################
-set(LIB "${PROJECT_NAME}") # this is PROJECT_NAME, NOT CMAKE_PROJECT_NAME
-message("CONFIGURING TARGET : ${LIB}")
-add_library(${LIB})
+set(CURRENT_TARGET "${PROJECT_NAME}") # this is PROJECT_NAME, NOT CMAKE_PROJECT_NAME
+message("CONFIGURING TARGET : ${CURRENT_TARGET}")
+add_library(${CURRENT_TARGET})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-file(GLOB_RECURSE ${LIB}_sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
-target_sources(${LIB} PRIVATE ${${LIB}_sources})
+file(GLOB_RECURSE ${CURRENT_TARGET}_sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+target_sources(${CURRENT_TARGET} PRIVATE ${${CURRENT_TARGET}_sources})
 
 
 ################################################################################
 # DETECT PRIVATE HEADERS RECURSIVELY FROM src FOLDER
 ################################################################################
-file(GLOB_RECURSE ${LIB}_private_headers "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
-set(${LIB}_private_include_directories "")
-foreach(hdr ${${LIB}_private_headers})
+file(GLOB_RECURSE ${CURRENT_TARGET}_private_headers "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
+set(${CURRENT_TARGET}_private_include_directories "")
+foreach(hdr ${${CURRENT_TARGET}_private_headers})
     get_filename_component(hdr_dir ${hdr} DIRECTORY)
-    list(APPEND ${LIB}_private_include_directories ${hdr_dir})
-endforeach(hdr ${${LIB}_private_headers})
-list(REMOVE_DUPLICATES ${LIB}_private_include_directories)
-target_include_directories(${LIB} PRIVATE ${${LIB}_private_include_directories})
+    list(APPEND ${CURRENT_TARGET}_private_include_directories ${hdr_dir})
+endforeach(hdr ${${CURRENT_TARGET}_private_headers})
+list(REMOVE_DUPLICATES ${CURRENT_TARGET}_private_include_directories)
+target_include_directories(${CURRENT_TARGET} PRIVATE ${${CURRENT_TARGET}_private_include_directories})
 
 
 
 ################################################################################
 # DETECT PUBLIC HEADERS RECURSIVELY FROM inc FOLDER
 ################################################################################
-file(GLOB_RECURSE ${LIB}_public_headers "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h")
-set(${LIB}_public_include_directories "")
-foreach(hdr ${${LIB}_public_headers})
+file(GLOB_RECURSE ${CURRENT_TARGET}_public_headers "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h")
+set(${CURRENT_TARGET}_public_include_directories "")
+foreach(hdr ${${CURRENT_TARGET}_public_headers})
     get_filename_component(hdr_dir ${hdr} DIRECTORY)
-    list(APPEND ${LIB}_public_include_directories ${hdr_dir})
-endforeach(hdr ${${LIB}_public_headers})
-list(REMOVE_DUPLICATES ${LIB}_public_include_directories)
-target_include_directories(${LIB} PUBLIC ${${LIB}_public_include_directories})
+    list(APPEND ${CURRENT_TARGET}_public_include_directories ${hdr_dir})
+endforeach(hdr ${${CURRENT_TARGET}_public_headers})
+list(REMOVE_DUPLICATES ${CURRENT_TARGET}_public_include_directories)
+target_include_directories(${CURRENT_TARGET} PUBLIC ${${CURRENT_TARGET}_public_include_directories})
 
 
 ################################################################################
@@ -83,11 +84,11 @@ endif()
 
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    target_compile_options(${LIB} PRIVATE "-Wall")
-    target_compile_options(${LIB} PRIVATE "-Wextra")
-    target_compile_options(${LIB} PRIVATE "-Wshadow")
+    target_compile_options(${CURRENT_TARGET} PRIVATE "-Wall")
+    target_compile_options(${CURRENT_TARGET} PRIVATE "-Wextra")
+    target_compile_options(${CURRENT_TARGET} PRIVATE "-Wshadow")
 else()
-    target_compile_options(${LIB} PRIVATE "-Wno-unused-function")
+    target_compile_options(${CURRENT_TARGET} PRIVATE "-Wno-unused-function")
 endif(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 
