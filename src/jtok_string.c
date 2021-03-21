@@ -24,32 +24,40 @@ JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser)
     int         start;
     char *      js  = parser->json;
     int         len = parser->json_len;
-    if (js[parser->pos] == '\"')
+    if (js[parser->pos] == '\"' || js[parser->pos] == '\'')
     {
+        char start_char = js[parser->pos];
         parser->pos++;       /* advance to inside of quotes */
         start = parser->pos; /* first character after the quote */
         for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
         {
             /* Quote: end of string */
-            if (js[parser->pos] == '\"')
+            if (js[parser->pos] == '\"' || js[parser->pos] == '\'')
             {
-                if (parser->pos == start)
+                if (start_char == js[parser->pos])
                 {
-                    token = &tokens[parser->toksuper];
-                    if (token->type != JTOK_STRING)
+                    if (parser->pos == start)
                     {
-                        return JTOK_PARSE_STATUS_EMPTY_KEY;
+                        token = &tokens[parser->toksuper];
+                        if (token->type != JTOK_STRING)
+                        {
+                            return JTOK_PARSE_STATUS_EMPTY_KEY;
+                        }
                     }
+                    token = jtok_alloc_token(parser);
+                    if (token == NULL)
+                    {
+                        parser->pos = start;
+                        return JTOK_PARSE_STATUS_NOMEM;
+                    }
+                    jtok_fill_token(token, JTOK_STRING, start, parser->pos);
+                    token->parent = parser->toksuper;
+                    return JTOK_PARSE_STATUS_OK;
                 }
-                token = jtok_alloc_token(parser);
-                if (token == NULL)
+                else
                 {
-                    parser->pos = start;
-                    return JTOK_PARSE_STATUS_NOMEM;
+                    return JTOK_PARSE_STATUS_BAD_STRING;
                 }
-                jtok_fill_token(token, JTOK_STRING, start, parser->pos);
-                token->parent = parser->toksuper;
-                return JTOK_PARSE_STATUS_OK;
             }
 
             if (js[parser->pos] == '\\')

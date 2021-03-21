@@ -284,6 +284,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, int depth)
             }
             break;
             case '\"':
+            case '\'':
             {
                 switch (expecting)
                 {

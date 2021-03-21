@@ -90,6 +90,7 @@ static const char *jtokerr_messages[] = {
     [JTOK_PARSE_STATUS_VAL_NO_COMMA]     = "JTOK_PARSE_STATUS_VAL_NO_COMMA",
     [JTOK_PARSE_STATUS_NON_ARRAY]        = "JTOK_PARSE_STATUS_NON_ARRAY",
     [JTOK_PARSE_STATUS_EMPTY_KEY]        = "JTOK_PARSE_STATUS_EMPTY_KEY",
+    [JTOK_PARSE_STATUS_BAD_STRING]       = "JTOK_PARSE_STATUS_BAD_STRING",
 };
 
 char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err)
@@ -335,7 +336,7 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
     if (buf != NULL)
     {
         unsigned int blen = 0;
-        int k;
+        int          k;
         blen += snprintf(buf + blen, size - blen, "token : ");
         for (k = token.start; k < token.end; k++)
         {

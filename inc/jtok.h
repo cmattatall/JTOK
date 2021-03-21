@@ -58,6 +58,8 @@ typedef enum
     /* key is missing value. ex: {"key\"}*/
     JTOK_PARSE_STATUS_KEY_NO_VAL,
 
+    JTOK_PARSE_STATUS_BAD_STRING,
+
     /* something like { , "key" : 123, } */
     JTOK_PARSE_STATUS_COMMA_NO_KEY,
 
