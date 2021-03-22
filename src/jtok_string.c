@@ -32,7 +32,7 @@ JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser)
         for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++)
         {
             /* Quote: end of string */
-            if (js[parser->pos] == '\"' || js[parser->pos] == '\'')
+            if (js[parser->pos] == start_char)
             {
                 if (start_char == js[parser->pos])
                 {
