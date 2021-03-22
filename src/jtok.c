@@ -288,7 +288,8 @@ bool isValidJson(const jtok_tkn_t *tokens, uint_least8_t tcnt)
 
 
 JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tkns, size_t size)
-{
+{   
+    jtok_parser_t parser;
     JTOK_PARSE_STATUS_t status;
     if (NULL == json)
     {
@@ -304,7 +305,7 @@ JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tkns, size_t size)
     }
     else
     {
-        jtok_parser_t parser = jtok_new_parser(json, tkns, size);
+        parser = jtok_new_parser(json, tkns, size);
 
         /* Skip leading whitespace */
         while (isspace((int)json[parser.pos]))
