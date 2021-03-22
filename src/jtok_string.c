@@ -59,8 +59,7 @@ JTOK_PARSE_STATUS_t jtok_parse_string(jtok_parser_t *parser)
                     return JTOK_PARSE_STATUS_BAD_STRING;
                 }
             }
-
-            if (js[parser->pos] == '\\')
+            else if (js[parser->pos] == '\\')
             {
                 if (parser->pos + sizeof((char)'\"') < (size_t)len)
                 {

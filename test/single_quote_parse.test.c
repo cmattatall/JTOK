@@ -9,9 +9,6 @@
  *
  */
 
-
-/* THIS IS A TEMPLATE FILE FOR CREATING NEW TESTS */
-
 #include <stdio.h>
 
 #include "jtok.h"
