@@ -2,7 +2,7 @@
  * @file jtok.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Statically allocated JTOK parser for embedded systems
- * @version 1.1
+ * @version 2.3
  * @date 2020-11-13
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
@@ -58,12 +58,14 @@ char *jtok_toktypename(JTOK_TYPE_t type)
     return retval;
 }
 
-static const tkn_comparison_func tokcmp_funcs[] = {
+static const bool (*tokcmp_funcs[])(const jtok_tkn_t *const,
+                                    const jtok_tkn_t *const) = {
     [JTOK_PRIMITIVE] = jtok_toktokcmp_primitive,
     [JTOK_OBJECT]    = jtok_toktokcmp_object,
     [JTOK_ARRAY]     = jtok_toktokcmp_array,
     [JTOK_STRING]    = jtok_toktokcmp_string,
 };
+
 
 static const char *jtokerr_messages[] = {
     [JTOK_PARSE_STATUS_OK]            = "JTOK_PARSE_STATUS_OK",
@@ -358,7 +360,7 @@ int jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str)
                 }
                 else
                 {
-                    if (key_tkn->sibling != NO_SIBLING_IDX)
+                    if (key_tkn->sibling != JTOK_NO_SIBLING_IDX)
                     {
                         key_tkn = &tkns[key_tkn->sibling];
                     }
@@ -380,10 +382,10 @@ static jtok_parser_t jtok_new_parser(const char *json_str, jtok_tkn_t *tokens,
     jtok_parser_t parser;
     parser.pos        = 0;
     parser.toknext    = 0;
-    parser.toksuper   = NO_PARENT_IDX;
+    parser.toksuper   = JTOK_NO_PARENT_IDX;
     parser.json       = (char *)json_str;
     parser.json_len   = strlen(json_str);
-    parser.last_child = NO_CHILD_IDX;
+    parser.last_child = JTOK_NO_CHILD_IDX;
     parser.tkn_pool   = tokens;
     parser.pool_size  = poolsize;
     return parser;
