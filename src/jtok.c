@@ -31,33 +31,6 @@ static jtok_parser_t jtok_new_parser(const char *json_str, jtok_tkn_t *tokens,
 static bool          jtok_is_type_aggregate(const jtok_tkn_t *const tkn);
 
 
-char *jtok_toktypename(JTOK_TYPE_t type)
-{
-    static const char *jtok_tkn_type_names[] = {
-        [JTOK_PRIMITIVE]        = "JTOK_PRIMITIVE",
-        [JTOK_OBJECT]           = "JTOK_OBJECT",
-        [JTOK_ARRAY]            = "JTOK_ARRAY",
-        [JTOK_STRING]           = "JTOK_STRING",
-        [JTOK_UNASSIGNED_TOKEN] = "JTOK_UNASSIGNED_TOKEN"};
-    char *retval = NULL;
-    switch (type)
-    {
-        case JTOK_PRIMITIVE:
-        case JTOK_OBJECT:
-        case JTOK_ARRAY:
-        case JTOK_STRING:
-        {
-            retval = (char *)jtok_tkn_type_names[type];
-        }
-        break;
-        default:
-        {
-        }
-        break;
-    }
-    return retval;
-}
-
 static const bool (*tokcmp_funcs[])(const jtok_tkn_t *const,
                                     const jtok_tkn_t *const) = {
     [JTOK_PRIMITIVE] = jtok_toktokcmp_primitive,
@@ -94,6 +67,35 @@ static const char *jtokerr_messages[] = {
     [JTOK_PARSE_STATUS_EMPTY_KEY]        = "JTOK_PARSE_STATUS_EMPTY_KEY",
     [JTOK_PARSE_STATUS_BAD_STRING]       = "JTOK_PARSE_STATUS_BAD_STRING",
 };
+
+
+char *jtok_toktypename(JTOK_TYPE_t type)
+{
+    static const char *jtok_tkn_type_names[] = {
+        [JTOK_PRIMITIVE]        = "JTOK_PRIMITIVE",
+        [JTOK_OBJECT]           = "JTOK_OBJECT",
+        [JTOK_ARRAY]            = "JTOK_ARRAY",
+        [JTOK_STRING]           = "JTOK_STRING",
+        [JTOK_UNASSIGNED_TOKEN] = "JTOK_UNASSIGNED_TOKEN"};
+    char *retval = NULL;
+    switch (type)
+    {
+        case JTOK_PRIMITIVE:
+        case JTOK_OBJECT:
+        case JTOK_ARRAY:
+        case JTOK_STRING:
+        {
+            retval = (char *)jtok_tkn_type_names[type];
+        }
+        break;
+        default:
+        {
+        }
+        break;
+    }
+    return retval;
+}
+
 
 char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err)
 {
@@ -134,6 +136,7 @@ char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err)
     }
     return retval;
 }
+
 
 uint_least16_t jtok_toklen(const jtok_tkn_t *tok)
 {
@@ -191,6 +194,7 @@ bool jtok_tokcmp(const char *str, const jtok_tkn_t *tok)
     return result;
 }
 
+
 bool jtok_tokncmp(const char *str, const jtok_tkn_t *tok, uint_least16_t n)
 {
     bool result = false;
@@ -237,6 +241,7 @@ char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn)
     }
     return result;
 }
+
 
 char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn,
                    uint_least16_t n)
