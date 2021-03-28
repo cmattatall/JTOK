@@ -23,8 +23,6 @@
 #include "jtok_string.h"
 #include "jtok_shared.h"
 
-typedef bool (*tkn_comparison_func)(const jtok_tkn_t *const,
-                                    const jtok_tkn_t *const);
 
 static jtok_parser_t jtok_new_parser(const char *json_str, jtok_tkn_t *tokens,
                                      unsigned int poolsize);
