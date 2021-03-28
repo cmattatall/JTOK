@@ -250,46 +250,9 @@ char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn,
 }
 
 
-bool isValidJson(const jtok_tkn_t *tokens, uint_least8_t tcnt)
-{
-    bool isValid = false;
-    if (tokens != NULL)
-    {
-        if (tcnt > 1)
-        {
-            if (tokens[0].type == JTOK_OBJECT)
-            {
-                isValid = true;
-            }
-
-            if (tcnt == 2) /* Cannot have something like { "myKey" } */
-            {
-                if (tokens[1].type == JTOK_ARRAY)
-                {
-                    /* however, { [ ] } is still technically valid */
-                    isValid = true;
-                }
-            }
-            else
-            {
-                /* First key in a jtok must be a "string" */
-                if (tcnt > 2)
-                {
-                    if (tokens[1].type == JTOK_STRING)
-                    {
-                        isValid = true;
-                    }
-                }
-            }
-        }
-    }
-    return isValid;
-}
-
-
 JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tkns, size_t size)
-{   
-    jtok_parser_t parser;
+{
+    jtok_parser_t       parser;
     JTOK_PARSE_STATUS_t status;
     if (NULL == json)
     {

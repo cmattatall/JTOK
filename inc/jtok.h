@@ -221,17 +221,6 @@ char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn,
 
 
 /**
- * @brief Check if a jtoktok array constitutes a valid jtok structure
- *
- * @param tokens token array
- * @param tcnt number of tokens parsed from some arbitrary jtok string
- * @return true valid
- * @return false invalid
- */
-bool isValidJson(const jtok_tkn_t *tokens, uint_least8_t tcnt);
-
-
-/**
  * @brief Utility wrapper for printing the type name of a jtoktok as a string
  *
  * @param type the type to stringify
