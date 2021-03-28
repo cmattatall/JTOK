@@ -72,7 +72,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, int depth)
     parser->pos++;
 
     /* all arrays start with no children (since they can be empty) */
-    parser->last_child = NO_CHILD_IDX;
+    parser->last_child = JTOK_NO_CHILD_IDX;
 
     for (; parser->pos < parser->json_len && json[parser->pos] != '\0' &&
            status == JTOK_PARSE_STATUS_OK;
@@ -104,7 +104,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, int depth)
                         status = jtok_parse_object(parser, depth + 1);
                         if (status == JTOK_PARSE_STATUS_OK)
                         {
-                            if (parser->last_child != NO_CHILD_IDX)
+                            if (parser->last_child != JTOK_NO_CHILD_IDX)
                             {
                                 /* Link previous child to current child */
                                 tokens[parser->last_child].sibling =
@@ -159,7 +159,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, int depth)
                         status = jtok_parse_array(parser, depth + 1);
                         if (status == JTOK_PARSE_STATUS_OK)
                         {
-                            if (parser->last_child != NO_CHILD_IDX)
+                            if (parser->last_child != JTOK_NO_CHILD_IDX)
                             {
                                 /* Link previous child to current child */
                                 tokens[parser->last_child].sibling =
@@ -246,7 +246,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, int depth)
                         status    = jtok_parse_string(parser);
                         if (status == JTOK_PARSE_STATUS_OK)
                         {
-                            if (parser->last_child != NO_CHILD_IDX)
+                            if (parser->last_child != JTOK_NO_CHILD_IDX)
                             {
                                 /* Link previous child to current child */
                                 tokens[parser->last_child].sibling =
@@ -255,7 +255,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, int depth)
 
                             /* Update last child and increase parent size */
                             parser->last_child = parser->toknext - 1;
-                            if (super != NO_PARENT_IDX)
+                            if (super != JTOK_NO_PARENT_IDX)
                             {
                                 tokens[super].size++;
                             }
@@ -345,7 +345,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, int depth)
                             status    = jtok_parse_primitive(parser);
                             if (status == JTOK_PARSE_STATUS_OK)
                             {
-                                if (parser->last_child != NO_CHILD_IDX)
+                                if (parser->last_child != JTOK_NO_CHILD_IDX)
                                 {
                                     /* Link previous child to current child
                                      */
@@ -356,7 +356,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, int depth)
                                 /* Update last child and increase parent
                                  * size */
                                 parser->last_child = parser->toknext - 1;
-                                if (super != NO_PARENT_IDX)
+                                if (super != JTOK_NO_PARENT_IDX)
                                 {
                                     tokens[super].size++;
                                 }
@@ -427,11 +427,11 @@ bool jtok_toktokcmp_array(const jtok_tkn_t *arr1, const jtok_tkn_t *arr2)
                     is_equal = false;
                 }
 
-                if (child1->sibling == NO_SIBLING_IDX)
+                if (child1->sibling == JTOK_NO_SIBLING_IDX)
                 {
                     /* If this assertion fails there is a logic error
                      * in the actual parser itself */
-                    assert(child2->sibling == NO_SIBLING_IDX);
+                    assert(child2->sibling == JTOK_NO_SIBLING_IDX);
                     break;
                 }
                 else

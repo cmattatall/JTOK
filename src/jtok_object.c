@@ -83,7 +83,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, int depth)
     parser->pos++;
 
     /* all objects start with no children (since they can be empty) */
-    parser->last_child = NO_CHILD_IDX;
+    parser->last_child = JTOK_NO_CHILD_IDX;
 
     for (; parser->pos < len && json[parser->pos] != '\0' &&
            status == JTOK_PARSE_STATUS_OK;
@@ -114,7 +114,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, int depth)
                         status = jtok_parse_object(parser, depth + 1);
                         if (status == JTOK_PARSE_STATUS_OK)
                         {
-                            if (key_idx != NO_PARENT_IDX)
+                            if (key_idx != JTOK_NO_PARENT_IDX)
                             {
                                 tokens[key_idx].size++;
                             }
@@ -155,7 +155,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, int depth)
 
                         if (status == JTOK_PARSE_STATUS_OK)
                         {
-                            if (key_idx != NO_PARENT_IDX)
+                            if (key_idx != JTOK_NO_PARENT_IDX)
                             {
                                 tokens[key_idx].size++;
                             }
@@ -253,14 +253,14 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, int depth)
                             parser->toksuper = parent_obj->parent;
 
                             /* Final item in object has no sibling key */
-                            if (parser->last_child != NO_CHILD_IDX)
+                            if (parser->last_child != JTOK_NO_CHILD_IDX)
                             {
                                 tokens[parser->last_child].sibling =
-                                    NO_SIBLING_IDX;
+                                    JTOK_NO_SIBLING_IDX;
                             }
 
                             /* Update last child */
-                            parser->last_child = NO_CHILD_IDX;
+                            parser->last_child = JTOK_NO_CHILD_IDX;
                         }
                         return status;
                     }
@@ -296,7 +296,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, int depth)
                             status = jtok_parse_string(parser);
                             if (status == JTOK_PARSE_STATUS_OK)
                             {
-                                if (parser->last_child != NO_CHILD_IDX)
+                                if (parser->last_child != JTOK_NO_CHILD_IDX)
                                 {
                                     /* Link previous child to current child */
                                     tokens[parser->last_child].sibling =
@@ -453,7 +453,7 @@ JTOK_PARSE_STATUS_t jtok_parse_object(jtok_parser_t *parser, int depth)
                         status = jtok_parse_primitive(parser);
                         if (status == JTOK_PARSE_STATUS_OK)
                         {
-                            if (parser->toksuper != NO_PARENT_IDX)
+                            if (parser->toksuper != JTOK_NO_PARENT_IDX)
                             {
                                 tokens[parser->toksuper].size++;
                             }
@@ -579,7 +579,7 @@ bool jtok_toktokcmp_object(const jtok_tkn_t *obj1, const jtok_tkn_t *obj2)
                          * child keys and if yes, we repeat the process until
                          * all of obj2's child keys are exhausted */
 
-                        if (child2->sibling == NO_SIBLING_IDX)
+                        if (child2->sibling == JTOK_NO_SIBLING_IDX)
                         {
                             /* We've ran out of children in obj2 to check
                              * against current key in obj1 */

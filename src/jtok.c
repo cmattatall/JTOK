@@ -2,7 +2,7 @@
  * @file jtok.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Statically allocated JTOK parser for embedded systems
- * @version 1.1
+ * @version 2.3
  * @date 2020-11-13
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
@@ -29,6 +29,44 @@ typedef bool (*tkn_comparison_func)(const jtok_tkn_t *const,
 static jtok_parser_t jtok_new_parser(const char *json_str, jtok_tkn_t *tokens,
                                      unsigned int poolsize);
 static bool          jtok_is_type_aggregate(const jtok_tkn_t *const tkn);
+
+
+static const bool (*tokcmp_funcs[])(const jtok_tkn_t *const,
+                                    const jtok_tkn_t *const) = {
+    [JTOK_PRIMITIVE] = jtok_toktokcmp_primitive,
+    [JTOK_OBJECT]    = jtok_toktokcmp_object,
+    [JTOK_ARRAY]     = jtok_toktokcmp_array,
+    [JTOK_STRING]    = jtok_toktokcmp_string,
+};
+
+
+static const char *jtokerr_messages[] = {
+    [JTOK_PARSE_STATUS_OK]            = "JTOK_PARSE_STATUS_OK",
+    [JTOK_PARSE_STATUS_UNKNOWN_ERROR] = "JTOK_PARSE_STATUS_UNKNOWN_ERROR",
+    [JTOK_PARSE_STATUS_NOMEM]         = "JTOK_PARSE_STATUS_NOMEM",
+    [JTOK_PARSE_STATUS_INVAL]         = "JTOK_PARSE_STATUS_INVAL",
+    [JTOK_PARSE_STATUS_PARTIAL_TOKEN] = "JTOK_PARSE_STATUS_PARTIAL_TOKEN",
+    [JTOK_PARSE_STATUS_KEY_NO_VAL]    = "JTOK_PARSE_STATUS_KEY_NO_VAL",
+    [JTOK_PARSE_STATUS_COMMA_NO_KEY]  = "JTOK_PARSE_STATUS_COMMA_NO_KEY",
+    [JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT] =
+        "JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT",
+    [JTOK_PARSE_STATUS_INVALID_PRIMITIVE] =
+        "JTOK_PARSE_STATUS_INVALID_PRIMITIVE",
+    [JTOK_PARSE_STATUS_NON_OBJECT]       = "JTOK_PARSE_STATUS_NON_OBJECT",
+    [JTOK_PARSE_STATUS_INVALID_START]    = "JTOK_PARSE_STATUS_INVALID_START",
+    [JTOK_PARSE_STATUS_INVALID_END]      = "JTOK_PARSE_STATUS_INVALID_END",
+    [JTOK_PARSE_STATUS_OBJ_NOKEY]        = "JTOK_PARSE_STATUS_OBJ_NOKEY",
+    [JTOK_STATUS_MIXED_ARRAY]            = "JTOK_STATUS_MIXED_ARRAY",
+    [JTOK_PARSE_STATUS_ARRAY_SEPARATOR]  = "JTOK_PARSE_STATUS_ARRAY_SEPARATOR",
+    [JTOK_PARSE_STATUS_STRAY_COMMA]      = "JTOK_PARSE_STATUS_STRAY_COMMA",
+    [JTOK_PARSE_STATUS_VAL_NO_COLON]     = "JTOK_PARSE_STATUS_VAL_NO_COLON",
+    [JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL] = "JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL",
+    [JTOK_PARSE_STATUS_INVALID_PARENT]   = "JTOK_PARSE_STATUS_INVALID_PARENT",
+    [JTOK_PARSE_STATUS_VAL_NO_COMMA]     = "JTOK_PARSE_STATUS_VAL_NO_COMMA",
+    [JTOK_PARSE_STATUS_NON_ARRAY]        = "JTOK_PARSE_STATUS_NON_ARRAY",
+    [JTOK_PARSE_STATUS_EMPTY_KEY]        = "JTOK_PARSE_STATUS_EMPTY_KEY",
+    [JTOK_PARSE_STATUS_BAD_STRING]       = "JTOK_PARSE_STATUS_BAD_STRING",
+};
 
 
 char *jtok_toktypename(JTOK_TYPE_t type)
@@ -58,40 +96,6 @@ char *jtok_toktypename(JTOK_TYPE_t type)
     return retval;
 }
 
-static const tkn_comparison_func tokcmp_funcs[] = {
-    [JTOK_PRIMITIVE] = jtok_toktokcmp_primitive,
-    [JTOK_OBJECT]    = jtok_toktokcmp_object,
-    [JTOK_ARRAY]     = jtok_toktokcmp_array,
-    [JTOK_STRING]    = jtok_toktokcmp_string,
-};
-
-static const char *jtokerr_messages[] = {
-    [JTOK_PARSE_STATUS_OK]            = "JTOK_PARSE_STATUS_OK",
-    [JTOK_PARSE_STATUS_UNKNOWN_ERROR] = "JTOK_PARSE_STATUS_UNKNOWN_ERROR",
-    [JTOK_PARSE_STATUS_NOMEM]         = "JTOK_PARSE_STATUS_NOMEM",
-    [JTOK_PARSE_STATUS_INVAL]         = "JTOK_PARSE_STATUS_INVAL",
-    [JTOK_PARSE_STATUS_PARTIAL_TOKEN] = "JTOK_PARSE_STATUS_PARTIAL_TOKEN",
-    [JTOK_PARSE_STATUS_KEY_NO_VAL]    = "JTOK_PARSE_STATUS_KEY_NO_VAL",
-    [JTOK_PARSE_STATUS_COMMA_NO_KEY]  = "JTOK_PARSE_STATUS_COMMA_NO_KEY",
-    [JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT] =
-        "JTOK_PARSE_STATUS_OBJECT_INVALID_PARENT",
-    [JTOK_PARSE_STATUS_INVALID_PRIMITIVE] =
-        "JTOK_PARSE_STATUS_INVALID_PRIMITIVE",
-    [JTOK_PARSE_STATUS_NON_OBJECT]       = "JTOK_PARSE_STATUS_NON_OBJECT",
-    [JTOK_PARSE_STATUS_INVALID_START]    = "JTOK_PARSE_STATUS_INVALID_START",
-    [JTOK_PARSE_STATUS_INVALID_END]      = "JTOK_PARSE_STATUS_INVALID_END",
-    [JTOK_PARSE_STATUS_OBJ_NOKEY]        = "JTOK_PARSE_STATUS_OBJ_NOKEY",
-    [JTOK_STATUS_MIXED_ARRAY]            = "JTOK_STATUS_MIXED_ARRAY",
-    [JTOK_PARSE_STATUS_ARRAY_SEPARATOR]  = "JTOK_PARSE_STATUS_ARRAY_SEPARATOR",
-    [JTOK_PARSE_STATUS_STRAY_COMMA]      = "JTOK_PARSE_STATUS_STRAY_COMMA",
-    [JTOK_PARSE_STATUS_VAL_NO_COLON]     = "JTOK_PARSE_STATUS_VAL_NO_COLON",
-    [JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL] = "JTOK_PARSE_STATUS_KEY_MULTIPLE_VAL",
-    [JTOK_PARSE_STATUS_INVALID_PARENT]   = "JTOK_PARSE_STATUS_INVALID_PARENT",
-    [JTOK_PARSE_STATUS_VAL_NO_COMMA]     = "JTOK_PARSE_STATUS_VAL_NO_COMMA",
-    [JTOK_PARSE_STATUS_NON_ARRAY]        = "JTOK_PARSE_STATUS_NON_ARRAY",
-    [JTOK_PARSE_STATUS_EMPTY_KEY]        = "JTOK_PARSE_STATUS_EMPTY_KEY",
-    [JTOK_PARSE_STATUS_BAD_STRING]       = "JTOK_PARSE_STATUS_BAD_STRING",
-};
 
 char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err)
 {
@@ -132,6 +136,7 @@ char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err)
     }
     return retval;
 }
+
 
 uint_least16_t jtok_toklen(const jtok_tkn_t *tok)
 {
@@ -189,6 +194,7 @@ bool jtok_tokcmp(const char *str, const jtok_tkn_t *tok)
     return result;
 }
 
+
 bool jtok_tokncmp(const char *str, const jtok_tkn_t *tok, uint_least16_t n)
 {
     bool result = false;
@@ -236,6 +242,7 @@ char *jtok_tokcpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn)
     return result;
 }
 
+
 char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn,
                    uint_least16_t n)
 {
@@ -250,46 +257,9 @@ char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn,
 }
 
 
-bool isValidJson(const jtok_tkn_t *tokens, uint_least8_t tcnt)
-{
-    bool isValid = false;
-    if (tokens != NULL)
-    {
-        if (tcnt > 1)
-        {
-            if (tokens[0].type == JTOK_OBJECT)
-            {
-                isValid = true;
-            }
-
-            if (tcnt == 2) /* Cannot have something like { "myKey" } */
-            {
-                if (tokens[1].type == JTOK_ARRAY)
-                {
-                    /* however, { [ ] } is still technically valid */
-                    isValid = true;
-                }
-            }
-            else
-            {
-                /* First key in a jtok must be a "string" */
-                if (tcnt > 2)
-                {
-                    if (tokens[1].type == JTOK_STRING)
-                    {
-                        isValid = true;
-                    }
-                }
-            }
-        }
-    }
-    return isValid;
-}
-
-
 JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tkns, size_t size)
-{   
-    jtok_parser_t parser;
+{
+    jtok_parser_t       parser;
     JTOK_PARSE_STATUS_t status;
     if (NULL == json)
     {
@@ -395,7 +365,7 @@ int jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str)
                 }
                 else
                 {
-                    if (key_tkn->sibling != NO_SIBLING_IDX)
+                    if (key_tkn->sibling != JTOK_NO_SIBLING_IDX)
                     {
                         key_tkn = &tkns[key_tkn->sibling];
                     }
@@ -417,10 +387,10 @@ static jtok_parser_t jtok_new_parser(const char *json_str, jtok_tkn_t *tokens,
     jtok_parser_t parser;
     parser.pos        = 0;
     parser.toknext    = 0;
-    parser.toksuper   = NO_PARENT_IDX;
+    parser.toksuper   = JTOK_NO_PARENT_IDX;
     parser.json       = (char *)json_str;
     parser.json_len   = strlen(json_str);
-    parser.last_child = NO_CHILD_IDX;
+    parser.last_child = JTOK_NO_CHILD_IDX;
     parser.tkn_pool   = tokens;
     parser.pool_size  = poolsize;
     return parser;

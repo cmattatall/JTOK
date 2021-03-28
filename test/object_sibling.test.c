@@ -26,21 +26,22 @@ static const struct
 } table[] = {
 
     {.json         = "{\"a\":[1,2,3,4,5,6],\"b\":3}",
-     .sibling_tree = {NO_SIBLING_IDX, 9, NO_SIBLING_IDX}},
+     .sibling_tree = {JTOK_NO_SIBLING_IDX, 9, JTOK_NO_SIBLING_IDX}},
 
-    {.json = "{\"a\":1}", .sibling_tree = {NO_SIBLING_IDX, NO_SIBLING_IDX}},
+    {.json         = "{\"a\":1}",
+     .sibling_tree = {JTOK_NO_SIBLING_IDX, JTOK_NO_SIBLING_IDX}},
 
     {.json         = "{\"a\":1,\"b\":2}}",
-     .sibling_tree = {NO_SIBLING_IDX, 3, NO_SIBLING_IDX}},
+     .sibling_tree = {JTOK_NO_SIBLING_IDX, 3, JTOK_NO_SIBLING_IDX}},
 
     {.json         = "{\"a\":1,\"b\":2,\"c\":[]}}",
-     .sibling_tree = {NO_SIBLING_IDX, 3, 5, NO_SIBLING_IDX}},
+     .sibling_tree = {JTOK_NO_SIBLING_IDX, 3, 5, JTOK_NO_SIBLING_IDX}},
 
     {.json         = "{\"a\":1,\"b\":2,\"c\":[], \"d\":{}}}",
-     .sibling_tree = {NO_SIBLING_IDX, 3, 5, 7, NO_SIBLING_IDX}},
+     .sibling_tree = {JTOK_NO_SIBLING_IDX, 3, 5, 7, JTOK_NO_SIBLING_IDX}},
 
     {.json         = "{\"a\":{\"a1\":1,\"a2\":2},\"b\":3}",
-     .sibling_tree = {NO_SIBLING_IDX, 7, NO_SIBLING_IDX}},
+     .sibling_tree = {JTOK_NO_SIBLING_IDX, 7, JTOK_NO_SIBLING_IDX}},
 
 
 };
@@ -72,7 +73,7 @@ int main(void)
                 if (s == 0)
                 {
                     /* Top level json object CANNOT have siblings */
-                    if (current_tkn->sibling != NO_SIBLING_IDX)
+                    if (current_tkn->sibling != JTOK_NO_SIBLING_IDX)
                     {
                         printf("Failed.\n");
                         return -1;
@@ -95,7 +96,7 @@ int main(void)
                         /* Walk to next sibling */
                         current_tkn = &tokens[current_tkn->sibling];
 
-                        if (current_tkn->sibling == NO_SIBLING_IDX)
+                        if (current_tkn->sibling == JTOK_NO_SIBLING_IDX)
                         {
                             break;
                         }

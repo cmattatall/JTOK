@@ -12,12 +12,16 @@ extern "C" {
 #include <limits.h>
 
 #define INVALID_ARRAY_INDEX (-1)
-#define NO_PARENT_IDX (INVALID_ARRAY_INDEX)
-#define NO_SIBLING_IDX (INVALID_ARRAY_INDEX)
-#define NO_CHILD_IDX (INVALID_ARRAY_INDEX)
+#define JTOK_NO_PARENT_IDX (INVALID_ARRAY_INDEX)
+#define JTOK_NO_SIBLING_IDX (INVALID_ARRAY_INDEX)
+#define JTOK_NO_CHILD_IDX (INVALID_ARRAY_INDEX)
 #define JTOK_STRING_INDEX_NONE (INVALID_ARRAY_INDEX)
 
+/* The highest level of object nesting before a DFS recursion error
+ * is issued */
+#ifndef JTOK_MAX_RECURSE_DEPTH
 #define JTOK_MAX_RECURSE_DEPTH 25
+#endif /* #ifndef JTOK_MAX_RECURSE_DEPTH */
 
 /**
  * JTOK type identifier. Basic types are:
@@ -113,43 +117,29 @@ typedef enum
 } JTOK_PARSE_STATUS_t;
 
 
-typedef enum
-{
-    JTOK_VALUE_TYPE_not_a_value_tkn,
-    JTOK_VALUE_TYPE_uint,
-    JTOK_VALUE_TYPE_int,
-    JTOK_VALUE_TYPE_real,
-    JTOK_VALUE_TYPE_boolean,
-    JTOK_VALUE_TYPE_empty,
-    JTOK_VALUE_TYPE_null,
-    JTOK_VALUE_TYPE_str,
-} JTOK_VALUE_TYPE_t;
-
-
 typedef struct jtok_tkn_struct jtok_tkn_t;
 struct jtok_tkn_struct
 {
-
-    char *      json;    /* json string into which the data structure inserts */
-    jtok_tkn_t *pool;    /* Token pool */
-    JTOK_TYPE_t type;    /* type (object, array, string etc.) */
     int         start;   /* start position in JTOK data string */
     int         end;     /* end position in JTOK data string */
     int         size;    /* number of child tokens */
     int         parent;  /* index of parent token in the token pool */
     int         sibling; /* index of next token that shares the same parent */
+    char *      json;    /* json string into which the data structure inserts */
+    jtok_tkn_t *pool;    /* Token pool */
+    JTOK_TYPE_t type;    /* type (object, array, string etc.) */
 };
 
 typedef struct
 {
-    char *       json;      /* ptr to start of json string */
-    jtok_tkn_t * tkn_pool;  /* token pool */
-    unsigned int pool_size; /* pool size */
-    int          json_len;  /* max length of json string   */
-    int          pos;       /* current parsing index in json string */
-    int          toknext;   /* index of next token to allocate */
+    int          json_len; /* max length of json string   */
+    int          pos;      /* current parsing index in json string */
+    int          toknext;  /* index of next token to allocate */
     int          toksuper; /* superior token node, e.g parent object or array */
     int          last_child; /* index of last sibling parsed */
+    unsigned int pool_size;  /* pool size */
+    jtok_tkn_t * tkn_pool;   /* token pool */
+    char *       json;       /* ptr to start of json string */
 } jtok_parser_t;
 
 
@@ -221,17 +211,6 @@ char *jtok_tokncpy(char *dst, uint_least16_t bufsize, const jtok_tkn_t *tkn,
 
 
 /**
- * @brief Check if a jtoktok array constitutes a valid jtok structure
- *
- * @param tokens token array
- * @param tcnt number of tokens parsed from some arbitrary jtok string
- * @return true valid
- * @return false invalid
- */
-bool isValidJson(const jtok_tkn_t *tokens, uint_least8_t tcnt);
-
-
-/**
  * @brief Utility wrapper for printing the type name of a jtoktok as a string
  *
  * @param type the type to stringify
@@ -285,24 +264,6 @@ int jtok_token_tostr(char *buf, unsigned int size, const char *json,
  * @note Tokens with different types are never equal
  */
 bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
-
-
-#if 0
-typedef struct
-{
-    jtok_tkn_t *key;
-    jtok_tkn_t *value;
-} jtok_keyval_pair_t;
-
-
-typedef struct
-{
-    jtok_keyval_pair_t *next;
-    jtok_keyval_pair_t this;
-} jtok_keyval_pair_node_t;
-
-jtok_keyval_pair_node_t *jtok_get_children(const jtok_tkn_t *obj);
-#endif
 
 
 /**

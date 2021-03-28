@@ -46,8 +46,8 @@ jtok_tkn_t *jtok_alloc_token(jtok_parser_t *parser)
     tok->pool  = parser->tkn_pool;
     tok->start = tok->end = INVALID_ARRAY_INDEX;
     tok->size             = 0;
-    tok->parent           = NO_PARENT_IDX;
+    tok->parent           = JTOK_NO_PARENT_IDX;
     tok->json             = parser->json;
-    tok->sibling          = NO_SIBLING_IDX;
+    tok->sibling          = JTOK_NO_SIBLING_IDX;
     return tok;
 }
