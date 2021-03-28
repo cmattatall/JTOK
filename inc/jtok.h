@@ -11,11 +11,11 @@ extern "C" {
 #include <stdbool.h>
 #include <limits.h>
 
-#define INVALID_ARRAY_INDEX (-1)
-#define JTOK_NO_PARENT_IDX (INVALID_ARRAY_INDEX)
-#define JTOK_NO_SIBLING_IDX (INVALID_ARRAY_INDEX)
-#define JTOK_NO_CHILD_IDX (INVALID_ARRAY_INDEX)
-#define JTOK_STRING_INDEX_NONE (INVALID_ARRAY_INDEX)
+#define JTOK_INVALID_ARRAY_INDEX (-1)
+#define JTOK_NO_PARENT_IDX (JTOK_INVALID_ARRAY_INDEX)
+#define JTOK_NO_SIBLING_IDX (JTOK_INVALID_ARRAY_INDEX)
+#define JTOK_NO_CHILD_IDX (JTOK_INVALID_ARRAY_INDEX)
+#define JTOK_STRING_INDEX_NONE (JTOK_INVALID_ARRAY_INDEX)
 
 /* The highest level of object nesting before a DFS recursion error
  * is issued */
@@ -267,13 +267,15 @@ bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
 
 
 /**
- * @brief Get the
+ * @brief check if a json object has a given key
  *
- * @param obj
- * @param key
- * @return int
+ * @param obj jtok object to search
+ * @param key_str string of key. MUST BE NUL-TERMINATED
+ * @return jtok_tkn_t* address of key upon match, else NULL
+ *
+ * @warning undefined behaviour if key_str is not nul-terminated
  */
-int jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str);
+jtok_tkn_t *jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str);
 
 
 #ifdef __cplusplus

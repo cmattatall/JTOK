@@ -17,8 +17,8 @@
 
 static const struct
 {
-    char         json[250];
-    unsigned int size;
+    char json[250];
+    int  size;
 } true_table[] = {
     {
         .json = "{}",

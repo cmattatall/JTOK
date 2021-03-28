@@ -21,8 +21,8 @@
 
 static const struct
 {
-    char         json[JSON_STRLEN];
-    unsigned int sibling_tree[SIBLING_TREE_SIZE];
+    char json[JSON_STRLEN];
+    int  sibling_tree[SIBLING_TREE_SIZE];
 } table[] = {
 
     {.json         = "{\"a\":[1,2,3,4,5,6],\"b\":3}",
@@ -66,8 +66,8 @@ int main(void)
         }
         else
         {
-            unsigned int s;
-            jtok_tkn_t * current_tkn = tokens;
+            long        s;
+            jtok_tkn_t *current_tkn = tokens;
             for (s = 0; s < SIBLING_TREE_SIZE && s < tokens[0].size; s++)
             {
                 if (s == 0)

@@ -31,7 +31,7 @@ static jtok_parser_t jtok_new_parser(const char *json_str, jtok_tkn_t *tokens,
 static bool          jtok_is_type_aggregate(const jtok_tkn_t *const tkn);
 
 
-static const bool (*tokcmp_funcs[])(const jtok_tkn_t *const,
+static bool (*const tokcmp_funcs[])(const jtok_tkn_t *const,
                                     const jtok_tkn_t *const) = {
     [JTOK_PRIMITIVE] = jtok_toktokcmp_primitive,
     [JTOK_OBJECT]    = jtok_toktokcmp_object,
@@ -342,32 +342,31 @@ bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2)
 }
 
 
-int jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str)
+jtok_tkn_t *jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str)
 {
-    int key_idx = INVALID_ARRAY_INDEX;
+    jtok_tkn_t *key = NULL;
     if (obj->type == JTOK_OBJECT)
     {
         size_t      i;
         jtok_tkn_t *tkns = obj->pool;
-        jtok_tkn_t *key_tkn;
+        jtok_tkn_t *cur_key_tkn;
         if (obj->size > 0)
         {
-            key_tkn = (jtok_tkn_t *)(obj + 1);
+            cur_key_tkn = (jtok_tkn_t *)(obj + 1);
             for (i = 0; i < (size_t)obj->size; i++)
             {
                 /* If size is nonzero, first key of object will be RIGHT AFTER
                  */
-                if (jtok_tokcmp(key_str, key_tkn))
+                if (jtok_tokcmp(key_str, cur_key_tkn))
                 {
-                    key_idx = key_tkn - tkns;
-                    key_idx = key_idx / sizeof(*key_tkn);
+                    key = cur_key_tkn;
                     break;
                 }
                 else
                 {
-                    if (key_tkn->sibling != JTOK_NO_SIBLING_IDX)
+                    if (cur_key_tkn->sibling != JTOK_NO_SIBLING_IDX)
                     {
-                        key_tkn = &tkns[key_tkn->sibling];
+                        cur_key_tkn = &tkns[cur_key_tkn->sibling];
                     }
                     else
                     {
@@ -377,7 +376,7 @@ int jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str)
             }
         }
     }
-    return key_idx;
+    return key;
 }
 
 

@@ -39,15 +39,15 @@ static const struct
     {.json = "{\"a\":1, \"b\":2}", .parent = {-1, 0, 1, 0, 3}},
 };
 
-static jtok_tkn_t    tokens[TOKEN_MAX];
-int                  main(void)
+static jtok_tkn_t tokens[TOKEN_MAX];
+int               main(void)
 {
     setup();
     unsigned long long i;
     unsigned long long max_i = sizeof(table) / sizeof(*table);
 
     for (i = 0; i < max_i; i++)
-    {   
+    {
         JTOK_PARSE_STATUS_t status;
         status = jtok_parse(table[i].json, tokens, TOKEN_MAX);
         if (JTOK_PARSE_STATUS_OK != status)
@@ -55,10 +55,9 @@ int                  main(void)
             printf("%s Failed json parsing!\n", table[i].json);
             return -1;
         }
-        unsigned long j;
-
         printf("Testing parent tree nodes for json %s ... ", table[i].json);
 
+        long j;
         for (j = 0; j < tokens[0].size; j++)
         {
             if (tokens[j].parent != table[i].parent[j])
