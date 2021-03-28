@@ -66,7 +66,7 @@ JTOK_PARSE_STATUS_t jtok_parse_array(jtok_parser_t *parser, int depth)
     int array_token_index = parser->toksuper;
 
     /* end of token will be populated when we find the closing brace */
-    jtok_fill_token(token, JTOK_ARRAY, parser->pos, INVALID_ARRAY_INDEX);
+    jtok_fill_token(token, JTOK_ARRAY, parser->pos, JTOK_INVALID_ARRAY_INDEX);
 
     /* go inside the object */
     parser->pos++;

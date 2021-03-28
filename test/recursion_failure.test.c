@@ -21,7 +21,7 @@ static const char *invalidJSON[] = {
 };
 
 static jtok_tkn_t tokens[TOKEN_MAX];
-int               main(int argc, char **argv)
+int               main(void)
 {
     unsigned int i;
     unsigned int max_i = sizeof(invalidJSON) / sizeof(*invalidJSON);
