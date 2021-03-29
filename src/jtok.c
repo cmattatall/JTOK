@@ -122,12 +122,14 @@ char *jtok_jtokerr_messages(JTOK_PARSE_STATUS_t err)
         case JTOK_PARSE_STATUS_VAL_NO_COMMA:
         case JTOK_PARSE_STATUS_NON_ARRAY:
         case JTOK_PARSE_STATUS_EMPTY_KEY:
+        case JTOK_PARSE_STATUS_BAD_STRING:
         {
             retval = (char *)jtokerr_messages[err];
         }
         break;
         default:
         {
+            assert(0);
             retval = NULL;
         }
         break;
@@ -375,6 +377,40 @@ jtok_tkn_t *jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str)
         }
     }
     return key;
+}
+
+
+jtok_tkn_t *jtok_get_child(const jtok_tkn_t *obj)
+{
+    if (obj == NULL || obj->size == -1)
+    {
+        return NULL;
+    }
+    else
+    {
+        return (jtok_tkn_t *)(obj + 1);
+    }
+}
+
+
+jtok_tkn_t *jtok_get_next_sibling(const jtok_tkn_t *child)
+{
+    if (child == NULL || child->parent == JTOK_NO_PARENT_IDX)
+    {
+        return NULL;
+    }
+    else
+    {
+        if (child->sibling == JTOK_NO_SIBLING_IDX)
+        {
+            return NULL;
+        }
+        else
+        {
+            jtok_tkn_t *token_pool = child->pool;
+            return &token_pool[child->sibling];
+        }
+    }
 }
 
 
