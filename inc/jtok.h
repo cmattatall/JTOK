@@ -278,6 +278,25 @@ bool jtok_toktokcmp(const jtok_tkn_t *tkn1, const jtok_tkn_t *tkn2);
 jtok_tkn_t *jtok_obj_has_key(const jtok_tkn_t *obj, const char *key_str);
 
 
+/**
+ * @brief Get the first child token owned by the current token
+ *
+ * @param obj jtok token
+ * @return jtok_tkn_t* address of child token if it exists, else NULL
+ */
+jtok_tkn_t *jtok_get_child(const jtok_tkn_t *obj);
+
+
+/**
+ * @brief Get the next token with the same parent as child
+ *
+ * @param child the child token
+ * @return jtok_tkn_t* address of next token with same parent if it exists,
+ * else NULL
+ */
+jtok_tkn_t *jtok_get_next_sibling(const jtok_tkn_t *child);
+
+
 #ifdef __cplusplus
 }
 #endif
