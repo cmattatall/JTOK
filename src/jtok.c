@@ -284,6 +284,13 @@ JTOK_PARSE_STATUS_t jtok_parse(const char *json, jtok_tkn_t *tkns, size_t size)
         }
         status = jtok_parse_object(&parser, 0);
     }
+
+  // Populates remaining unused tokens with JTOK_UNASSIGNED_TOKEN
+  // - Alex
+  for (int x = parser.toknext; x < size; x++) {
+    tkns[x].type = JTOK_UNASSIGNED_TOKEN;
+  }
+
     return status;
 }
 
