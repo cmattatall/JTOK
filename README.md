@@ -8,8 +8,7 @@ However, this can be built standalone and manually linked with the typical cmake
 
 # Usage 
 
-If you've used the JSMN API before, the usage is identical. The only difference is the function "namespace" is not jtok, rather than jsmn.
-
+If you've used the JSMN API before, the usage is identical. The only difference is the function "namespace" is jtok, rather than jsmn.
 e.g. `jtok_parse` rather than `jsmn_parse`
 
 For documentation on the JSMN API, please visit the API section for JSMN link in https://www.json.org/json-en.html
